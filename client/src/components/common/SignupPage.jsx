@@ -11,7 +11,7 @@ const SignupPage = () => {
     "Sign Up to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!"
   );
 
-  const headerData = [{ signupHeader: signupHeader, alt: "Signup Header" }];
+  const headerData = [{ url: signupHeader, alt: "Signup Header" }];
 
   const inputData = [
     {
@@ -55,9 +55,12 @@ const SignupPage = () => {
           title={title}
           description={description}
           inputData={inputData}
+          buttonText="Sign Up"
         />
-        <FormFooter />
-        
+        <FormFooter
+          accDetails="Have an account?"
+          switchTo="Login"
+        />
       </div>
     </div>
   );

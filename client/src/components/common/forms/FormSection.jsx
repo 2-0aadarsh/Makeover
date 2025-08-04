@@ -5,7 +5,7 @@ import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import { useNavigate } from "react-router-dom";
 
-const FormSection = ({ title, description, inputData }) => {
+const FormSection = ({ title, description, inputData, forgetPassword, buttonText }) => {
   const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,7 +43,7 @@ const FormSection = ({ title, description, inputData }) => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 font-inter">
       <h2 className="title font-semibold text-[22px]">{title}</h2>
       <p className="text-[12px] text-[#313957]">{description}</p>
 
@@ -62,9 +62,17 @@ const FormSection = ({ title, description, inputData }) => {
             onChange={handleChange}
           />
         ))}
+        {forgetPassword && (
+          <button
+            className="text-[#000000] font-inter text-[12px] font-semibold underline flex justify-end -mt-4"
+            onClick={forgetPassword}
+          >
+            Forget Password?
+          </button>
+        )}
 
         <Button
-          content="Sign Up"
+          content={buttonText}
           css="rounded-[26px] py-1 px-3 hover:bg-[#CC2B52]/90 transition-all duration-300"
           type="submit"
         />
