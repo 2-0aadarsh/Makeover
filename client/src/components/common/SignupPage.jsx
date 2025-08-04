@@ -29,7 +29,7 @@ const SignupPage = () => {
     {
       labelName: "phone number",
       type: "number",
-      id: "number",
+      id: "phoneNumber",
       placeholder: "Enter Your Phone Number",
     },
     {
@@ -41,7 +41,7 @@ const SignupPage = () => {
     {
       labelName: "confirm password",
       type: "password",
-      id: "confirm-password",
+      id: "confirmPassword",
       placeholder: "Confirm Your Password",
     },
   ];
