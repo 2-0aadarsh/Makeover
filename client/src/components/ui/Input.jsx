@@ -3,17 +3,26 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; 
 
-const Input = ({ labelName, type, id, placeholder, value, onChange }) => {
-   const [showPassword, setShowPassword] = useState(false);
-   const isPassword = type === "password";
+const Input = ({
+  labelName,
+  type,
+  id,
+  placeholder,
+  value,
+  onChange,
+  inputcss,
+  labelcss,
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
 
-   const togglePasswordVisibility = () => {
-     setShowPassword((prev) => !prev);
-   };
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return (
-    <div className="input flex flex-col gap-1 font-inter relative">
-      <label htmlFor={id} className="text-sm capitalize ml-1">
+    <div className="input flex flex-col gap-2 font-inter relative">
+      <label htmlFor={id} className={`text-sm capitalize ml-1 ${labelcss}`}>
         {labelName}
       </label>
       <input
@@ -21,7 +30,7 @@ const Input = ({ labelName, type, id, placeholder, value, onChange }) => {
         id={id}
         value={value} // Controlled component
         onChange={onChange}
-        className="w-full p-1 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52]"
+        className={`w-full p-1 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] ${inputcss}`}
         placeholder={placeholder}
       />
 

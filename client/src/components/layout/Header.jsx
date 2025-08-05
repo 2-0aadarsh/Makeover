@@ -15,7 +15,7 @@ const Header = () => {
 
       <div className="nav-links flex gap-[60px]">
         {navigationLinks.map((link, index) => (
-          <NavLink to={link.to} key={index} tabIndex={0} className="text-sm">
+          <NavLink to={link.to} key={index} tabIndex={0} className="text-sm leading-6 font-semibold font-inter">
             {link.linkName}
           </NavLink>
         ))}

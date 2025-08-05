@@ -1,8 +1,15 @@
 /* eslint-disable react/prop-types */
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-const FormFooter = ({accDetails, switchTo}) => {
+const FormFooter = ({accDetails, switchToButton, switchTo}) => {
+  const navigate = useNavigate();
+
+  const handleSwitch = (switchTo) => {
+    navigate(switchTo);
+  }
+
   return (
     <div className="flex flex-col gap-4 py-4 font-inter">
       <div className="social-sign-in flex flex-col gap-4">
@@ -26,8 +33,12 @@ const FormFooter = ({accDetails, switchTo}) => {
 
       <div className="having-an-acc text-sm text-[#313957] text-center font-[400] flex items-center justify-center gap-1">
         {accDetails}
-        <span className="text-[#CC2B52] font-medium" tabIndex={0}>
-          {switchTo}
+        <span
+          className="text-[#CC2B52] font-medium cursor-pointer"
+          tabIndex={0}
+          onClick={() => handleSwitch(switchTo)}
+        >
+          {switchToButton}
         </span>
       </div>
 

@@ -47,7 +47,7 @@ const SignupPage = () => {
   ];
 
   return (
-    <div className="flex justify-center ">
+    <div className="flex justify-center mt-20">
       <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
         <FormHeader headerData={headerData} />
 
@@ -59,7 +59,8 @@ const SignupPage = () => {
         />
         <FormFooter
           accDetails="Have an account?"
-          switchTo="Login"
+          switchToButton="Login"
+          switchTo="/login"
         />
       </div>
     </div>

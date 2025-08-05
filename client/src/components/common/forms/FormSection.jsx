@@ -5,7 +5,7 @@ import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import { useNavigate } from "react-router-dom";
 
-const FormSection = ({ title, description, inputData, forgetPassword, buttonText }) => {
+const FormSection = ({ title='', description='', inputData, forgetPassword, buttonText, inputcss, labelcss }) => {
   const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     name: "",
@@ -60,6 +60,8 @@ const FormSection = ({ title, description, inputData, forgetPassword, buttonText
             placeholder={input.placeholder}
             value={formData[input.id]} // Controlled input
             onChange={handleChange}
+            inputcss={inputcss}
+            labelcss={labelcss}
           />
         ))}
         {forgetPassword && (
@@ -73,7 +75,7 @@ const FormSection = ({ title, description, inputData, forgetPassword, buttonText
 
         <Button
           content={buttonText}
-          css="rounded-[26px] py-1 px-3 hover:bg-[#CC2B52]/90 transition-all duration-300"
+          css="rounded-[26px] py-1 px-3 "
           type="submit"
         />
 

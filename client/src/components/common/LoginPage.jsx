@@ -7,6 +7,7 @@ import loginHeader from '../../assets/loginHeader.jpg';
 import { useState } from 'react';
 
 const LoginPage = () => {
+
   const [title, setTitle] = useState("Welcome Back Gorgeous  👋");
   const [description, setDescription] = useState("Sign in to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!");
 
@@ -27,7 +28,7 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="flex justify-center ">
+    <div className="flex justify-center mt-20">
       <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
         <FormHeader headerData={headerData} />
 
@@ -43,7 +44,8 @@ const LoginPage = () => {
 
         <FormFooter
           accDetails="Don't you have an account?"
-          switchTo="Sign Up"
+          switchToButton="Sign Up"
+          switchTo="/signup"
         />
       </div>
     </div>

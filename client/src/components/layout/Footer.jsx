@@ -15,7 +15,7 @@ const legalLinks = [
 
 const Footer = () => {
   return (
-    <footer className="px-10 md:px-20 py-4 font-inter text-sm">
+    <footer className="px-10 md:px-20 py-10 font-inter text-sm">
       {/* Top Section */}
       <div className="flex flex-col md:flex-row justify-between items-center border-b border-gray-300 pb-3">
         <Logo />
