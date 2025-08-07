@@ -1,25 +1,25 @@
-// src/hooks/useSignup.js
+// src/hooks/useVerifyOtp.js
 import { useState } from 'react';
 
-const useSignup = () => {
+const useVerifyOtp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const signup = async (formData) => {
+  const verifyOtp = async ({ otp, email }) => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch('http://localhost:3000/auth/register', {
+      const res = await fetch('http://localhost:3000/auth/register/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ otp, email }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data?.message || 'Signup failed');
+        setError(data?.message || 'OTP verification failed');
         return null;
       }
 
@@ -32,7 +32,7 @@ const useSignup = () => {
     }
   };
 
-  return { signup, loading, error };
+  return { verifyOtp, loading, error };
 };
 
-export default useSignup;
+export default useVerifyOtp;

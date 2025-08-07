@@ -1,89 +1,75 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
-import useSignup from "../../../hooks/useSignup";
-import Button from "../../ui/Button";
 import Input from "../../ui/Input";
-import { useNavigate } from "react-router-dom";
+import Button from "../../ui/Button";
 
-const FormSection = ({ title='', description='', inputData, forgetPassword, buttonText, inputcss, labelcss }) => {
-  const navigate = useNavigate(); 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const { signup, error } = useSignup(); // useSignup returns signup function and error state
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await signup(formData);
-    if (response) {
-      // clear form data on successful signup
-      setFormData({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        password: "",
-        confirmPassword: "",
-      });
-      // Then we can redirect to HomePage
-      navigate("/")
-    }
-  };
-
+const FormSection = ({
+  title = "",
+  description = "",
+  inputData = [],
+  formData = {},
+  onInputChange,
+  onSubmit,
+  forgetPassword,
+  buttonText = "Submit",
+  inputcss = "",
+  labelcss = "",
+  buttoncss = "",
+  error = "",
+  isLoading = false,
+}) => {
   return (
     <div className="flex flex-col gap-3 font-inter">
-      <h2 className="title font-semibold text-[22px]">{title}</h2>
-      <p className="text-[12px] text-[#313957]">{description}</p>
+      {title && (
+        <h2 className="title font-semibold text-[22px] text-[#CC2B52]">
+          {title}
+        </h2>
+      )}
 
-      <form
-        className="input-containers flex flex-col gap-6"
-        onSubmit={handleSubmit}
-      >
+      {description && (
+        <p className="text-sm text-[#313957] mb-4">{description}</p>
+      )}
+
+      <form className="flex flex-col gap-6" onSubmit={onSubmit}>
         {inputData.map((input, index) => (
           <Input
-            key={index}
+            key={`${input.id}-${index}`}
             labelName={input.labelName}
             type={input.type}
             id={input.id}
+            name={input.id}
             placeholder={input.placeholder}
-            value={formData[input.id]} // Controlled input
-            onChange={handleChange}
+            value={formData[input.id] || ""}
+            onChange={onInputChange}
             inputcss={inputcss}
             labelcss={labelcss}
+            required={input.required}
           />
         ))}
+
         {forgetPassword && (
           <button
-            className="text-[#000000] font-inter text-[12px] font-semibold underline flex justify-end -mt-4"
+            type="button"
+            className="text-[#000000] text-right text-sm font-medium underline -mt-2"
             onClick={forgetPassword}
           >
-            Forget Password?
+            Forgot Password?
           </button>
         )}
 
         <Button
-          content={buttonText}
-          css="rounded-[26px] py-1 px-3 "
           type="submit"
+          content={isLoading ? "Processing..." : buttonText}
+          css={`rounded-[26px] py-3 w-full ${buttoncss}`}
+          disabled={isLoading}
+          style={{ backgroundColor: "#CC2B52", color: "white" }}
         />
 
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+        {error && (
+          <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+        )}
       </form>
     </div>
   );
 };
 
 export default FormSection;
-
