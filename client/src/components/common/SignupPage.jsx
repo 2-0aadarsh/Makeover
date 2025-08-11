@@ -72,24 +72,36 @@ const SignupPage = () => {
 
   return (
     <div className="flex justify-center mt-20">
+<<<<<<< Updated upstream
       <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
+=======
+      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
+>>>>>>> Stashed changes
         <FormHeader headerData={headerData} />
 
         <FormSection
           title="Create Your Account 👋"
           description="Sign Up to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!"
           inputData={inputData}
+<<<<<<< Updated upstream
           formData={formData}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
           buttonText="Sign Up"
           error={error}
           isLoading={isLoading}
+=======
+          buttonText="Sign Up"
+>>>>>>> Stashed changes
         />
         <FormFooter
           accDetails="Have an account?"
           switchToButton="Login"
+<<<<<<< Updated upstream
           switchTo="/auth/login"
+=======
+          switchTo="/login"
+>>>>>>> Stashed changes
         />
       </div>
     </div>

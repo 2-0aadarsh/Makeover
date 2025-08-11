@@ -1,16 +1,20 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HomePage from "../pages/HomePage";
-import GalleryPage from "../pages/GalleryPage";
+
 import AboutPage from "../pages/AboutPage";
 import ContactPage from "../pages/ContactPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
+<<<<<<< Updated upstream
 import AuthLayout from "../components/layout/AuthLayout";
 import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
+=======
+import GalleryPage from "../components/common/home/GalleryPage";
+>>>>>>> Stashed changes
 
 export const router = createBrowserRouter([
   {
