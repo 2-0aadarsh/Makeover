@@ -10,7 +10,7 @@ const Button = ({ content, redirect, css, onClickFunction }) => {
 
   return (
     <button
-      className={`py-2 px-4 bg-[#CC2B52] text-white rounded-sm text-sm ${css}`}
+      className={`py-2 px-4 bg-[#CC2B52] hover:bg-[#CC2B52]/90 transition-all duration-300 text-white rounded-sm text-sm ${css}`}
       onClick={onClickFunction ? onClickFunction : handleClick}
       tabIndex={0}
     >
