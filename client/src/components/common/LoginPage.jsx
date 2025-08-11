@@ -7,6 +7,7 @@ import loginHeader from '../../assets/loginHeader.jpg';
 import { useState } from 'react';
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { useNavigate } from 'react-router-dom';
 
 
@@ -55,6 +56,14 @@ const LoginPage = () => {
   const [description, setDescription] = useState("Sign in to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!");
 
 >>>>>>> Stashed changes
+=======
+
+const LoginPage = () => {
+
+  const [title, setTitle] = useState("Welcome Back Gorgeous  👋");
+  const [description, setDescription] = useState("Sign in to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!");
+
+>>>>>>> Stashed changes
   const headerData = [{ url: loginHeader, alt: "Login Header" }];
   const inputData = [
     {
@@ -75,8 +84,11 @@ const LoginPage = () => {
     <div className="flex justify-center mt-20">
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
       <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
@@ -89,11 +101,14 @@ const LoginPage = () => {
           inputData={inputData}
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           formData={formData}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
           error="error"
           isLoading="isLoading"
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
