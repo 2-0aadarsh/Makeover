@@ -6,7 +6,10 @@ import helmet from 'helmet';
 import authRouter from './routes/auth.routes.js';
 import connectDB from './configs/mongodb.config.js';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import redis from './configs/redis.config.js';
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 
@@ -48,6 +51,7 @@ app.disable('x-powered-by')
 
 connectDB()
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 redis.on('connect', () => {
   console.log('Redis connected');
 });
@@ -55,6 +59,8 @@ redis.on('connect', () => {
 redis.on('error', (err) => {
   console.error('Redis connection error:', err);
 });
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 

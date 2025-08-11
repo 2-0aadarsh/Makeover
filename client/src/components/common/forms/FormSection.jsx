@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import Input from "../../ui/Input";
 import Button from "../../ui/Button";
 
@@ -32,6 +33,8 @@ const FormSection = ({
 
       <form className="flex flex-col gap-6" onSubmit={onSubmit}>
 =======
+=======
+>>>>>>> Stashed changes
 import { useState } from "react";
 import useSignup from "../../../hooks/useSignup";
 import Button from "../../ui/Button";
@@ -84,6 +87,9 @@ const FormSection = ({ title='', description='', inputData, forgetPassword, butt
         className="input-containers flex flex-col gap-6"
         onSubmit={handleSubmit}
       >
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         {inputData.map((input, index) => (
           <Input
@@ -94,16 +100,22 @@ const FormSection = ({ title='', description='', inputData, forgetPassword, butt
             name={input.id}
             placeholder={input.placeholder}
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             value={formData[input.id] || ""}
             onChange={onInputChange}
             inputcss={inputcss}
             labelcss={labelcss}
             required={input.required}
 =======
+=======
+>>>>>>> Stashed changes
             value={formData[input.id]} // Controlled input
             onChange={handleChange}
             inputcss={inputcss}
             labelcss={labelcss}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
           />
         ))}
@@ -115,6 +127,7 @@ const FormSection = ({ title='', description='', inputData, forgetPassword, butt
             Forget Password?
           </button>
         )}
+<<<<<<< Updated upstream
 
         {forgetPassword && (
           <button
@@ -139,6 +152,16 @@ const FormSection = ({ title='', description='', inputData, forgetPassword, butt
           <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
         )}
 =======
+          content={buttonText}
+          css="rounded-[26px] py-1 px-3 "
+          type="submit"
+        />
+
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+>>>>>>> Stashed changes
+=======
+
+        <Button
           content={buttonText}
           css="rounded-[26px] py-1 px-3 "
           type="submit"

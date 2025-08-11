@@ -31,10 +31,13 @@ const userSchema = new mongoose.Schema(
       select: false, // Prevent password from being returned by default
     },
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     isVerfied: {
       type: Boolean,
       default: false,
     },
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     createdAt: {
