@@ -5,9 +5,6 @@ import FormFooter from "./forms/FormFooter";
 
 import loginHeader from '../../assets/loginHeader.jpg';
 import { useState } from 'react';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import { useNavigate } from 'react-router-dom';
 
 
@@ -40,7 +37,6 @@ const LoginPage = () => {
   const [title, setTitle] = useState("Welcome Back Gorgeous  👋");
   const [description, setDescription] = useState("Sign in to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!");
 
-=======
 
 const LoginPage = () => {
 
