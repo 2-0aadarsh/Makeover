@@ -75,8 +75,11 @@ const SignupPage = () => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -89,6 +92,7 @@ const SignupPage = () => {
           title="Create Your Account 👋"
           description="Sign Up to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!"
           inputData={inputData}
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -107,6 +111,9 @@ const SignupPage = () => {
 =======
           buttonText="Sign Up"
 >>>>>>> Stashed changes
+=======
+          buttonText="Sign Up"
+>>>>>>> Stashed changes
         />
         <FormFooter
           accDetails="Have an account?"
@@ -114,7 +121,11 @@ const SignupPage = () => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           switchTo="/auth/login"
+=======
+          switchTo="/login"
+>>>>>>> Stashed changes
 =======
           switchTo="/login"
 >>>>>>> Stashed changes

@@ -33,10 +33,13 @@ const userSchema = new mongoose.Schema(
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     isVerfied: {
       type: Boolean,
       default: false,
     },
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======

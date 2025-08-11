@@ -5,6 +5,10 @@ import Hero from "../components/common/home/Hero"
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+import GalleryPage from "../components/common/home/GalleryPage"
+>>>>>>> Stashed changes
 =======
 import GalleryPage from "../components/common/home/GalleryPage"
 >>>>>>> Stashed changes
@@ -24,6 +28,10 @@ const HomePage = () => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+      <GalleryPage/>
+>>>>>>> Stashed changes
 =======
       <GalleryPage/>
 >>>>>>> Stashed changes

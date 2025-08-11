@@ -2,9 +2,13 @@ import express from "express";
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 import { signupController, validateOtpController } from "../controllers/auth.contoller.js";
 import { validateSignup } from "../middlewares/auth.middleware.js";
+=======
+import { User } from "../models/user.model.js";
+>>>>>>> Stashed changes
 =======
 import { User } from "../models/user.model.js";
 >>>>>>> Stashed changes
@@ -21,9 +25,12 @@ const authRouter = express.Router();
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 authRouter.post("/register", validateSignup, signupController );
 authRouter.post("/register/verify-otp", validateOtpController );
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -65,6 +72,9 @@ authRouter.post("/register", async (req, res) => {
 });
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

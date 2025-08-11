@@ -10,10 +10,14 @@ import LoginPage from "../components/common/LoginPage";
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import AuthLayout from "../components/layout/AuthLayout";
 import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
+=======
+import GalleryPage from "../components/common/home/GalleryPage";
+>>>>>>> Stashed changes
 =======
 import GalleryPage from "../components/common/home/GalleryPage";
 >>>>>>> Stashed changes
