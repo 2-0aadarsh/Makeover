@@ -22,7 +22,7 @@ const Header = () => {
       </div>
 
       <div className="btn">
-        <Button content="Register" redirect="/auth/signup" />
+        <Button content="Register" redirect="/signup" />
       </div>
     </nav>
   );

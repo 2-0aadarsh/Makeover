@@ -4,8 +4,6 @@ import FormSection from "./forms/FormSection";
 import FormHeader from "./forms/FormHeader";
 import signupHeader from "../../assets/signupHeader.jpg";
 import FormFooter from "./forms/FormFooter";
-import { useNavigate } from "react-router-dom";
-import useSignup from "../../hooks/useSignup";
 
 const SignupPage = () => {
   const [title, setTitle] = useState("Create Your Account 👋");
@@ -48,30 +46,9 @@ const SignupPage = () => {
     },
   ];
 
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-   const { signup, error, isLoading } = useSignup();
-
-   const handleInputChange = (e) => {
-     const { id, value } = e.target;
-     setFormData((prev) => ({ ...prev, [id]: value }));
-   };
-
-   const handleSubmit = async (e) => {  
-     e.preventDefault();
-     const success = await signup(formData);
-     if (success) navigate("/auth/verify-email", { state: { userEmail: formData.email } });
-   };
-
   return (
     <div className="flex justify-center mt-20">
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -86,12 +63,16 @@ const SignupPage = () => {
 >>>>>>> Stashed changes
       <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
 >>>>>>> Stashed changes
+=======
+      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
+>>>>>>> parent of cd263de (fifth commit - designed opt verification)
         <FormHeader headerData={headerData} />
 
         <FormSection
-          title="Create Your Account 👋"
-          description="Sign Up to book your next glam session, track appointments, and unlock sweet beauty perks. Your glow-up is just a tap away!"
+          title={title}
+          description={description}
           inputData={inputData}
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -114,10 +95,14 @@ const SignupPage = () => {
 =======
           buttonText="Sign Up"
 >>>>>>> Stashed changes
+=======
+          buttonText="Sign Up"
+>>>>>>> parent of cd263de (fifth commit - designed opt verification)
         />
         <FormFooter
           accDetails="Have an account?"
           switchToButton="Login"
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -135,6 +120,9 @@ const SignupPage = () => {
 =======
           switchTo="/login"
 >>>>>>> Stashed changes
+=======
+          switchTo="/login"
+>>>>>>> parent of cd263de (fifth commit - designed opt verification)
         />
       </div>
     </div>

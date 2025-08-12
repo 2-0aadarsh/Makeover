@@ -7,6 +7,7 @@ import ContactPage from "../pages/ContactPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
+<<<<<<< HEAD
 
 import AuthLayout from "../components/layout/AuthLayout";
 import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
@@ -15,6 +16,8 @@ import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import GalleryPage from "../components/common/home/GalleryPage";
 
 
+=======
+>>>>>>> parent of cd263de (fifth commit - designed opt verification)
 
 export const router = createBrowserRouter([
   {
@@ -25,22 +28,10 @@ export const router = createBrowserRouter([
       { path: "gallery", element: <GalleryPage /> },
       { path: "about", element: <AboutPage /> },
       { path: "contact", element: <ContactPage /> },
-      // { path: "signup", element: <SignupPage /> },
-      // { path: "login", element: <LoginPage /> },
-      // Add error boundary if needed
-      { path: "*", element: <NotFoundPage /> },
-    ],
-  },
-
-  {
-    path: "/auth",
-    element: <AuthLayout />, // Different layout for auth pages
-    children: [
       { path: "signup", element: <SignupPage /> },
       { path: "login", element: <LoginPage /> },
-      { path: "verify-email", element: <EmailVerificationPage /> },
-      { path: "forgot-password", element: <ForgotPasswordPage /> },
-      { path: "reset-password", element: <ResetPasswordPage /> },
+      // Add error boundary if needed
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);
