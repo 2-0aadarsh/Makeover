@@ -8,7 +8,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
 
-//import AuthLayout from "../components/layout/AuthLayout";
+import AuthLayout from "../components/layout/AuthLayout";
 import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
