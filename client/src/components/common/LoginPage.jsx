@@ -33,23 +33,19 @@ const LoginPage = () => {
 
   return (
     <div className="flex justify-center mt-20">
-<<<<<<< HEAD
+
 
       <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
 
 
-      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
 
-=======
-      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
->>>>>>> parent of cd263de (fifth commit - designed opt verification)
         <FormHeader headerData={headerData} />
 
         <FormSection
           title={title}
           description={description}
           inputData={inputData}
-<<<<<<< HEAD
+
 
           formData={formData}
           onInputChange={handleInputChange}
@@ -57,8 +53,7 @@ const LoginPage = () => {
           error="error"
           isLoading="isLoading"
 
-=======
->>>>>>> parent of cd263de (fifth commit - designed opt verification)
+
           forgetPassword={() =>
             alert("Forget Password functionality not implemented yet")
           }
@@ -72,7 +67,7 @@ const LoginPage = () => {
         />
       </div>  
       </div>
-    </div>
+  
   );
 }
 }

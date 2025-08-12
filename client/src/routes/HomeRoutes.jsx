@@ -7,7 +7,6 @@ import ContactPage from "../pages/ContactPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
-<<<<<<< HEAD
 
 import AuthLayout from "../components/layout/AuthLayout";
 import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
@@ -16,8 +15,6 @@ import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import GalleryPage from "../components/common/home/GalleryPage";
 
 
-=======
->>>>>>> parent of cd263de (fifth commit - designed opt verification)
 
 export const router = createBrowserRouter([
   {

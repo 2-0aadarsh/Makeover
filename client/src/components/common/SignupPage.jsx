@@ -47,83 +47,35 @@ const SignupPage = () => {
   ];
 
   return (
-    <div className="flex justify-center mt-20">
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
->>>>>>> Stashed changes
-=======
-      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
->>>>>>> parent of cd263de (fifth commit - designed opt verification)
+  <div className="flex justify-center mt-20">
+
+    <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
+
+
+
         <FormHeader headerData={headerData} />
 
         <FormSection
           title={title}
           description={description}
           inputData={inputData}
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
           formData={formData}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
           buttonText="Sign Up"
           error={error}
           isLoading={isLoading}
-=======
-          buttonText="Sign Up"
->>>>>>> Stashed changes
-=======
-          buttonText="Sign Up"
->>>>>>> Stashed changes
-=======
-          buttonText="Sign Up"
->>>>>>> Stashed changes
-=======
-          buttonText="Sign Up"
->>>>>>> Stashed changes
-=======
-          buttonText="Sign Up"
->>>>>>> parent of cd263de (fifth commit - designed opt verification)
+
         />
         <FormFooter
           accDetails="Have an account?"
           switchToButton="Login"
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
           switchTo="/auth/login"
-=======
-          switchTo="/login"
->>>>>>> Stashed changes
-=======
-          switchTo="/login"
->>>>>>> Stashed changes
-=======
-          switchTo="/login"
->>>>>>> Stashed changes
-=======
-          switchTo="/login"
->>>>>>> Stashed changes
-=======
-          switchTo="/login"
->>>>>>> parent of cd263de (fifth commit - designed opt verification)
+
+
         />
+        
       </div>
     </div>
   );
