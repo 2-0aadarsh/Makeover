@@ -68,10 +68,7 @@ const SignupPage = () => {
           accDetails="Have an account?"
           switchToButton="Login"
           switchTo="/auth/login"
-
-
-          switchTo="/login"
-        />
+         />
         
       </div>
     </div>
