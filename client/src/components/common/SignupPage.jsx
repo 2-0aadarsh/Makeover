@@ -47,12 +47,8 @@ const SignupPage = () => {
   ];
 
   return (
-  <div className="flex justify-center mt-20">
-
-    <div className="w-[420px] flex flex-col  justify-between gap-3 p-9 rounded-md shadow-2xl">
-
-
-
+    <div className="flex justify-center mt-20">
+      <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
         <FormHeader headerData={headerData} />
 
         <FormSection
@@ -74,6 +70,7 @@ const SignupPage = () => {
           switchTo="/auth/login"
 
 
+          switchTo="/login"
         />
         
       </div>
