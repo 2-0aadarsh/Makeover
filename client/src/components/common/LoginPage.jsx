@@ -33,9 +33,6 @@ const LoginPage = () => {
 
   return (
     <div className="flex justify-center mt-20">
-
-
-
       <div className="w-96 flex flex-col  justify-between gap-3 p-4 rounded-md shadow-2xl">
         <FormHeader headerData={headerData} />
 
@@ -43,15 +40,6 @@ const LoginPage = () => {
           title={title}
           description={description}
           inputData={inputData}
-
-
-          formData={formData}
-          onInputChange={handleInputChange}
-          onSubmit={handleSubmit}
-          error="error"
-          isLoading="isLoading"
-
-
           forgetPassword={() =>
             alert("Forget Password functionality not implemented yet")
           }

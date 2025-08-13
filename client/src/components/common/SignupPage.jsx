@@ -55,21 +55,13 @@ const SignupPage = () => {
           title={title}
           description={description}
           inputData={inputData}
-
-          formData={formData}
-          onInputChange={handleInputChange}
-          onSubmit={handleSubmit}
           buttonText="Sign Up"
-          error={error}
-          isLoading={isLoading}
-
         />
         <FormFooter
           accDetails="Have an account?"
           switchToButton="Login"
-          switchTo="/auth/login"
-         />
-        
+          switchTo="/login"
+        />
       </div>
     </div>
   );
