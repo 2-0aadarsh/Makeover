@@ -10,6 +10,7 @@ export default {
         // roboto: ['Roboto'],
         syncopate: ['Syncopate'],
         inter: ['Inter'],
+        sans : ['DM Sans']
       }
     },
   },

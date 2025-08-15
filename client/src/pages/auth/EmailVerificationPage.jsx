@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 
 import { useLocation, useNavigate } from "react-router-dom";
 import OTPVerification from "../../components/common/auth/OTPVerification";
-import  {useVerifyOtp}  from "../../hooks/useVerifyOtp";
+import useVerifyOtp from "../../hooks/useVerifyOtp";
 
 const EmailVerificationPage = () => {
   const location = useLocation();
