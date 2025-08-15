@@ -5,9 +5,7 @@ import helmet from 'helmet';
 
 import authRouter from './routes/auth.routes.js';
 import connectDB from './configs/mongodb.config.js';
-
 import redis from './configs/redis.config.js';
-
 
 const app = express();
 const PORT = process.env.PORT;
@@ -46,7 +44,6 @@ app.use('/auth', authRouter);
 app.disable('x-powered-by')
 
 connectDB()
-
 redis.on('connect', () => {
   console.log('Redis connected');
 });
