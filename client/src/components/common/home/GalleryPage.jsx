@@ -41,7 +41,8 @@ const GalleryPage = () => {
           We have created amazing stories for our customers!
         </h2>
         <p className="text-sm text-gray-600 mb-6">
-          100% Satisfaction Rate. We always want you to look fabulous and thrive to be the best.
+          100% Satisfaction Rate. We always want you to look fabulous and thrive
+          to be the best.
         </p>
       </div>
 
@@ -53,7 +54,11 @@ const GalleryPage = () => {
             {tabData.map((tab, index) => (
               <button
                 key={index}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${index === activeIndex ? 'text-pink-500 border-b-2 md:border-l-2 border-pink-500' : 'text-gray-400'}`}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                  index === activeIndex
+                    ? "text-pink-500 border-b-2 md:border-l-2 border-pink-500"
+                    : "text-gray-400"
+                }`}
                 onClick={() => setActiveIndex(index)}
               >
                 {tab.title}
@@ -62,9 +67,17 @@ const GalleryPage = () => {
           </div>
           <div className="pt-6 lg:pt-60 text-lg text-textBlack300 font-medium ">
             <p>
-              Transform your look and boost your confidence with our premium at-home makeover and makeup services. Whether it's a glam evening look, bridal makeup, or a flawless everyday glow – our professional artists bring the salon experience to your doorstep, using top-quality products and personalized technique. Ready to feel your best without stepping out? Tap the button above to enquire now.
+              Transform your look and boost your confidence with our premium
+              at-home makeover and makeup services. Whether it&#39;s a glam
+              evening look, bridal makeup, or a flawless everyday glow – our
+              professional artists bring the salon experience to your doorstep,
+              using top-quality products and personalized technique. Ready to
+              feel your best without stepping out? Tap the button above to
+              enquire now.
             </p>
-            <h3 className="font-bold mt-4">Your perfect makeover is just a click away!</h3>
+            <h3 className="font-bold mt-4">
+              Your perfect makeover is just a click away!
+            </h3>
           </div>
           <div className="w-full px-4 mb-4">
             <button className="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-all duration-200">
@@ -75,13 +88,12 @@ const GalleryPage = () => {
 
         {/* Right Section: Image */}
         <div className="w-full md:w-1/3 bg-pink-100 flex items-center justify-center rounded-lg overflow-hidden relative h-[380px] lg:h-[800px] py-20 lg:bg-[#F7EBEE]">
-         <img 
-              src={tabData[activeIndex].image} 
-              alt={tabData[activeIndex].title} 
-              className="object-cover w-full h-full lg:w-[640px] lg:h-[640px] my-[80px] absolute" 
-         />
+          <img
+            src={tabData[activeIndex].image}
+            alt={tabData[activeIndex].title}
+            className="object-cover w-full h-full lg:w-[640px] lg:h-[640px] my-[80px] absolute"
+          />
         </div>
-
       </div>
     </div>
   );

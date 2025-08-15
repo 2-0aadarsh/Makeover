@@ -59,7 +59,7 @@ const Hero = () => {
   ];
 
   return (
-    <main className="hero w-full h-[700px] flex items-center justify-between">
+    <main className="hero w-full h-[700px] flex items-center justify-between ">
       <div className="left w-1/2 h-full flex items-center justify-center ">
         <img src={heroImg} alt="Hero" className="w-full h-full object-cover" />
       </div>
