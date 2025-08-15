@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import ServiceModal from "../ServiceModal";
 
 // classic images
