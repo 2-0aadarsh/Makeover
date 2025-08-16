@@ -1,5 +1,5 @@
 import transporter from '../configs/nodemailer.config.js';
-import { emailTemplate, passwordResetEmailTemplate } from '../uitils/emails/emailTemplate.js';
+import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate } from '../uitils/emails/emailTemplate.js';
 
 const sendEmailVerification = async (to, subject, htmlContent) => {
   try {
@@ -52,4 +52,30 @@ const sendForgetPassword = async(to, subject, emailContent) => {
   }
 }
 
-export { sendEmailVerification,sendForgetPassword };
+const sendContactUsMail = async (userData) => {
+  try {
+    const { name, email, subject, message } = userData;
+
+    // Generate HTML template
+    const emailHtml = contactUsEmailTemplate(name, email, message);
+
+    // Mail options
+    const mailOptions = {
+      from: `"Makeover Contact" <no-reply@chittchat.com>`,
+      to: "aadarsh0811@gmail.com", // 🔥 Admin email (replace with real admin email)
+      subject: `New Contact Us Message `,
+      replyTo: email, // allows admin to reply directly to user
+      html: emailHtml,
+    };
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Contact Us email sent to Admin:", info.messageId);
+    return info;
+  } catch (error) {
+    console.error("Error sending Contact Us email:", error);
+    throw error;
+  }
+};
+
+export { sendEmailVerification,sendForgetPassword, sendContactUsMail };

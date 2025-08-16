@@ -3,9 +3,10 @@ import cors from 'cors';
 import 'dotenv/config';
 import helmet from 'helmet';
 
-import authRouter from './routes/auth.routes.js';
 import connectDB from './configs/mongodb.config.js';
 import redis from './configs/redis.config.js';
+import contactRouter from './routes/contactUs.routes.js';
+import authRouter from './routes/auth.routes.js';
 
 const app = express();
 const PORT = process.env.PORT;
@@ -38,7 +39,9 @@ app.use(cors({
 
 app.use(express.json());  
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
+app.use("/", contactRouter);
 app.use('/auth', authRouter);
+
 
 // Disable X-Powered-By header
 app.disable('x-powered-by')

@@ -156,4 +156,91 @@ const passwordResetEmailTemplate = (resetLink) => `
 </html>
 `;
 
-export { emailTemplate,passwordResetEmailTemplate };
+const contactUsEmailTemplate = (userName, userEmail, message) => {
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>New Contact Us Message</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 650px;
+        margin: 30px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+      }
+      .header {
+        background: #2563eb;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px 15px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+      .content {
+        padding: 25px;
+        color: #333333;
+        line-height: 1.6;
+      }
+      .content p {
+        margin: 8px 0;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #111827;
+      }
+      .message-box {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f9fafb;
+        border-left: 4px solid #2563eb;
+        border-radius: 6px;
+        font-style: italic;
+        color: #444;
+      }
+      .footer {
+        background: #f1f5f9;
+        padding: 15px;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>New Contact Request</h1>
+      </div>
+      <div class="content">
+        <p>Hello <span class="highlight">Admin</span>,</p>
+        <p>You’ve received a new message from the Contact Us form.</p>
+        
+        <p><span class="highlight">Name:</span> ${userName}</p>
+        <p><span class="highlight">Email:</span> ${userEmail}</p>
+        
+        <div class="message-box">
+          ${message}
+        </div>
+      </div>
+      <div class="footer">
+        © ${new Date().getFullYear()} Chittchat — Contact Us Notification
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+export { emailTemplate,passwordResetEmailTemplate, contactUsEmailTemplate };

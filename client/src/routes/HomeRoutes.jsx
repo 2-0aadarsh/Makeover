@@ -4,7 +4,6 @@ import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HomePage from "../pages/home/HomePage";
 import GalleryPage from "../components/common/home/GalleryPage";
-import ContactPage from "../pages/home/ContactPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
@@ -24,7 +23,6 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "gallery", element: <GalleryPage /> },
       { path: "about", element: <AboutUsPage /> },
-      { path: "contact", element: <ContactPage /> },
       { path: "privacy-policy", element: <PrivacyPolicy /> },
       { path: "terms-and-conditions", element: <TermsAndConditionsPage /> },
       // Add error boundary if needed
