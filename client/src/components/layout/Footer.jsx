@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import DisplaySocialLinks from "../common/social/DisplaySocialLinks";
 import Logo from "../ui/Logo";
 import { FaXTwitter, FaInstagram, FaLinkedin } from "react-icons/fa6";
@@ -9,8 +10,8 @@ const socialIcons = [
 ];
 
 const legalLinks = [
-  { title: "Privacy Policy", link: "#" },
-  { title: "Terms & Conditions", link: "#" },
+  { title: "Privacy Policy", link: "/privacy-policy" },
+  { title: "Terms & Conditions", link: "/terms-and-conditions" },
 ];
 
 const Footer = () => {
@@ -29,13 +30,13 @@ const Footer = () => {
         <div className="flex items-center gap-6 flex-wrap text-[#313957]">
           <span className="text-[#A0A0A0]">© Makeover 2025</span>
           {legalLinks.map((item, index) => (
-            <a
+            <Link
               key={index}
-              href={item.link}
+              to={item.link}
               className="hover:underline text-[#313957] font-medium"
             >
               {item.title}
-            </a>
+            </Link>
           ))}
         </div>
 

@@ -1,10 +1,10 @@
-// 
+//
 
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
-import HomePage from "../pages/HomePage";
+import HomePage from "../pages/home/HomePage";
 import GalleryPage from "../components/common/home/GalleryPage";
-import ContactPage from "../pages/ContactPage";
+import ContactPage from "../pages/home/ContactPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
@@ -13,6 +13,8 @@ import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import AboutUsPage from "../components/common/aboutUs/AboutUsPage";
+import TermsAndConditionsPage from "../pages/home/TermsAndConditionsPage";
+import PrivacyPolicy from "../pages/home/PrivacyPolicy";
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +25,8 @@ export const router = createBrowserRouter([
       { path: "gallery", element: <GalleryPage /> },
       { path: "about", element: <AboutUsPage /> },
       { path: "contact", element: <ContactPage /> },
+      { path: "privacy-policy", element: <PrivacyPolicy /> },
+      { path: "terms-and-conditions", element: <TermsAndConditionsPage /> },
       // Add error boundary if needed
       { path: "*", element: <NotFoundPage /> },
     ],
