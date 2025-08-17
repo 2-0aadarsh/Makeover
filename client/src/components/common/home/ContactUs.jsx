@@ -80,7 +80,10 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="contact-us flex justify-between items-start w-full min-h-[706px] py-[60px] px-20">
+    <section
+      id="contact-us"
+      className="contact-us flex justify-between items-start w-full min-h-[706px] py-[60px] px-20"
+    >
       {/* Left side text */}
       <div className="message font-normal text-[54px] leading-[72px] text-[#212121] w-[728px]">
         <h3 className="text-[#CC2B52] text-xl mb-4">Connect</h3>
@@ -121,7 +124,7 @@ const ContactUs = () => {
         {error && <p className="text-red-500 mt-2">{error}</p>}
         {successMsg && <p className="text-green-600 mt-2">{successMsg}</p>}
       </div>
-    </div>
+    </section>
   );
 };
 

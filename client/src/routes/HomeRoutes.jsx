@@ -4,7 +4,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import HomePage from "../pages/home/HomePage";
 import GalleryPage from "../components/common/home/GalleryPage";
-import NotFoundPage from "../pages/NotFoundPage";
+import NotFoundPage from "../pages/errorBoundaries/NotFoundPage";
 import SignupPage from "../components/common/SignupPage";
 import LoginPage from "../components/common/LoginPage";
 import AuthLayout from "../components/layout/AuthLayout";
