@@ -1,10 +1,4 @@
 
-
-
-import React from "react";
-
-// Example brand logos (replace with your own paths or URLs
-
 import estee from "../../../assets/brands/estee.png";
 import sugar from "../../../assets/brands/sugar.png";
 import bobbi from "../../../assets/brands/bobbi.png";
@@ -26,13 +20,11 @@ const Cilents = () => {
   ];
 
   return (
-    <section className="w-full bg-[#F4E1E6] py-12 px-6">
-      {/* Heading */}
+    <section className="w-full bg-[#F4E1E6] py-20 px-10">
       <h2 className="text-center text-xl sm:text-2xl font-semibold text-[#D32F4C] mb-10">
         Makeover Professionals Use
       </h2>
 
-      {/* Brand Logos */}
       <div className="flex flex-wrap justify-center items-center gap-10">
         {brands.map((brand) => (
           <img
@@ -47,4 +39,4 @@ const Cilents = () => {
   );
 };
 
-export default Cilents;
+export default Cilents
