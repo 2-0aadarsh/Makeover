@@ -4,6 +4,7 @@ import ContactUs from "../../components/common/home/ContactUs";
 import Hero from "../../components/common/home/Hero";
 
 import GalleryPage from "../../components/common/home/GalleryPage";
+import Testimonial from "../../components/common/home/Testimonial";
 
 const HomePage = () => {
   return (
@@ -12,6 +13,7 @@ const HomePage = () => {
       <AboutUs />
       <Cilents />
       <GalleryPage />
+      <Testimonial />
       <ContactUs />
     </div>
   );
