@@ -1,3 +1,5 @@
+import "dotenv/config"
+
 import transporter from '../configs/nodemailer.config.js';
 import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate } from '../uitils/emails/emailTemplate.js';
 
@@ -18,7 +20,6 @@ const sendEmailVerification = async (to, subject, htmlContent) => {
 
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info);
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -28,29 +29,30 @@ const sendEmailVerification = async (to, subject, htmlContent) => {
 
 const sendForgetPassword = async(to, subject, emailContent) => {
   try {
-    // Generate the email body with dynamic values (OTP, User, App Name)
-    const emailHtml = passwordResetEmailTemplate(emailContent.url) // Insert OTP
-      .replaceAll('[User]', emailContent.username) // Insert User Name
-      .replaceAll('[Your App Name]', emailContent.appName); // Insert App Name
+    // Reset URL: frontend + token
+    // const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${emailContent.token}`;
+    const resetUrl = `${emailContent.url}`;
+    console.log(resetUrl)
+    // Generate HTML using template
+    const emailHtml = passwordResetEmailTemplate(resetUrl)
+      .replaceAll('[User]', emailContent.username)
+      .replaceAll('[Your App Name]', emailContent.appName);
 
-    // Mail options
     const mailOptions = {
-      from: 'Chittchat <no-reply@chittchat.com>', // Valid sender address
-      to: to, // Recipient
-      subject: subject, // Subject line
-      html: emailHtml, // Email body (HTML format)
+      from: 'Chittchat <no-reply@chittchat.com>',
+      to,
+      subject,
+      html: emailHtml,
     };
 
-    // Send email
     const info = await transporter.sendMail(mailOptions);
-    console.log('Forget Password, mail sent:', info);
     return info;
-
   } catch (error) {
     console.error('Error sending email:', error);
     throw error;
   }
-}
+};
+
 
 const sendContactUsMail = async (userData) => {
   try {
@@ -70,7 +72,6 @@ const sendContactUsMail = async (userData) => {
 
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    console.log("Contact Us email sent to Admin:", info.messageId);
     return info;
   } catch (error) {
     console.error("Error sending Contact Us email:", error);

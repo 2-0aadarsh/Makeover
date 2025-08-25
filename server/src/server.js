@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import helmet from 'helmet';
+import cookieParser from "cookie-parser";
 
 import connectDB from './configs/mongodb.config.js';
 import redis from './configs/redis.config.js';
@@ -23,7 +24,7 @@ app.use(helmet()); // Security middleware
 //   credentials: true
 // }));
 
-const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:5173'];
+const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -38,6 +39,7 @@ app.use(cors({
 }));
 
 app.use(express.json());  
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 app.use("/", contactRouter);
 app.use('/auth', authRouter);
