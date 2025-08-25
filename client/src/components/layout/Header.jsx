@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import Button from "../ui/Button";
-// import Logo from "../ui/Logo";
 import Logo from "../ui/Logo";
 import { useSelector } from "react-redux";
 import ProfileButton from "../ui/ProfileButton";
@@ -42,7 +41,7 @@ const Header = () => {
 
       <div className="btn">
         {isAuthenticated ? (
-          <ProfileButton username={user} />
+          <ProfileButton username={user.name} />
         ) : (
           <Button content="Login/Register" redirect="/auth/signup" />
         )}

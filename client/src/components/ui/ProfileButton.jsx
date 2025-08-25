@@ -5,7 +5,6 @@ import ProfileModal from "../modals/profile/ProfileModal";
 import { UserIcon } from "./UserIcon";
 
 const ProfileButton = ({username}) => {
-  // console.log("ProfieButton : ", username.name)
   const [open, setOpen] = useState(false);
   return (
     <div className="relative border-2">
@@ -14,9 +13,9 @@ const ProfileButton = ({username}) => {
         className="flex items-center justify-center gap-2 py-2 px-4 border-2 border-[#CC2B52]"
       >
         <UserIcon />
-        <h3 className="font-bold text-lg leading-6 font-sans">Aadarsh</h3>
+        <h3 className="font-bold text-lg leading-6 font-sans">{username}</h3>
       </button>
-        
+
       {open && (
         <ProfileModal username={"Aadarsh"} onClose={() => setOpen(false)} />
       )}
