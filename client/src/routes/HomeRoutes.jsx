@@ -5,15 +5,15 @@ import AppLayout from "../components/layout/AppLayout";
 import HomePage from "../pages/home/HomePage";
 import GalleryPage from "../components/common/home/GalleryPage";
 import NotFoundPage from "../pages/errorBoundaries/NotFoundPage";
-import SignupPage from "../components/common/SignupPage";
-import LoginPage from "../components/common/LoginPage";
+import SignupPage from "../components/common/auth/SignupPage";
+import LoginPage from "../components/common/auth/LoginPage";
 import AuthLayout from "../components/layout/AuthLayout";
 import EmailVerificationPage from "../pages/auth/EmailVerificationPage";
-import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import AboutUsPage from "../components/common/aboutUs/AboutUsPage";
 import TermsAndConditionsPage from "../pages/home/TermsAndConditionsPage";
 import PrivacyPolicy from "../pages/home/PrivacyPolicy";
+import ForgotPasswordPage from "../components/common/auth/ForgotPasswordPage";
 
 export const router = createBrowserRouter([
   {
@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
       { path: "login", element: <LoginPage /> },
       { path: "verify-email", element: <EmailVerificationPage /> },
       { path: "forgot-password", element: <ForgotPasswordPage /> },
-      { path: "reset-password", element: <ResetPasswordPage /> },
+      { path: "reset-password/:id/:token", element: <ResetPasswordPage /> },
     ],
   },
 ]);

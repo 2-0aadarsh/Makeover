@@ -3,6 +3,7 @@ import redis from '../../configs/redis.config.js';
 export const setCache = async (key, value, ttlInSeconds) => {
   try {
     const stringValue = JSON.stringify(value);
+    
     if (ttlInSeconds) {
       await redis.set(key, stringValue, 'EX', ttlInSeconds);
     } else {
@@ -11,13 +12,15 @@ export const setCache = async (key, value, ttlInSeconds) => {
   } catch (error) {
     console.error(`Error setting cache for key "${key}":`, error);
     // Handle error as needed
+    throw new Error(error.message)
   }
 };
 
 export const getCache = async (key) => {
   try {
     const data = await redis.get(key);
-    return data ? JSON.parse(data) : null;
+    console.log(data)
+    return data ? await JSON.parse(data) : null;
   } catch (error) {
     console.error(`Error getting cache for key "${key}":`, error);
     // Handle error as needed

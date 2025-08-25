@@ -1,43 +1,45 @@
 /* eslint-disable no-unused-vars */
-
 import { useLocation, useNavigate } from "react-router-dom";
 import OTPVerification from "../../components/common/auth/OTPVerification";
-import useVerifyOtp from "../../hooks/useVerifyOtp";
+import { useDispatch, useSelector } from "react-redux";
+import { verifyOtpThunk, resendOtpThunk } from "../../features/auth/authThunks";
+import { resetAuthState } from "../../features/auth/AuthSlice";
+import { useEffect } from "react";
 
 const EmailVerificationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const userEmail = location.state?.userEmail; // safely passed via navigate()
-  
+  const dispatch = useDispatch();
 
+  const { userEmail } = location.state || {};
+  const { status, error } = useSelector((state) => state.auth);
 
-  const { verifyOtp, loading, error } = useVerifyOtp();
-
+  // Verify OTP
   const handleVerify = async (otp) => {
-    const result = await verifyOtp({ email: userEmail, otp });
-
-    if (result) {
-      // Redirect to dashboard or show success
-      navigate("/");
-    } else {
-      throw new Error("Invalid OTP"); // This will show error inside OTPVerification
-    }
-  };
-
-  const handleResend = async () => {
     try {
-      const res = await fetch("http://localhost:3000/auth/resend-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: userEmail }),
-      });
+      const result = await dispatch(
+        verifyOtpThunk({ email: userEmail, otp })
+      ).unwrap();
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to resend OTP");
+      if (result.success) {
+        navigate("/");
+      }
     } catch (err) {
-      throw new Error(err.message);
+      // error toast already handled in slice
     }
   };
+
+  // Resend OTP
+  const handleResend = () => {
+    if (userEmail) dispatch(resendOtpThunk(userEmail));
+  };
+
+  // Reset auth state on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(resetAuthState());
+    };
+  }, [dispatch]);
 
   return (
     <OTPVerification
@@ -45,9 +47,10 @@ const EmailVerificationPage = () => {
       purpose="verification"
       onVerify={handleVerify}
       onResend={handleResend}
+      status={status}
+      error={error}
     />
   );
 };
 
 export default EmailVerificationPage;
- 

@@ -16,6 +16,7 @@ const useVerifyOtp = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ otp, email }),
+        credentials: "include",
       });
 
       const data = await res.json();

@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
-
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react"; 
+import { Eye, EyeOff } from "lucide-react";
 
 const Input = ({
   labelName,
@@ -25,12 +24,13 @@ const Input = ({
       <label htmlFor={id} className={`text-sm capitalize ml-1 ${labelcss}`}>
         {labelName}
       </label>
+
       <input
-        type={type}
+        type={isPassword && showPassword ? "text" : type}
         id={id}
-        value={value} // Controlled component
+        value={value}
         onChange={onChange}
-        className={`w-full p-1 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] ${inputcss}`}
+        className={`w-full py-3 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] ${inputcss}`}
         placeholder={placeholder}
       />
 
@@ -46,4 +46,4 @@ const Input = ({
   );
 };
 
-export default Input
+export default Input;

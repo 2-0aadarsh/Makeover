@@ -13,16 +13,19 @@ const FormSection = ({
   formData,
   onInputChange,
   onSubmit,
-  error,
   isLoading,
 }) => {
-  return (
-    <div className="flex flex-col gap-3 font-inter">
-      {title && <h2 className="title font-semibold text-[22px]">{title}</h2>}
-      {description && (
-        <p className="text-[12px] text-[#313957]">{description}</p>
-      )}
 
+   
+
+  return (
+    <div className="flex flex-col justify-evenly  font-inter  max-h-[800px] min-h-[350px] h-full">
+      <div className="flex flex-col gap-1">
+        {title && <h2 className="title font-semibold text-[32px]">{title}</h2>}
+        {description && (
+          <p className="text-[12px] text-[#313957]">{description}</p>
+        )}
+      </div>
       <form
         className="input-containers flex flex-col gap-6"
         onSubmit={onSubmit}
@@ -44,7 +47,7 @@ const FormSection = ({
         {forgetPassword && (
           <button
             type="button"
-            className="text-[#000000] font-inter text-[12px] font-semibold underline flex justify-end -mt-4"
+            className="text-[#000000] font-inter text-[12px] font-semibold underline flex justify-end -mt-3"
             onClick={forgetPassword}
           >
             Forget Password?
@@ -56,9 +59,8 @@ const FormSection = ({
           css="rounded-[26px] py-1 px-3"
           type="submit"
           disabled={isLoading}
+          onClick={forgetPassword}
         />
-
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </div>
   );

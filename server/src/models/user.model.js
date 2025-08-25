@@ -24,12 +24,24 @@ const userSchema = new mongoose.Schema(
       unique: true,
       match: [/^[0-9]{10}$/, "Phone number must be 10 digits"],
     },
+    
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
       select: false, // Prevent password from being returned by default
     },
+    passwordChangedAt: {
+      type: Date,
+    },
+
+
+    role: {
+      type: String,
+      enum: ["user", "admin"], // only allow these values
+      default: "user", // every new user defaults to "user"
+    },
+
     isVerfied: {
       type: Boolean,
       default: false,
@@ -56,6 +68,10 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const saltRounds = 10;
   this.password = await bcrypt.hash(this.password, saltRounds);
+  
+  // IMPORTANT: mark when password was changed
+  this.passwordChangedAt = Date.now();
+  
   next();
 });
 
@@ -66,12 +82,3 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 // Model export (after all schema definitions)
 export const User = mongoose.model("User", userSchema);
-
-
-// demo how to use the comparePassword method
-// (async () => {
-//   const user = await User.findOne({ email: "aadarsh0811@gmail.com" });
-//   const isMatch = await user.comparePassword("password123");
-//   console.log(isMatch); // true or false
-// })();
-

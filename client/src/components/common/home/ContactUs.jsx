@@ -1,11 +1,14 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FormSection from "../forms/FormSection";
-import useContactus from "../../../hooks/useContactus";
+import { useDispatch, useSelector } from "react-redux";
+import { sendContactData } from "../../../features/contact/contactThunks";
+import { resetContactState } from "../../../features/contact/contactSlice";
 
 const ContactUs = () => {
-  // Input field config
+  const dispatch = useDispatch();
+  const { loading, error, success } = useSelector((state) => state.contact);
+
   const inputData = [
     {
       id: "name",
@@ -36,7 +39,6 @@ const ContactUs = () => {
   const words = ["Bridal", "Party", "Engagement"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Form state
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,10 +46,7 @@ const ContactUs = () => {
     message: "",
   });
 
-  const [successMsg, setSuccessMsg] = useState("");
-  const { sendContactData, loading, error } = useContactus();
-
-  // Animate text
+  // animate words
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % words.length);
@@ -55,28 +54,24 @@ const ContactUs = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Input handler
+  // reset slice state on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(resetContactState());
+    };
+  }, [dispatch]);
+
   const handleInputChange = ({ target: { id, value } }) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Submit handler
-  const handleContactSubmit = async (e) => {
+  const handleContactSubmit = (e) => {
     e.preventDefault();
-    setSuccessMsg(""); 
-
-    try {
-      const res = await sendContactData(formData);
-
-      // reset form fields after success
-      setFormData({ name: "", email: "", phoneNumber: "", message: "" });
-
-      // set success message
-      setSuccessMsg("Your message has been sent successfully!");
-    } catch (err) {
-      console.error("Contact form error:", err);
-    }
-
+    dispatch(sendContactData(formData)).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        setFormData({ name: "", email: "", phoneNumber: "", message: "" });
+      }
+    });
   };
 
   return (
@@ -87,7 +82,6 @@ const ContactUs = () => {
       {/* Left side text */}
       <div className="message font-normal text-[54px] leading-[72px] text-[#212121] w-[728px]">
         <h3 className="text-[#CC2B52] text-xl mb-4">Connect</h3>
-
         <h4 className="flex items-start min-h-[80px]">
           Your
           <span className="text-[#CC2B52] ml-2 relative block h-[72px]">
@@ -105,7 +99,6 @@ const ContactUs = () => {
             </AnimatePresence>
           </span>
         </h4>
-
         <h4>makeover is just a message away</h4>
       </div>
 
@@ -121,8 +114,7 @@ const ContactUs = () => {
           onInputChange={handleInputChange}
           onSubmit={handleContactSubmit}
         />
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-        {successMsg && <p className="text-green-600 mt-2">{successMsg}</p>}
+        
       </div>
     </section>
   );

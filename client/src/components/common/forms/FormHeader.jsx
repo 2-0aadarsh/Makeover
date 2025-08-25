@@ -5,10 +5,10 @@ const FormHeader = ({ headerData }) => {
   return (
     <div className="flex flex-col gap-3 ">
       <Logo />
-      <div className="img-container w-[343px] h-[120px] ">
+      <div className="img-container w-[343px] h-[120px] md:hidden">
         <img
           src={[...headerData][0].url}
-          alt={[...headerData][0].alt }
+          alt={[...headerData][0].alt}
           className="w-full h-full object-cover rounded-3xl"
         />
       </div>
