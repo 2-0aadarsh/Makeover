@@ -34,6 +34,7 @@ const LoginPage = () => {
 
   // react to auth state
   useEffect(() => {
+    
     if (status === "succeeded" && isAuthenticated) {
       toast.success("Login successful");
       setFormData({ email: "", password: "" });

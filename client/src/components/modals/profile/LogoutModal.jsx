@@ -20,11 +20,14 @@ const LogoutModal = ({ onCancel }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+    <div
+      onClick={onCancel}
+      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
+    >
       <div className="bg-white p-6 rounded-2xl shadow-2xl text-center max-w-sm w-[415px] h-[309px] flex flex-col items-center justify-between">
         <div className="w-full h-2/3 -mt-6">
           <img
-            src={polarBear} 
+            src={polarBear}
             alt="Koala"
             loading="lazy"
             className="w-full h-full  object-cover object-center"

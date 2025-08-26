@@ -37,7 +37,7 @@ const GalleryPage = () => {
   }, []);
 
   return (
-    <section className="w-full py-[60px] px-20">
+    <section id="gallery" className="w-full py-[60px] px-20">
       <div className="flex flex-col gap-20 items-start">
         {/* First Container: Heading Section */}
         <div className="w-full flex flex-col items-start justify-between gap-3">

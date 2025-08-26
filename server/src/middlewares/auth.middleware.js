@@ -65,7 +65,7 @@ const checkAuth = async (req, res, next) => {
     // CASE 1: No access token
     if (!accessToken) {
       if (!refreshToken) {
-        return res.status(401).json({ success : false, loggedIn: false, message: "No access & refresh token" });
+        return res.status(200).json({ success : false, loggedIn: false, message: "No access & refresh token" });
       }
 
       // verify refresh token and issue new access token
@@ -73,7 +73,7 @@ const checkAuth = async (req, res, next) => {
         const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
         const newAccessToken = generateAccessToken(
-          { id: decodedRefresh.id, role: decodedRefresh.role, email: decodedRefresh.email },
+          { id: decodedRefresh.id,  name : decodedRefresh.name,  role: decodedRefresh.role, email: decodedRefresh.email },
           "15m"
         );
 
@@ -103,7 +103,7 @@ const checkAuth = async (req, res, next) => {
           const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
           const newAccessToken = generateAccessToken(
-            { id: decodedRefresh.id, role: decodedRefresh.role, email: decodedRefresh.email },
+            { id: decodedRefresh.id, name : decodedRefresh.name, role: decodedRefresh.role, email: decodedRefresh.email },
             "15m"
           );
 

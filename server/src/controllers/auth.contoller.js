@@ -88,6 +88,7 @@ const validateOtpController = async (req, res) => {
 
     const payload = {
       id: updatedUser._id,
+      name : updatedUser.name,
       email: updatedUser.email,
       role: updatedUser.role,
       name : updatedUser.name
@@ -146,6 +147,7 @@ const loginController = async (req, res) => {
     // 4. Generate payload for the tokens
     const payload = {
       id: user._id,
+      name: user.name,
       email: user.email,
       role: user.role,
       name : user.name
@@ -390,7 +392,7 @@ const resetPasswordController = async (req, res) => {
     await deleteCache(`resetToken:${userId}`);
 
     // 6. Generate new access & refresh tokens
-    const payload = { id: user._id, email: user.email, role: user.role };
+    const payload = { id: user._id, name : user.name, email: user.email, role: user.role };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 

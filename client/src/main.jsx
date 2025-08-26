@@ -1,15 +1,18 @@
-import { createRoot } from 'react-dom/client'
-import './index.css'
+import { createRoot } from "react-dom/client";
+import "./index.css";
 
-import React from 'react';
-import App from './App.jsx';
+import React from "react";
+import App from "./App.jsx";
 import { Provider } from "react-redux";
-import { store } from './stores/Store.jsx';
+import { store } from "./stores/Store.jsx";
+import LenisProvider from "./provider/LenisProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <LenisProvider>
+        <App />
+      </LenisProvider>
     </Provider>
   </React.StrictMode>
 );
