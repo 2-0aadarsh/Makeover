@@ -13,7 +13,6 @@ export const loginApi = async({email, password})=>{
   );
 
   const data = await res.json();
-  console.log(data)
   if(!data.success) {
     throw new Error(data.message)
   }
@@ -113,19 +112,25 @@ export const resendOtpApi = async (email) => {
 
 
 // 6. check user-exists api
-export const checkLoginStatusApi = async()=>{
+export const checkLoginStatusApi = async () => {
   try {
-    const res = await fetch("http://localhost:3000/auth/status", 
-      {credentials: "include",}
-    )
+    const res = await fetch("http://localhost:3000/auth/status", {
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      // Handle unauthorized or server errors
+      return { success: false, status: res.status, user: null };
+    }
 
     const data = await res.json();
-    return data;
+    return { success: true, ...data };
 
   } catch (error) {
-    return error.message;
+    console.error("checkLoginStatusApi error:", error);
+    return { success: false, message: error.message };
   }
-}
+};
 
 
 // 7. logout api

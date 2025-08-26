@@ -19,32 +19,32 @@ export const checkLoginStatus = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await checkLoginStatusApi();
-
-      if (!res.success && res.message.includes("No access & refresh token")) {
-        // expected "not logged in" state, don’t reject
+      console.log(res)
+      if (!res.success && res.message?.includes("No access & refresh token")) {
         return { success: false, loggedIn: false, user: null };
       }
 
       if (!res.success) {
-        return rejectWithValue(res.message);
+        return rejectWithValue(res.message)  ;
       }
 
       return res;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || "Something went wrong");
     }
   }
 );
+
 
 export const logoutUser = createAsyncThunk(
   "auth/logout",
 
   async(_, { rejectWithValue }) => {
-    console.log("Logout")
+    
     try {
       const res = await logoutApi();
       const data = await res.json();
-      console.log(data)
+
       if (!data.success) {
         return rejectWithValue(data.message);
       }

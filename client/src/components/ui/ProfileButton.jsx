@@ -17,7 +17,7 @@ const ProfileButton = ({username}) => {
       </button>
 
       {open && (
-        <ProfileModal username={"Aadarsh"} onClose={() => setOpen(false)} />
+        <ProfileModal username={username} onClose={() => setOpen(false)} />
       )}
     </div>
   );

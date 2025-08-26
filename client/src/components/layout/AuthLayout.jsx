@@ -1,10 +1,11 @@
-
-
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
+import Footer from "./Footer";
+import ScrollToTop from "../../provider/ScrollToTop";
 
 const AuthLayout = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       {/* Header */}
       {/* <Header /> */}
 
@@ -14,7 +15,8 @@ const AuthLayout = () => {
       </main>
 
       {/* Footer */}
-      {/* <Footer /> */}
+      <Footer />
+      <ScrollRestoration />
     </div>
   );
 };
