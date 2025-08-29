@@ -10,11 +10,11 @@ import contactRouter from './routes/contactUs.routes.js';
 import authRouter from './routes/auth.routes.js';
 
 const app = express();
-const PORT = process.env.PORT;
-if (!PORT) {
-  console.error("PORT is not defined in the environment variables.");
-  process.exit(1);
-}
+//const PORT = process.env.PORT;
+//if (!PORT) {
+//  console.error("PORT is not defined in the environment variables.");
+//  process.exit(1);
+//}
 
 // Middleware setup
 app.use(helmet()); // Security middleware
