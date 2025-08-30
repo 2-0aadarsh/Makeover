@@ -5,7 +5,7 @@ import faceFoundationImg from "../../../assets/hero/faceFoundation.png";
 import tattooImg from "../../../assets/hero/tattoo.png";
 import naturalIngridentsImg from "../../../assets/hero/naturalIngridents.png";
 import primerImg from "../../../assets/hero/primer.png";
-import makeupImg from "../../../assets/hero/Makeup.png";
+import makeupImg from "../../../assets/hero/makeup.png";
 
 import ProfessionalMakeup from "../../modals/heroModals/ProfessionalMakeup";
 import CleanupAndFacialModal from "../../modals/heroModals/CleanupAndFacialModal";

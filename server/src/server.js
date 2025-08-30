@@ -24,7 +24,7 @@ app.use(helmet()); // Security middleware
 //   credentials: true
 // }));
 
-const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = [process.env.CLIENT_URL, 'https://wemakeover.netlify.app' ,'http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
   origin: function (origin, callback) {

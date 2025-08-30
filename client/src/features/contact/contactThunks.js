@@ -1,10 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { backendurl } from "../../constants";
 
 export const sendContactData = createAsyncThunk(
   "contact/sendContactData",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:3000/contactUs", {
+      const response = await fetch( `${backendurl}/contactUs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

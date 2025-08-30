@@ -1,1 +1,1 @@
-export const backendurl = "https://makeover-gamma.vercel.app"
+export const backendurl = "https://makeover-rose.vercel.app"

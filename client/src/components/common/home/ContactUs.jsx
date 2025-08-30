@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import FormSection from "../forms/FormSection";
 import { useDispatch, useSelector } from "react-redux";
 import { sendContactData } from "../../../features/contact/contactThunks";
-import { resetContactState } from "../../../features/contact/contactSlice";
+import { resetContactState } from "../../../features/contact/ContactSlice";
 
 const ContactUs = () => {
   const dispatch = useDispatch();

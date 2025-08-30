@@ -31,5 +31,9 @@ contactRouter.post('/contactUs', async (req, res) => {
   }
 })
 
+contactRouter.get('/contactUs', async (req, res) => {
+  res.send("<h1>Contact us page hai bhai</h1>")
+})
+
 
 export default contactRouter;
