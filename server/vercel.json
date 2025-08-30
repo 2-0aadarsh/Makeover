@@ -11,6 +11,12 @@
             }
         }
     ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/server.js"
+    }
+  ],
     "routes": [
         {
             "src": "/(.*)",
