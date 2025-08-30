@@ -50,6 +50,8 @@ const OTPVerification = ({
     }
   };
 
+
+
   // Handle paste
   const handlePaste = (e) => {
     e.preventDefault();
@@ -117,7 +119,7 @@ const OTPVerification = ({
   }, []);
 
   return (
-    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-6">
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-6 border-4">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-[#CC2B52] mb-2">
           {purposeMessages[purpose] || "OTP Verification"}

@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 
 const GridCard = ({ gridCardData }) => {
-  console.log("gridcard data :", gridCardData);
 
   return (
     <>

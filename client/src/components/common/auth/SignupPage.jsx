@@ -47,7 +47,7 @@ const SignupPage = () => {
         password: "",
         confirmPassword: "",
       });
-      navigate("/auth/verify-email", { state: { userEmail: formData.email } });
+      navigate("/auth/verify-email");
       dispatch(resetAuthState()); // cleanup after redirect
     }
   }, [signupSuccess, navigate, formData.email, dispatch]);

@@ -58,12 +58,7 @@ const signupController = async (req, res) => {
 const validateOtpController = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    
-    // const data = await redis.get(email)
-    // const res = await JSON.parse(data)
-    // console.log(res)
-    // return 
-    // Check if the OTP is valid
+
     const cachedOtp = await getCache(email);
     console.log(cachedOtp)
     

@@ -51,14 +51,12 @@ import VerifyEmailRoute from "./VerifyEmailRoute";
                 { path: "forgot-password", element: <ForgotPasswordPage /> },
               ],
             },
+            {
+              path: "verify-email", element: <EmailVerificationPage />,
+            },
           ],
         },
-        {
-          element: <VerifyEmailRoute />,
-          children: [
-            { path: "verify-email", element: <EmailVerificationPage /> },
-          ],
-        },
+
         { path: "reset-password/:id/:token", element: <ResetPasswordPage /> },
         { path: "*", element: <NotFoundPage /> },
       ],

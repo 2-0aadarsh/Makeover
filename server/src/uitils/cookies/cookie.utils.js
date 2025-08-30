@@ -6,7 +6,7 @@ export const setAuthRefreshCookie = (res, token) => {
   res.cookie("refreshToken", token, {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? "Strict" : "None", // None for local dev
+    sameSite: isProd ? "None" : "Strict", // None for local dev
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
@@ -15,7 +15,7 @@ export const setAuthAccessCookie = (res, token) => {
   res.cookie("accessToken", token, {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? "Strict" : "None",
+    sameSite: isProd ? "None" : "Strict",
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
 };

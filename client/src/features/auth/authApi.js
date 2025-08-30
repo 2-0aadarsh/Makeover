@@ -44,7 +44,7 @@ export const signupApi = async ({ name, email, phoneNumber, password, confirmPas
 
 // 3. verify-otp api
 export const verifyOtpApi = async ({ email, otp }) => {
-  const res = await fetch("${backendurl}/auth/register/verify-otp", {
+  const res = await fetch(`${backendurl}/auth/register/verify-otp`, {
     method: "POST",
     credentials: "include", // important for cookies
     headers: {
@@ -52,7 +52,7 @@ export const verifyOtpApi = async ({ email, otp }) => {
     },
     body: JSON.stringify({ email, otp }),
   });
-
+  
   const data = await res.json();
 
   if (!res.ok) {

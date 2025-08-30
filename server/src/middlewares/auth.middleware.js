@@ -89,7 +89,6 @@ const checkAuth = async (req, res, next) => {
     // CASE 2: Access token exists, verify it
     try {
       const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
-      console.log(decoded)
       req.user = decoded;
       return next();
 

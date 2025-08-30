@@ -7,15 +7,16 @@ import { resetAuthState } from "../../features/auth/AuthSlice";
 import { useEffect } from "react";
 
 const EmailVerificationPage = () => {
-  const location = useLocation();
+  
+  // const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { userEmail } = location.state || {};
-  const { status, error } = useSelector((state) => state.auth);
+  const { userEmail, status, error } = useSelector((state) => state.auth);
 
   // Verify OTP
   const handleVerify = async (otp) => {
+    if (!userEmail) return; // guard
     try {
       const result = await dispatch(
         verifyOtpThunk({ email: userEmail, otp })
@@ -25,7 +26,7 @@ const EmailVerificationPage = () => {
         navigate("/");
       }
     } catch (err) {
-      // error toast already handled in slice
+      // 
     }
   };
 
