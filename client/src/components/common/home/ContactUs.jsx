@@ -7,7 +7,7 @@ import { resetContactState } from "../../../features/contact/ContactSlice";
 
 const ContactUs = () => {
   const dispatch = useDispatch();
-  const { loading, error, success } = useSelector((state) => state.contact);
+  const { loading } = useSelector((state) => state.contact);
 
   const inputData = [
     {
@@ -52,7 +52,7 @@ const ContactUs = () => {
       setCurrentIndex((prev) => (prev + 1) % words.length);
     }, 3500);
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length]);
 
   // reset slice state on unmount
   useEffect(() => {
@@ -77,14 +77,16 @@ const ContactUs = () => {
   return (
     <section
       id="contact-us"
-      className="contact-us flex justify-between items-start w-full min-h-[706px] py-[60px] px-20"
+      className="contact-us flex flex-col lg:flex-row justify-between items-start w-full min-h-[706px] py-4 sm:py-6 md:py-8 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20 gap-8 lg:gap-0"
     >
       {/* Left side text */}
-      <div className="message font-normal text-[54px] leading-[72px] text-[#212121] w-[728px]">
-        <h3 className="text-[#CC2B52] text-xl mb-4">Connect</h3>
-        <h4 className="flex items-start min-h-[80px]">
+      <div className="message font-normal text-xl sm:text-2xl md:text-3xl lg:text-[54px] leading-tight sm:leading-relaxed lg:leading-[72px] text-[#212121] w-full lg:w-[728px]">
+        <h3 className="text-[#CC2B52] text-base sm:text-lg lg:text-xl mb-3 sm:mb-4">
+          Connect
+        </h3>
+        <h4 className="flex items-start min-h-[40px] sm:min-h-[50px] md:min-h-[60px] lg:min-h-[80px]">
           Your
-          <span className="text-[#CC2B52] ml-2 relative block h-[72px]">
+          <span className="text-[#CC2B52] ml-1 sm:ml-2 relative block h-[32px] sm:h-[40px] md:h-[48px] lg:h-[72px]">
             <AnimatePresence mode="wait">
               <motion.span
                 key={currentIndex}
@@ -103,18 +105,17 @@ const ContactUs = () => {
       </div>
 
       {/* Right side form */}
-      <div className="form-container w-[522px] p-8 shadow-xl rounded-lg bg-white transition-all duration-300 hover:shadow-2xl">
+      <div className="form-container w-full lg:w-[522px] p-3 sm:p-4 md:p-6 lg:p-8 shadow-xl rounded-lg bg-white transition-all duration-300 hover:shadow-2xl">
         <FormSection
           inputData={inputData}
           buttonText={loading ? "Sending..." : "Contact Us"}
-          inputcss="px-4 py-3 rounded-[6px] transition-all focus:ring-2 focus:ring-[#CC2B52]/50"
-          labelcss="text-[#3B486E] text-[16px]"
-          buttoncss="mt-6 hover:bg-[#CC2B52]/90 transition-colors"
+          inputcss="px-3 sm:px-4 py-2 sm:py-3 rounded-[6px] transition-all focus:ring-2 focus:ring-[#CC2B52]/50 text-sm sm:text-base"
+          labelcss="text-[#3B486E] text-sm sm:text-base lg:text-[16px]"
+          buttoncss="mt-4 sm:mt-6 hover:bg-[#CC2B52]/90 transition-colors text-sm sm:text-base"
           formData={formData}
           onInputChange={handleInputChange}
           onSubmit={handleContactSubmit}
         />
-        
       </div>
     </section>
   );

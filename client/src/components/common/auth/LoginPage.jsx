@@ -34,7 +34,6 @@ const LoginPage = () => {
 
   // react to auth state
   useEffect(() => {
-    
     if (status === "succeeded" && isAuthenticated) {
       toast.success("Login successful");
       setFormData({ email: "", password: "" });
@@ -61,10 +60,10 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-white">
-      <div className="max-w-[1440px] h-[800px] flex shadow-xl">
+    <div className="w-full min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1440px] min-h-[600px] lg:h-[800px] flex flex-col lg:flex-row shadow-xl rounded-2xl overflow-hidden">
         {/* LEFT: Form */}
-        <div className="md:w-1/2 w-[468px] flex flex-col justify-between px-20 py-6">
+        <div className="w-full lg:w-1/2 flex flex-col justify-between px-4 sm:px-8 lg:px-20 py-6 lg:py-6">
           <Logo />
 
           <FormSection
@@ -89,7 +88,7 @@ const LoginPage = () => {
         </div>
 
         {/* RIGHT: Image */}
-        <div className="hidden rounded-3xl  overflow-hidden  md:block w-1/2">
+        <div className="hidden lg:block lg:w-1/2">
           <img
             src={loginHeader}
             alt="Login Visual"

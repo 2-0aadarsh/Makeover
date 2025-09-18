@@ -50,8 +50,8 @@ const ForgotPasswordPage = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-white">
-      <div className="max-w-[600px] w-full p-10 shadow-xl rounded-2xl">
+    <div className="w-full min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[600px] w-full p-6 sm:p-8 lg:p-10 shadow-xl rounded-2xl">
         <Logo />
         <FormSection
           title="Forgot Password?"

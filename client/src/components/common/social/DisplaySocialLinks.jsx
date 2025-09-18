@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 const DisplaySocialLinks = ({ socialIcons }) => {
   return (
-    <div className="flex gap-5 text-xl text-[#CC2B52]">
+    <div className="flex gap-3 sm:gap-4 lg:gap-5 text-lg sm:text-xl text-[#CC2B52]">
       {socialIcons.map((item) => (
         <a
           key={item.id}

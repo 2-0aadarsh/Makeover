@@ -17,19 +17,24 @@ const Testimonial = () => {
   const loopImages = [...imageContainer, ...imageContainer];
 
   return (
-    <section id="testimonial" className="w-full py-[60px] px-20">
-      <div className="w-full bg-[#3B486E] pl-12 py-9 flex gap-4">
+    <section
+      id="testimonial"
+      className="w-full py-4 sm:py-6 md:py-8 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20"
+    >
+      <div className="w-full bg-[#3B486E] pl-4 sm:pl-6 md:pl-8 lg:pl-12 py-6 sm:py-8 lg:py-9 flex flex-col lg:flex-row gap-4">
         {/* left-container */}
-        <div className="section-header w-1/2 font-sans text-[#FFFFFF] flex flex-col items-start justify-between gap-6">
-          <h3 className="text-[20px] text-[#FFB8C9] font-medium capitalize leading-8">
+        <div className="section-header w-full lg:w-1/2 font-sans text-[#FFFFFF] flex flex-col items-start justify-between gap-4 sm:gap-6">
+          <h3 className="text-lg sm:text-xl text-[#FFB8C9] font-medium capitalize leading-6 sm:leading-8">
             What our customers say
           </h3>
 
-          <p className="text-[18px] leading-7 font-[300]">{review}</p>
+          <p className="text-sm sm:text-base lg:text-[18px] leading-6 sm:leading-7 font-[300]">
+            {review}
+          </p>
         </div>
 
         {/* right-container */}
-        <div className="section-image w-1/2 font-sans text-[#FFFFFF] flex items-center justify-start overflow-hidden mt-6">
+        <div className="section-image w-full lg:w-1/2 font-sans text-[#FFFFFF] flex items-center justify-start overflow-hidden mt-4 sm:mt-6">
           <motion.div
             className="flex gap-6"
             animate={{ x: ["0%", "-50%"] }} // shift left by half width

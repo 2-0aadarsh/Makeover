@@ -16,33 +16,36 @@ const legalLinks = [
 
 const Footer = () => {
   return (
-    <footer className="px-10 md:px-20 py-10 font-inter text-sm">
-      {/* Top Section */}
-      <div className="flex flex-col md:flex-row justify-between items-center border-b border-gray-300 pb-3">
+    <footer className="px-4 sm:px-6 lg:px-20 py-6 sm:py-8 lg:py-10 font-inter text-xs sm:text-sm">
+      {/* Top Section - Single line layout */}
+      <div className="flex justify-between items-center border-b border-gray-300 pb-3">
         <Logo />
 
         <DisplaySocialLinks socialIcons={socialIcons} />
       </div>
 
-      {/* Bottom Section */}
-      <div className="flex flex-col md:flex-row justify-between items-center pt-4 gap-4">
-        {/* Left: Copyright and Legal */}
-        <div className="flex items-center gap-6 flex-wrap text-[#313957]">
-          <span className="text-[#A0A0A0]">© Makeover 2025</span>
+      {/* Bottom Section - Single line layout */}
+      <div className="flex justify-between items-center pt-3 sm:pt-4">
+        {/* Left: Copyright and Legal - Single line */}
+        <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 text-[#313957]">
+          <span className="text-[#A0A0A0] whitespace-nowrap">
+            © Makeover 2025
+          </span>
           {legalLinks.map((item, index) => (
             <Link
               key={index}
               to={item.link}
-              className="hover:underline text-[#313957] font-medium"
+              className="hover:underline text-[#313957] font-medium whitespace-nowrap"
             >
               {item.title}
             </Link>
           ))}
         </div>
 
-        {/* Right: Customer Support */}
-        <div className="text-[#313957] bg-white rounded px-3 py-1 text-xs shadow-sm">
-          Customer Support:
+        {/* Right: Customer Support - Single line */}
+        <div className="text-[#313957] bg-white rounded px-2 sm:px-3 py-1 text-xs shadow-sm whitespace-nowrap">
+          <span className="hidden sm:inline">Customer Support: </span>
+          <span className="sm:hidden">Support: </span>
           <span className="font-semibold">+91-8969699521</span>
         </div>
       </div>

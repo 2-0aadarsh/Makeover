@@ -27,7 +27,7 @@ const Button = ({
         smooth={true}
         duration={500}
         offset={-50} // adjust for fixed navbar
-        className={`py-2 px-4 bg-[#CC2B52] hover:bg-[#CC2B52]/90 transition-all duration-300 text-white rounded-sm flex items-center justify-center gap-2 text-sm cursor-pointer ${css}`}
+        className={`bg-[#CC2B52] hover:bg-[#CC2B52]/90 transition-all duration-300 text-white flex items-center justify-center cursor-pointer font-inter font-semibold rounded-full px-4 sm:px-6 py-2 sm:py-3 gap-2 min-w-fit text-sm sm:text-base ${css}`}
       >
         {content}
         {icon}
@@ -38,7 +38,7 @@ const Button = ({
   // Default button with redirect or onClick
   return (
     <button
-      className={`py-2 px-4 bg-[#CC2B52] hover:bg-[#CC2B52]/90 transition-all duration-300 text-white rounded-sm flex items-center justify-center gap-2 text-sm ${css}`}
+      className={`bg-[#CC2B52] hover:bg-[#CC2B52]/90 transition-all duration-300 text-white flex items-center justify-center font-inter font-medium rounded-full px-4 sm:px-6 py-2 sm:py-3 gap-2 min-w-fit text-sm sm:text-base ${css}`}
       onClick={onClickFunction ? onClickFunction : handleClick}
       tabIndex={0}
     >

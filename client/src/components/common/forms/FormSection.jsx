@@ -15,19 +15,22 @@ const FormSection = ({
   onSubmit,
   isLoading,
 }) => {
-
-   
-
   return (
-    <div className="flex flex-col justify-evenly  font-inter  max-h-[800px] min-h-[350px] h-full">
+    <div className="flex flex-col justify-evenly font-inter max-h-[800px] min-h-[350px] h-full">
       <div className="flex flex-col gap-1">
-        {title && <h2 className="title font-semibold text-[32px]">{title}</h2>}
+        {title && (
+          <h2 className="title font-semibold text-2xl sm:text-3xl lg:text-[32px]">
+            {title}
+          </h2>
+        )}
         {description && (
-          <p className="text-[12px] text-[#313957]">{description}</p>
+          <p className="text-xs sm:text-sm lg:text-[12px] text-[#313957]">
+            {description}
+          </p>
         )}
       </div>
       <form
-        className="input-containers flex flex-col gap-6"
+        className="input-containers flex flex-col gap-4 sm:gap-6"
         onSubmit={onSubmit}
       >
         {inputData.map((input, index) => (
@@ -47,7 +50,7 @@ const FormSection = ({
         {forgetPassword && (
           <button
             type="button"
-            className="text-[#000000] font-inter text-[12px] font-semibold underline flex justify-end -mt-3"
+            className="text-[#000000] font-inter text-xs sm:text-sm lg:text-[12px] font-semibold underline flex justify-end -mt-3"
             onClick={forgetPassword}
           >
             Forget Password?
