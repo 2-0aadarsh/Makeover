@@ -2,7 +2,7 @@
 import ServiceModal from "../ServiceModal";
 
 // classic images
-import faceAndNeckBleach   from "../../../assets/modals/bleach and de-tan/classic/faceAndNeckBleach.png";
+import faceAndNeckBleach from "../../../assets/modals/bleach and de-tan/classic/faceAndNeckBleach.png";
 import handsAndLegsBleach from "../../../assets/modals/bleach and de-tan/classic/handsAndLegsBleach.png";
 import faceAndNeckDetan from "../../../assets/modals/bleach and de-tan/classic/faceAndNeckDetan.png";
 import handsAndLegsDetan from "../../../assets/modals/bleach and de-tan/classic/handsAndLegsDetan.png";
@@ -12,7 +12,6 @@ import fullBodyDetan from "../../../assets/modals/bleach and de-tan/classic/full
 import fullBodyPolish from "../../../assets/modals/bleach and de-tan/premium/fullBodyPolish.png";
 
 const BleachAndDeTanModal = ({ onClose }) => {
-
   const card = [
     {
       title: "Classic",

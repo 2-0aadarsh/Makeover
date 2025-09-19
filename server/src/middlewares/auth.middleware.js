@@ -39,7 +39,6 @@ const validateSignup = (req, res, next) => {
 
 const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
-
   if (!email && !password) {
     return res.status(400).json({ success : false, message: "Email and password are required" });
   }
@@ -89,7 +88,6 @@ const checkAuth = async (req, res, next) => {
     // CASE 2: Access token exists, verify it
     try {
       const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
-      console.log(decoded)
       req.user = decoded;
       return next();
 

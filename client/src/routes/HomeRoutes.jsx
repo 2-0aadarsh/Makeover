@@ -10,7 +10,6 @@ import AuthLayout from "../components/layout/AuthLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import AuthRoute from "./AuthRoute";
 import ForgotPasswordRoute from "./ForgotPasswordRoute";
-import VerifyEmailRoute from "./VerifyEmailRoute";
 
 // Lazy load page components
 const HomePage = lazy(() => import("../pages/home/HomePage"));

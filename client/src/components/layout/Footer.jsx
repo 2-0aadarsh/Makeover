@@ -16,33 +16,37 @@ const legalLinks = [
 
 const Footer = () => {
   return (
-    <footer className="px-10 md:px-20 py-10 font-inter text-sm">
-      {/* Top Section */}
-      <div className="flex flex-col md:flex-row justify-between items-center border-b border-gray-300 pb-3">
+    <footer className="px-4 sm:px-6 lg:px-20 py-4 sm:py-6 lg:py-8 font-inter text-xs sm:text-sm md:text-base">
+      {/* Top Section - Responsive layout */}
+      <div className="flex flex-row justify-between items-center gap-3 md:gap-0 border-b border-gray-300 pb-3 sm:pb-4">
         <Logo />
-
         <DisplaySocialLinks socialIcons={socialIcons} />
       </div>
 
-      {/* Bottom Section */}
-      <div className="flex flex-col md:flex-row justify-between items-center pt-4 gap-4">
+      {/* Bottom Section - Responsive layout */}
+      <div className="flex flex-row justify-between items-end gap-3 md:gap-0 pt-3 sm:pt-4 ">
         {/* Left: Copyright and Legal */}
-        <div className="flex items-center gap-6 flex-wrap text-[#313957]">
-          <span className="text-[#A0A0A0]">© Makeover 2025</span>
-          {legalLinks.map((item, index) => (
-            <Link
-              key={index}
-              to={item.link}
-              className="hover:underline text-[#313957] font-medium"
-            >
-              {item.title}
-            </Link>
-          ))}
+        <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 lg:gap-6 text-[#313957]">
+          <span className="text-[#A0A0A0] whitespace-nowrap text-xs sm:text-sm md:text-base">
+            © Makeover 2025
+          </span>
+          <div className="flex items-center gap-2 md:gap-4">
+            {legalLinks.map((item, index) => (
+              <Link
+                key={index}
+                to={item.link}
+                className="hover:underline text-[#313957] font-medium whitespace-nowrap text-center text-xs sm:text-sm md:text-base"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Right: Customer Support */}
-        <div className="text-[#313957] bg-white rounded px-3 py-1 text-xs shadow-sm">
-          Customer Support:
+        <div className="text-[#313957] bg-white rounded px-2 sm:px-3 sm:py-2 shadow-sm whitespace-nowrap text-xs sm:text-sm md:text-base">
+          <span className="hidden sm:inline">Customer Support: </span>
+          <span className="sm:hidden">Support: </span>
           <span className="font-semibold">+91-8969699521</span>
         </div>
       </div>

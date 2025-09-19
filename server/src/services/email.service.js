@@ -32,7 +32,6 @@ const sendForgetPassword = async(to, subject, emailContent) => {
     // Reset URL: frontend + token
     // const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${emailContent.token}`;
     const resetUrl = `${emailContent.url}`;
-    console.log(resetUrl)
     // Generate HTML using template
     const emailHtml = passwordResetEmailTemplate(resetUrl)
       .replaceAll('[User]', emailContent.username)

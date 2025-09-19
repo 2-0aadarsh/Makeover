@@ -4,10 +4,11 @@ import { toast } from "react-toastify";
 
 const initialState = {
   user: null,
+  userEmail: null,
   status: "idle",
   error: null,
   isAuthenticated: false,
-  signupSuccess: false, 
+  signupSuccess: false,
   forgotPasswordSuccess: false,
   resetPasswordSuccess: false,
 };
@@ -22,6 +23,10 @@ export const AuthSlice = createSlice({
       state.signupSuccess = false;
       state.forgotPasswordSuccess = false;
       state.resetPasswordSuccess = false;
+    },
+
+    clearUserEmail: (state) => {
+      state.userEmail = null; // allow manual reset if needed
     },
   },
 
@@ -42,6 +47,7 @@ export const AuthSlice = createSlice({
       .addCase(signupUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.signupSuccess = true;
+        state.userEmail = action.meta.arg.email;
         toast.success(
           action.payload.message ||
             "Signup successful. Check your email for verification."
@@ -62,6 +68,7 @@ export const AuthSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload.user; // comes from backend
         state.isAuthenticated = true; // user is now logged in after verification
+        state.userEmail = null;
         toast.success("OTP verified successfully");
       })
 
@@ -88,7 +95,6 @@ export const AuthSlice = createSlice({
         state.error = action.payload || action.error.message;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log("fulfilled", action.payload);
         state.status = "succeeded";
         state.user = action.payload.user;
         state.isAuthenticated = true;
@@ -124,6 +130,7 @@ export const AuthSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.error = null;
+        state.userEmail = null;
         toast.success("Logged out successfully!");
       })
 

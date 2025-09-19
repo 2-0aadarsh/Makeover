@@ -19,7 +19,6 @@ export const setCache = async (key, value, ttlInSeconds) => {
 export const getCache = async (key) => {
   try {
     const data = await redis.get(key);
-    console.log(data)
     return data ? await JSON.parse(data) : null;
   } catch (error) {
     console.error(`Error getting cache for key "${key}":`, error);

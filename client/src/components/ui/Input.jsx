@@ -21,7 +21,10 @@ const Input = ({
 
   return (
     <div className="input flex flex-col gap-2 font-inter relative">
-      <label htmlFor={id} className={`text-sm capitalize ml-1 ${labelcss}`}>
+      <label
+        htmlFor={id}
+        className={`text-xs sm:text-sm capitalize ml-1 ${labelcss}`}
+      >
         {labelName}
       </label>
 
@@ -30,16 +33,20 @@ const Input = ({
         id={id}
         value={value}
         onChange={onChange}
-        className={`w-full py-3 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] ${inputcss}`}
+        className={`w-full py-2 sm:py-3 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] text-sm sm:text-base ${inputcss}`}
         placeholder={placeholder}
       />
 
       {isPassword && (
         <span
           onClick={togglePasswordVisibility}
-          className="absolute right-5 top-[69%] transform -translate-y-1/2 cursor-pointer text-gray-500"
+          className="absolute right-3 sm:right-5 top-[65%] sm:top-[69%] transform -translate-y-1/2 cursor-pointer text-gray-500"
         >
-          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          {showPassword ? (
+            <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" />
+          ) : (
+            <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
+          )}
         </span>
       )}
     </div>

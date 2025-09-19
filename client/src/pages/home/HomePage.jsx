@@ -12,7 +12,7 @@ const HomePage = () => {
 
   const { isAuthenticated } = useSelector(state => state.auth)
   return (
-    <div>
+    <div className="">
       <Hero />
       <AboutUs />
       <Cilents />

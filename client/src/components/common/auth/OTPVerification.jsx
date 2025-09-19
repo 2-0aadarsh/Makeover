@@ -1,5 +1,3 @@
-
-
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from "react";
 import Button from "../../ui/Button";
@@ -117,28 +115,32 @@ const OTPVerification = ({
   }, []);
 
   return (
-    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-6">
+    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-4 sm:p-6 border-4">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-[#CC2B52] mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#CC2B52] mb-2">
           {purposeMessages[purpose] || "OTP Verification"}
         </h2>
 
-        <p className="text-gray-600 mb-4">
+        <p className="text-sm sm:text-base text-gray-600 mb-4">
           We&apos;ve sent a 6-digit verification code to
         </p>
 
         {email && (
-          <p className="font-semibold text-lg text-[#313957] mb-1">{email}</p>
+          <p className="font-semibold text-base sm:text-lg text-[#313957] mb-1 break-all">
+            {email}
+          </p>
         )}
 
         {phone && (
-          <p className="font-semibold text-lg text-[#313957]">+{phone}</p>
+          <p className="font-semibold text-base sm:text-lg text-[#313957]">
+            +{phone}
+          </p>
         )}
       </div>
 
       {/* OTP Input Fields */}
       <div className="mb-6">
-        <div className="flex justify-center space-x-3 mb-4">
+        <div className="flex justify-center space-x-2 sm:space-x-3 mb-4">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -150,7 +152,7 @@ const OTPVerification = ({
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={handlePaste}
               ref={(el) => (inputRefs.current[index] = el)}
-              className={`w-12 h-12 text-center text-xl border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] ${
+              className={`w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-xl border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] ${
                 error ? "border-red-500" : "border-gray-300"
               }`}
               disabled={isSubmitting}
@@ -174,7 +176,7 @@ const OTPVerification = ({
         />
 
         <div className="text-center mt-4">
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             {countdown > 0 ? (
               `Resend OTP in ${countdown} seconds`
             ) : (

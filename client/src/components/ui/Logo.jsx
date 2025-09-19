@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import LogoImg from "../../assets/Logo/Logo.png"
+import LogoImg from "../../assets/Logo/Logo.png";
 
 const Logo = () => {
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
-    navigate("/");  
-  }
+    navigate("/");
+  };
 
   return (
     // <h1
@@ -19,7 +19,7 @@ const Logo = () => {
     // </h1>
     <div
       onClick={handleLogoClick}
-      className="w-[171px] h-[36px] cursor-pointer"
+      className="w-[120px] sm:w-[150px] lg:w-[171px] h-[24px] sm:h-[30px] lg:h-[36px] cursor-pointer"
     >
       <img
         src={LogoImg}
@@ -28,6 +28,6 @@ const Logo = () => {
       />
     </div>
   );
-}
+};
 
-export default Logo
+export default Logo;

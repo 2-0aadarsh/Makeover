@@ -1,7 +1,10 @@
+import { backendurl } from "../../constants";
+
 // 1. login api
 export const loginApi = async({email, password})=>{
   const res = await fetch(
-    "http://localhost:3000/auth/login", 
+    // "http://localhost:3000/auth/login", 
+    `${backendurl}/auth/login`, 
     {
       method : 'POST',
       headers : {
@@ -22,7 +25,8 @@ export const loginApi = async({email, password})=>{
 
 // 2. signup api
 export const signupApi = async ({ name, email, phoneNumber, password, confirmPassword }) => {
-  const res = await fetch("http://localhost:3000/auth/register", {
+  // const res = await fetch("http://localhost:3000/auth/register", {
+  const res = await fetch( `${backendurl}/auth/register`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -40,7 +44,7 @@ export const signupApi = async ({ name, email, phoneNumber, password, confirmPas
 
 // 3. verify-otp api
 export const verifyOtpApi = async ({ email, otp }) => {
-  const res = await fetch("http://localhost:3000/auth/register/verify-otp", {
+  const res = await fetch(`${backendurl}/auth/register/verify-otp`, {
     method: "POST",
     credentials: "include", // important for cookies
     headers: {
@@ -48,7 +52,7 @@ export const verifyOtpApi = async ({ email, otp }) => {
     },
     body: JSON.stringify({ email, otp }),
   });
-
+  
   const data = await res.json();
 
   if (!res.ok) {
@@ -61,7 +65,7 @@ export const verifyOtpApi = async ({ email, otp }) => {
 
 // 3. forget-password api
 export const forgetPassword = async (email) => {
-  const res = await fetch("http://localhost:3000/auth/forget-password", {
+  const res = await fetch(`${backendurl}/auth/forget-password`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -78,7 +82,7 @@ export const forgetPassword = async (email) => {
 
 // 4. reset-password api
 export const resetPasswordApi = async ({ id, token, password, confirmPassword }) => {
-  const res = await fetch(`http://localhost:3000/auth/reset-password/${id}/${token}`, {
+  const res = await fetch(`${backendurl}/auth/reset-password/${id}/${token}`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -95,7 +99,7 @@ export const resetPasswordApi = async ({ id, token, password, confirmPassword })
 
 // 5. resend-otp api
 export const resendOtpApi = async (email) => {
-  const res = await fetch("http://localhost:3000/auth/resend-otp", {
+  const res = await fetch(`${backendurl}/auth/resend-otp`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -114,7 +118,7 @@ export const resendOtpApi = async (email) => {
 // 6. check user-exists api
 export const checkLoginStatusApi = async () => {
   try {
-    const res = await fetch("http://localhost:3000/auth/status", {
+    const res = await fetch(`${backendurl}/auth/status`, {
       credentials: "include",
     });
 
@@ -135,7 +139,7 @@ export const checkLoginStatusApi = async () => {
 
 // 7. logout api
 export const logoutApi = async()=>{
-  const res = await fetch("http://localhost:3000/auth/logout", {
+  const res = await fetch(`${backendurl}/auth/logout`, {
     method: "POST",
     credentials: "include", // sends cookie
   });

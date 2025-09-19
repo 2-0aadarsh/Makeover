@@ -19,7 +19,6 @@ export const checkLoginStatus = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await checkLoginStatusApi();
-      console.log(res)
       if (!res.success && res.message?.includes("No access & refresh token")) {
         return { success: false, loggedIn: false, user: null };
       }
@@ -74,6 +73,7 @@ export const signupUser = createAsyncThunk(
 export const verifyOtpThunk = createAsyncThunk(
   "auth/verifyOtp",
   async ({ email, otp }, { rejectWithValue }) => {
+    
     try {
       const data = await verifyOtpApi({ email, otp });
       return data;

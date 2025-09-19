@@ -18,8 +18,6 @@ const useSignup = () => {
       });
 
       const data = await res.json();
-      console.log(res)
-      console.log(data)
       if (!res.ok) {
         setError(data?.message || 'Signup failed');
         return null;

@@ -11,7 +11,6 @@ import fullBodyPremium from "../../../assets/modals/waxing/premium/fullBody-prem
 import handsAndLegsPremium from "../../../assets/modals/waxing/premium/handsAndLegs-premium.png";
 
 const WaxingModal = ({ onClose }) => {
-
   const card = [
     {
       title: "Classic",
