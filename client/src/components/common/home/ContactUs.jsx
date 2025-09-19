@@ -77,7 +77,7 @@ const ContactUs = () => {
   return (
     <section
       id="contact-us"
-      className="contact-us flex flex-col lg:flex-row justify-between items-start w-full min-h-[706px] py-4 sm:py-6 md:py-8 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20 gap-8 lg:gap-0"
+      className="contact-us flex flex-col lg:flex-row justify-evenly sm:justify-between items-start w-full min-h-[706px] py-4 sm:py-6 md:py-8 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20 gap-4 sm:gap-6 md:gap-8 lg:gap-0"
     >
       {/* Left side text */}
       <div className="message font-normal text-xl sm:text-2xl md:text-3xl lg:text-[54px] leading-tight sm:leading-relaxed lg:leading-[72px] text-[#212121] w-full lg:w-[728px]">

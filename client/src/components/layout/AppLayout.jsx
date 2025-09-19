@@ -1,15 +1,14 @@
 import ScrollToTop from "../../provider/ScrollToTop";
-import Footer from "./Footer"
-import Header from "./Header"
+import Footer from "./Footer";
+import Header from "./Header";
 import { Outlet, ScrollRestoration } from "react-router-dom";
 
 const AppLayout = () => {
-   
   return (
-    <div className="app min-h-screen flex flex-col justify-between">
+    <div className="w-full min-h-screen flex flex-col justify-between">
       <ScrollToTop />
       <Header />
-      <main className="flex-1 pt-[61px]">
+      <main className="flex-1 pt-[61px] w-full">
         <Outlet />
       </main>
       <Footer />
@@ -17,6 +16,6 @@ const AppLayout = () => {
       <ScrollRestoration />
     </div>
   );
-}
+};
 
-export default AppLayout
+export default AppLayout;

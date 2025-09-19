@@ -17,7 +17,7 @@ function App() {
   }, []);
 
   return (
-    <div className="app">
+    <div className="app w-full">
       <RouterProvider router={router} />;
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

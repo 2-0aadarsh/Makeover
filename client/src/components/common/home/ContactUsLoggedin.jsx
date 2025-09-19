@@ -5,10 +5,10 @@ const ContactUsLoggedin = () => {
   return (
     <section
       id="contact-us"
-      className="contact-us flex flex-col lg:flex-row sm:justify-normal items-start w-full sm:min-h-[400px] md:min-h-[706px] py-2 sm:py-4 md:py-6 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20 gap-2 sm:gap-3 lg:gap-0"
+      className="contact-us flex flex-col lg:flex-row justify-evenly sm:justify-between items-start w-full sm:min-h-[400px] md:min-h-[706px] py-2 sm:py-4 md:py-6 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20 gap-4 sm:gap-6 md:gap-8 lg:gap-0"
     >
       {/* Left side text */}
-      <div className="flex flex-col items-start h-auto lg:h-[506px] justify-center gap-2 sm:gap-3 font-normal text-xl sm:text-2xl md:text-3xl lg:text-[54px] leading-tight sm:leading-relaxed lg:leading-[72px] text-[#212121] w-full lg:w-[728px]">
+      <div className="flex flex-col items-start h-auto lg:h-[506px] justify-center gap-3 sm:gap-4 md:gap-5 font-normal text-xl sm:text-2xl md:text-3xl lg:text-[54px] leading-tight sm:leading-relaxed lg:leading-[72px] text-[#212121] w-full lg:w-[728px]">
         <h3 className="text-[#CC2B52] text-base sm:text-lg lg:text-xl leading-5 sm:leading-6 lg:leading-8 font-medium">
           Our application for Android & iOS will be releasing soon
         </h3>

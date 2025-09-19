@@ -11,10 +11,10 @@ const HomePage = () => {
       <Hero />
       <AboutUs />
       <Cilents />
-      <Feedback/>
+      <Feedback />
       <ContactUs />
     </div>
-  )
+  );
 }
 
 export default HomePage
