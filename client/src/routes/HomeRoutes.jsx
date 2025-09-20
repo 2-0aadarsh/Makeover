@@ -10,6 +10,7 @@ import AuthLayout from "../components/layout/AuthLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import AuthRoute from "./AuthRoute";
 import ForgotPasswordRoute from "./ForgotPasswordRoute";
+import VerifyEmailRoute from "./VerifyEmailRoute.jsx";
 
 // Lazy load page components
 const HomePage = lazy(() => import("../pages/home/HomePage"));
@@ -22,7 +23,7 @@ const AboutUsPage = lazy(() => import("../components/common/aboutUs/AboutUsPage"
 const TermsAndConditionsPage = lazy(() => import("../pages/home/TermsAndConditionsPage"));
 const PrivacyPolicy = lazy(() => import("../pages/home/PrivacyPolicy"));
 const ForgotPasswordPage = lazy(() => import("../components/common/auth/ForgotPasswordPage"));
-const MyBookings = lazy(() => import("../components/common/bookings/MyBookings"));
+const MyBookings = lazy(() => import("../components/common/bookings/BookingPage"));
 
 // Loading wrapper component
 const LazyWrapper = ({ children }) => (

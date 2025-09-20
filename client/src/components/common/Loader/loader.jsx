@@ -1,4 +1,5 @@
 import React from 'react';
+import loaderGif from "../../../assets/Loader/loader.gif";
 
 const Loader = ({ 
   size = 'medium', 
@@ -34,7 +35,7 @@ const Loader = ({
   const spinner = useCustomGif ? (
     <div className="flex flex-col items-center justify-center gap-3">
       <img 
-        src="/loader.gif" 
+        src={loaderGif}
         alt="Loading..." 
         className={`${gifSizeClasses[size]} object-contain`}
       />
