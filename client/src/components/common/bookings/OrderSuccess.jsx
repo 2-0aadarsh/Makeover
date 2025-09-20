@@ -70,16 +70,16 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex justify-center items-center">
+    <div className="min-h-screen bg-white flex justify-center items-center pt-16 pb-8">
       {/* Main Content */}
-      <div className="w-full max-w-[603px] mx-auto flex flex-col items-center py-12 px-4 border border-dashed border-blue-300 rounded-lg">
+      <div className="w-full max-w-[603px] mx-auto flex flex-col items-center py-8 sm:py-12 px-4 sm:px-6 border border-dashed border-blue-300 rounded-lg">
         {/* Header */}
-        <h1 className="font-['DM_Sans'] font-semibold text-[32px] leading-[100%] tracking-[0.01em] text-black mb-8">
+        <h1 className="font-['DM_Sans'] font-semibold text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-[100%] tracking-[0.01em] text-black mb-6 sm:mb-8 text-center">
           Thanks For Booking With Makeover 👋
         </h1>
 
         {/* Animation/Image */}
-        <div className="w-[150px] h-[150px] flex items-center justify-center mb-8">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-[150px] lg:h-[150px] flex items-center justify-center mb-6 sm:mb-8">
           <img
             src="/src/assets/modals/profile/polarBear.gif"
             alt="Success Animation"
@@ -92,8 +92,8 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
         </div>
 
         {/* Booking Message */}
-        <div className="w-full text-center mb-12">
-          <p className="font-['DM_Sans'] font-semibold text-[16px] leading-[200%] text-black">
+        <div className="w-full text-center mb-8 sm:mb-12">
+          <p className="font-['DM_Sans'] font-semibold text-sm sm:text-base md:text-[16px] leading-[200%] text-black px-2">
             Your booking is successful placed for selected services on{" "}
             {formatDate(orderData.appointmentDate)},{" "}
             {formatTime(orderData.appointmentTime)}.
@@ -104,12 +104,12 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col gap-4 w-full max-w-[319px] mb-8">
+        <div className="flex flex-col gap-3 sm:gap-4 w-full max-w-[319px] mb-6 sm:mb-8">
           <button
             onClick={handleContinueBrowsing}
-            className="w-full h-[52px] border border-[#CC2B52] rounded-xl flex justify-center items-center"
+            className="w-full h-12 sm:h-[52px] border border-[#CC2B52] rounded-xl flex justify-center items-center hover:bg-[#CC2B52] hover:text-white transition-colors duration-200"
           >
-            <span className="font-['DM_Sans'] font-normal text-[20px] leading-[100%] tracking-[0.01em] text-[#CC2B52]">
+            <span className="font-['DM_Sans'] font-normal text-base sm:text-lg md:text-[20px] leading-[100%] tracking-[0.01em] text-[#CC2B52] hover:text-white">
               Continue Browsing
             </span>
           </button>
@@ -118,9 +118,9 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
           {orderData.paymentMethod === "cash" && (
             <button
               onClick={handlePayNow}
-              className="w-full h-[52px] bg-[#CC2B52] rounded-xl flex justify-center items-center"
+              className="w-full h-12 sm:h-[52px] bg-[#CC2B52] rounded-xl flex justify-center items-center hover:bg-[#B02547] transition-colors duration-200"
             >
-              <span className="font-['DM_Sans'] font-normal text-[20px] leading-[100%] tracking-[0.01em] text-white">
+              <span className="font-['DM_Sans'] font-normal text-base sm:text-lg md:text-[20px] leading-[100%] tracking-[0.01em] text-white">
                 Pay {formatPrice(orderData.totalAmount)} Now
               </span>
             </button>
@@ -129,10 +129,10 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
 
         {/* Booking Details Link */}
         <div className="text-center">
-          <p className="font-['Roboto'] font-normal text-[16px] leading-[160%] tracking-[0.01em] text-[#313957]">
+          <p className="font-['Roboto'] font-normal text-sm sm:text-base md:text-[16px] leading-[160%] tracking-[0.01em] text-[#313957] px-2">
             View booking details here{" "}
             <span
-              className="text-[#CC2B52] cursor-pointer underline"
+              className="text-[#CC2B52] cursor-pointer underline hover:no-underline transition-all duration-200"
               onClick={handleViewBookingDetails}
             >
               Booking Details
@@ -141,8 +141,8 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-12">
-          <p className="font-['Roboto'] font-normal text-[12px] leading-[100%] tracking-[0.01em] text-[#959CB6]">
+        <div className="mt-8 sm:mt-12">
+          <p className="font-['Roboto'] font-normal text-xs sm:text-[12px] leading-[100%] tracking-[0.01em] text-[#959CB6]">
             © MAKEOVER 2025 ALL RIGHTS RESERVED
           </p>
         </div>

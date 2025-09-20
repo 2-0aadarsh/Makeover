@@ -123,4 +123,26 @@ const checkAuth = async (req, res, next) => {
 
 
 
-export { validateSignup, validateLogin, checkAuth };
+// Alias for checkAuth to match the expected name
+const authenticateToken = checkAuth;
+
+// Admin role middleware
+const requireAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+  
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required'
+    });
+  }
+  
+  next();
+};
+
+export { validateSignup, validateLogin, checkAuth, authenticateToken, requireAdmin };

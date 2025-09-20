@@ -50,7 +50,7 @@ const Header = () => {
       <Logo />
 
       {/* LARGE SCREEN LAYOUT (lg and above) */}
-      <div className="hidden lg:flex lg:items-center lg:flex-1 lg:justify-center lg:ml-8">
+      <div className="hidden lg:flex lg:items-center lg:flex-1 lg:justify-center">
         {/* Navigation Links - Show on all pages */}
         <div className="nav-links flex gap-8 xl:gap-12">
           {navigationLinks.map((link, index) =>

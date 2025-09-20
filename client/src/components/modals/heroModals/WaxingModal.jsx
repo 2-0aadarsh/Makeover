@@ -24,6 +24,7 @@ const WaxingModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "full_body_waxing_classic",
         },
         {
           img: handsAndLegsClassic,
@@ -34,6 +35,7 @@ const WaxingModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "hands_and_legs_waxing_classic",
         },
       ],
     },
@@ -49,6 +51,7 @@ const WaxingModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "bikini_waxing_premium",
         },
         {
           img: fullBodyPremium,
@@ -59,6 +62,7 @@ const WaxingModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "full_body_waxing_premium",
         },
         {
           img: handsAndLegsPremium,
@@ -69,6 +73,7 @@ const WaxingModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "hands_and_legs_waxing_premium",
         },
       ],
     },

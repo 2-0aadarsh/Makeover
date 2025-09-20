@@ -8,6 +8,8 @@ import connectDB from './configs/mongodb.config.js';
 import redis from './configs/redis.config.js';
 import contactRouter from './routes/contactUs.routes.js';
 import authRouter from './routes/auth.routes.js';
+import serviceRouter from './routes/service.routes.js';
+import cartRouter from './routes/cart.routes.js';
 
 const app = express();
 
@@ -34,6 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/", contactRouter);
 app.use('/auth', authRouter);
+app.use('/api/services', serviceRouter);
+app.use('/api/cart', cartRouter);
 
 app.disable('x-powered-by');
 
@@ -49,6 +53,6 @@ app.get('/', (req, res) => {
 export default app;
 
 // for developemental
-// app.listen(3000, () => {
-//   console.log('Server is running on port 3000');
+//app.listen(3000, () => {
+  //console.log('Server is running on port 3000');
 // });

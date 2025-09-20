@@ -9,8 +9,7 @@ import { useSelector } from "react-redux";
 import ContactUsLoggedin from "../../components/common/home/ContactUsLoggedin";
 
 const HomePage = () => {
-
-  const { isAuthenticated } = useSelector(state => state.auth)
+  const { isAuthenticated } = useSelector((state) => state.auth);
   return (
     <div className="">
       <Hero />

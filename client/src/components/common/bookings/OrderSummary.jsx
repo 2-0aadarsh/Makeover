@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Minus, Plus } from "lucide-react";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
@@ -13,11 +13,17 @@ import AddressDetail from "./AddressDetail";
 const OrderSummary = ({
   services: initialServices = [],
   onPaymentComplete,
+  onQuantityChange,
   isLoading = false,
 }) => {
   // State management
   const [services, setServices] = useState(initialServices);
   const [currentAddress, setCurrentAddress] = useState("");
+
+  // Update local services state when props change
+  useEffect(() => {
+    setServices(initialServices);
+  }, [initialServices]);
 
   // Calculate total amount from services
   const totalAmount = services.reduce((sum, service) => {
@@ -31,6 +37,11 @@ const OrderSummary = ({
     const newQuantity = Math.max(1, currentQuantity + change);
     newServices[serviceIndex].quantity = newQuantity;
     setServices(newServices);
+
+    // If onQuantityChange prop is provided, call it to update the cart
+    if (onQuantityChange && newServices[serviceIndex].id) {
+      onQuantityChange(newServices[serviceIndex].id, newQuantity);
+    }
   };
 
   // Format price to INR currency format
@@ -238,9 +249,11 @@ OrderSummary.propTypes = {
       price: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
       image: PropTypes.string,
+      id: PropTypes.string, // Add id prop for cart updates
     })
   ),
   onPaymentComplete: PropTypes.func,
+  onQuantityChange: PropTypes.func, // Add onQuantityChange prop
   isLoading: PropTypes.bool,
 };
 

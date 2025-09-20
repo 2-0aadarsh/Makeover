@@ -10,32 +10,38 @@ const ProfessionalMehendiModal = ({ onClose }) => {
     {
       img: BridalMehendi,
       cardHeader: "Bridal Mehendi",
-      description: "Let your hands tell a love story with our bespoke Bridal Mehendi designs",
+      description:
+        "Let your hands tell a love story with our bespoke Bridal Mehendi designs",
       Price: "6999",
       PriceEstimate: null,
       includingTax: true,
       service: "Both Hands & Legs",
-      button: "Add +" ,
+      button: "Add +",
+      service_id: "bridal_mehendi",
     },
     {
       img: MehendiForAll,
       cardHeader: "Mehendi For All",
-      description: "From casual charm to festive flair—mehendi that suits every style",
+      description:
+        "From casual charm to festive flair—mehendi that suits every style",
       Price: "899",
       PriceEstimate: null,
       includingTax: true,
       service: "Both Hands & Legs",
-      button: "Add +" ,
+      button: "Add +",
+      service_id: "mehendi_for_all",
     },
     {
       img: CustomDesigns,
       cardHeader: "Custom Designs",
-      description: "From names to motifs—custom mehendi that’s as unique as you are ",
+      description:
+        "From names to motifs—custom mehendi that's as unique as you are ",
       Price: null,
       PriceEstimate: "1k-8k",
       includingTax: true,
       service: "On Demand",
       button: "Add +",
+      service_id: "custom_designs_mehendi",
     },
   ];
   return (

@@ -1,34 +1,49 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useCart } from "../../hooks/useCart";
 import { HiShoppingCart } from "react-icons/hi";
 
 const CartButton = () => {
-  const [itemCount] = useState(3); // This would typically come from Redux store
   const navigate = useNavigate();
+  const location = useLocation();
+  const { totalServices } = useCart();
+
+  // Check if we're on the cart page
+  const isActive = location.pathname === "/cart";
 
   const handleCartClick = () => {
+    console.log("🛒 Cart button clicked - navigating to cart page");
     navigate("/cart");
   };
 
   return (
     <button
       onClick={handleCartClick}
-      className="relative flex items-center justify-center bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-      style={{
-        width: "40px",
-        height: "40px",
-        border: "2px solid #CC2B52",
-        borderRadius: "50%",
-      }}
-      aria-label="Shopping cart"
+      className={`relative p-2 rounded-full transition-colors duration-200 ${
+        isActive
+          ? "bg-[#CC2B52] text-white"
+          : "text-[#CC2B52] hover:bg-[#CC2B52]/10"
+      }`}
+      aria-label="Go to cart"
     >
-      {/* Cart Icon */}
-      <HiShoppingCart className="text-[#CC2B52]" size={20} />
+      <HiShoppingCart
+        className={isActive ? "text-white" : "text-[#CC2B52]"}
+        size={20}
+      />
 
-      {/* Item count badge */}
-      {itemCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-[#CC2B52] text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
-          {itemCount}
+      {/* Cart Badge */}
+      {totalServices > 0 && (
+        <span
+          className={`absolute -top-1 -right-1 text-xs font-bold flex items-center justify-center min-w-[18px] h-[18px] px-1 ${
+            isActive
+              ? "bg-white text-[#CC2B52] rounded-full shadow-md border border-[#CC2B52]/20"
+              : "bg-[#CC2B52] text-white rounded-full shadow-md"
+          }`}
+          style={{
+            fontSize: "10px",
+            lineHeight: "1",
+          }}
+        >
+          {totalServices}
         </span>
       )}
     </button>

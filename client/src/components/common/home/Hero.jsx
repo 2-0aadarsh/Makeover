@@ -61,7 +61,7 @@ const Hero = () => {
   return (
     <main
       id="hero"
-      className="w-full min-h-screen flex flex-col lg:flex-row lg:h-[700px] lg:items-center lg:justify-between"
+      className="w-full flex flex-col lg:flex-row min-h-[350px] sm:min-h-[450px] md:min-h-[750px] lg:h-[700px] lg:items-center lg:justify-between"
     >
       {/* Hero Image Section - Mobile/Tablet: Full width, Desktop: Left half */}
       <div className="w-full h-[300px] sm:h-[400px] md:h-[450px] lg:w-1/2 lg:h-full flex items-center justify-center order-1 lg:order-1">
