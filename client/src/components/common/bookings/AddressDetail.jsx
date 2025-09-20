@@ -22,6 +22,7 @@ const AddressDetail = ({
     city: "",
     isDefault: false
   });
+  const [editingAddressId, setEditingAddressId] = useState(null);
 
   // Start with empty saved addresses - first address added will be default
   const [savedAddresses, setSavedAddresses] = useState([]);
@@ -42,6 +43,13 @@ const AddressDetail = ({
   useEffect(() => {
     localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
   }, [savedAddresses]);
+
+  // Sort addresses so default is always first
+  const sortedAddresses = [...savedAddresses].sort((a, b) => {
+    if (a.isDefault && !b.isDefault) return -1;
+    if (!a.isDefault && b.isDefault) return 1;
+    return 0;
+  });
 
   // Check if form is valid
   const isFormValid = () => {
@@ -98,31 +106,60 @@ const AddressDetail = ({
     if (isFormValid()) {
       const fullAddress = `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})`;
       
-      // Check if this is the first address - if so, make it default
-      const isFirstAddress = savedAddresses.length === 0;
-      const shouldBeDefault = isFirstAddress || address.isDefault;
-      
-      // Add new address to saved addresses
-      const newAddress = {
-        id: Date.now(),
-        address: fullAddress,
-        isDefault: shouldBeDefault
-      };
-
-      // If this is set as default, remove default from other addresses
-      if (shouldBeDefault) {
+      if (editingAddressId) {
+        // Update existing address
         setSavedAddresses(prev => 
-          prev.map(addr => ({ ...addr, isDefault: false }))
+          prev.map(addr => {
+            if (addr.id === editingAddressId) {
+              return {
+                ...addr,
+                address: fullAddress,
+                isDefault: address.isDefault || addr.isDefault
+              };
+            }
+            // If making this address default, remove default from others
+            if (address.isDefault) {
+              return { ...addr, isDefault: false };
+            }
+            return addr;
+          })
         );
-      }
+        
+        // Update parent component if this was the current address
+        const updatedAddress = savedAddresses.find(addr => addr.id === editingAddressId);
+        if (updatedAddress && (updatedAddress.isDefault || onAddressUpdate)) {
+          if (onAddressUpdate) {
+            onAddressUpdate(fullAddress);
+          }
+        }
+      } else {
+        // Check if this is the first address - if so, make it default
+        const isFirstAddress = savedAddresses.length === 0;
+        const shouldBeDefault = isFirstAddress || address.isDefault;
+        
+        // Add new address to saved addresses
+        const newAddress = {
+          id: Date.now(),
+          address: fullAddress,
+          isDefault: shouldBeDefault
+        };
 
-      setSavedAddresses(prev => [...prev, newAddress]);
-      
-      if (onAddressUpdate) {
-        onAddressUpdate(fullAddress);
+        // If this is set as default, remove default from other addresses
+        if (shouldBeDefault) {
+          setSavedAddresses(prev => 
+            prev.map(addr => ({ ...addr, isDefault: false }))
+          );
+        }
+
+        setSavedAddresses(prev => [...prev, newAddress]);
+        
+        if (onAddressUpdate) {
+          onAddressUpdate(fullAddress);
+        }
       }
       
       setShowAddressForm(false);
+      setEditingAddressId(null);
       // Reset form
       setAddress({
         houseFlatNumber: "",
@@ -137,10 +174,46 @@ const AddressDetail = ({
   };
 
   // Handle address selection from saved addresses
-  const handleSelectAddress = (selectedAddress) => {
-    if (onAddressUpdate) {
-      onAddressUpdate(selectedAddress);
+  const handleSelectAddress = (selectedAddressId) => {
+    // Update the addresses to set the new default
+    setSavedAddresses(prev => 
+      prev.map(addr => ({
+        ...addr,
+        isDefault: addr.id === selectedAddressId
+      }))
+    );
+
+    // Find the selected address and update parent component
+    const selectedAddr = savedAddresses.find(addr => addr.id === selectedAddressId);
+    if (selectedAddr && onAddressUpdate) {
+      onAddressUpdate(selectedAddr.address);
     }
+    
+    setShowSavedAddresses(false);
+  };
+
+  // Sort addresses so default is always first
+  const sortedAddresses2 = [...savedAddresses].sort((a, b) => {
+    if (a.isDefault && !b.isDefault) return -1;
+    if (!a.isDefault && b.isDefault) return 1;
+    return 0;
+  });
+
+  // Handle address selection from saved addresses (old method - keeping for compatibility)
+  const handleSelectAddressOld = (selectedAddress) => {
+    setSavedAddresses(prev => 
+      prev.map(addr => ({
+        ...addr,
+        isDefault: addr.id === selectedAddressId
+      }))
+    );
+
+    // Find the selected address and update parent component
+    const selectedAddr = savedAddresses.find(addr => addr.id === selectedAddressId);
+    if (selectedAddr && onAddressUpdate) {
+      onAddressUpdate(selectedAddr.address);
+    }
+    
     setShowSavedAddresses(false);
   };
 
@@ -154,6 +227,14 @@ const AddressDetail = ({
         const hasDefault = updatedAddresses.some(addr => addr.isDefault);
         if (!hasDefault) {
           updatedAddresses[0].isDefault = true;
+          // Update parent component with new default address
+          if (onAddressUpdate) {
+            onAddressUpdate(updatedAddresses[0].address);
+          }
+          // Update parent component with new default address
+          if (onAddressUpdate) {
+            onAddressUpdate(updatedAddresses[0].address);
+          }
         }
       }
       
@@ -173,9 +254,11 @@ const AddressDetail = ({
   };
 
   // Handle edit address
-  const handleEditAddress = (addressToEdit) => {
+  const handleEditAddress = (addressToEdit, addressId) => {
     // Parse the address to fill the form
     const addressParts = addressToEdit.split(', ');
+    const addressObj = savedAddresses.find(addr => addr.id === addressId);
+    
     setAddress({
       houseFlatNumber: addressParts[0] || "",
       streetAreaName: addressParts[1] || "",
@@ -183,8 +266,9 @@ const AddressDetail = ({
       landmark: addressParts[3] || "",
       city: addressParts[4]?.split(' (')[0] || "",
       pincode: addressParts[4]?.match(/\((\d+)\)/)?.[1] || "",
-      isDefault: false
+      isDefault: addressObj?.isDefault || false
     });
+    setEditingAddressId(addressId);
     setShowAddressForm(true);
     setShowSavedAddresses(false);
   };
@@ -192,7 +276,11 @@ const AddressDetail = ({
   // Handle edit current address
   const handleEditCurrentAddress = () => {
     if (currentAddress) {
-      handleEditAddress(currentAddress);
+      // Find the current address in saved addresses
+      const currentAddr = savedAddresses.find(addr => addr.address === currentAddress);
+      if (currentAddr) {
+        handleEditAddress(currentAddress, currentAddr.id);
+      }
     }
   };
 
@@ -209,7 +297,7 @@ const AddressDetail = ({
               onClick={handleUpdateAddAddress}
               className="text-[#CC2B52] text-sm font-medium hover:underline cursor-pointer"
             >
-              Update/Add Address
+              Add Address
             </button>
             <button
               onClick={handleChangeAddress}
@@ -349,13 +437,14 @@ const AddressDetail = ({
                 <input
                   type="checkbox"
                   id="defaultAddress"
-                  checked={savedAddresses.length === 0 || address.isDefault}
+                  checked={editingAddressId ? address.isDefault : (savedAddresses.length === 0 || address.isDefault)}
                   onChange={(e) => handleInputChange("isDefault", e.target.checked)}
+                  disabled={editingAddressId && savedAddresses.find(addr => addr.id === editingAddressId)?.isDefault}
                   className="w-4 h-4 text-[#CC2B52] border-gray-300 rounded focus:ring-[#CC2B52]"
                 />
                 <label htmlFor="defaultAddress" className="ml-2 text-sm text-gray-700">
-                  Make this my default address
-                  {savedAddresses.length === 0 && (
+                  {editingAddressId ? "Keep as default address" : "Make this my default address"}
+                  {!editingAddressId && savedAddresses.length === 0 && (
                     <span className="text-[#CC2B52] ml-1">(First address will be default)</span>
                   )}
                 </label>
@@ -372,7 +461,7 @@ const AddressDetail = ({
                       : "bg-gray-400 cursor-not-allowed"
                   }`}
                 >
-                  Save Address
+                  {editingAddressId ? "Update Address" : "Save Address"}
                 </button>
               </div>
             </div>
@@ -395,42 +484,47 @@ const AddressDetail = ({
             </div>
 
             <div className="space-y-4">
-              {savedAddresses.map((savedAddress) => (
+              {sortedAddresses.map((savedAddress) => (
                 <div
                   key={savedAddress.id}
-                  className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm relative overflow-hidden"
+                  className={`border rounded-lg p-4 shadow-sm relative overflow-hidden transition-all duration-300 ${
+                    savedAddress.isDefault 
+                      ? 'border-[#CC2B52] bg-pink-50' 
+                      : 'border-gray-200 bg-white'
+                  }`}
                 >
-                  {/* Default Tag - Using Default.png image with specific positioning */}
+                  {/* Default Badge */}
                   {savedAddress.isDefault && (
-                    <div className="relative">
+                    <div className="absolute top-3 right-3 z-10">
                       <img 
-                        src="./src/assets/Default.png" 
+                        src="/Default.png" 
                         alt="Default" 
-                        className="absolute top-2 right-2 w-16 h-6 object-contain"
-                        style={{ top: '96px', left: '377px' }}
+                        className="w-16 h-6 object-contain"
                         onError={(e) => {
-                          console.log('Image failed to load:', e.target.src);
-                          // Fallback to simple text
+                          // Fallback to text badge if image fails to load
                           e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) fallback.style.display = 'inline-block';
                         }}
                       />
-                      <span className="absolute top-2 right-2 bg-[#CC2B52] text-white text-xs px-2 py-1 rounded-full hidden">
+                      <span className="bg-[#CC2B52] text-white text-xs px-2 py-1 rounded-full font-medium hidden">
                         Default
                       </span>
                     </div>
                   )}
-                  
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
+
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 pr-4">
                       <p className="text-sm font-medium text-[#CC2B52] mb-1">Address:</p>
-                      <p className="text-gray-900">{savedAddress.address}</p>
+                      <p className={`text-gray-900 ${savedAddress.isDefault ? 'font-medium' : ''}`}>
+                        {savedAddress.address}
+                      </p>
                     </div>
                     
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleEditAddress(savedAddress.address)}
+                          onClick={() => handleEditAddress(savedAddress.address, savedAddress.id)}
                           className="text-blue-500 hover:text-blue-700 text-sm p-1 hover:bg-blue-50 rounded transition-colors"
                           title="Edit Address"
                         >
@@ -452,10 +546,10 @@ const AddressDetail = ({
                       
                       {!savedAddress.isDefault && (
                         <button
-                          onClick={() => handleSelectAddress(savedAddress.address)}
-                          className="bg-[#CC2B52] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#CC2B52]/90 transition-colors"
+                          onClick={() => handleSelectAddress(savedAddress.id)}
+                          className="bg-[#CC2B52] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#CC2B52]/90 transition-colors font-medium"
                         >
-                          Select This Address
+                          Select
                         </button>
                       )}
                     </div>
