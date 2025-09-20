@@ -25,6 +25,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "face_neck_detan_classic",
         },
         {
           img: handsAndLegsDetan,
@@ -35,6 +36,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "hand_leg_detan_classic",
         },
         {
           img: fullBodyDetan,
@@ -45,6 +47,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "full_body_detan_classic",
         },
         {
           img: faceAndNeckBleach,
@@ -55,6 +58,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "face_neck_bleach_classic",
         },
         {
           img: handsAndLegsBleach,
@@ -65,6 +69,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "hand_leg_bleach_classic",
         },
       ],
     },
@@ -80,6 +85,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "full_body_polish_premium",
         },
       ],
     },

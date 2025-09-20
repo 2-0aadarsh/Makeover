@@ -10,7 +10,6 @@ import ManicurePremium from "../../../assets/modals/manicure and pedicure/premiu
 import PedicurePremium from "../../../assets/modals/manicure and pedicure/premium/Pedicure-premium.png";
 
 const ManicureAndPedicureModal = ({ onClose }) => {
-
   const card = [
     {
       title: "Classic",
@@ -24,6 +23,7 @@ const ManicureAndPedicureModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "manicure_classic",
         },
         {
           img: PedicureClassic,
@@ -34,6 +34,7 @@ const ManicureAndPedicureModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "pedicure_classic",
         },
       ],
     },
@@ -49,6 +50,7 @@ const ManicureAndPedicureModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "manicure_premium",
         },
         {
           img: PedicurePremium,
@@ -59,6 +61,7 @@ const ManicureAndPedicureModal = ({ onClose }) => {
           taxIncluded: true,
           duration: null,
           button: "Add +",
+          service_id: "pedicure_premium",
         },
       ],
     },

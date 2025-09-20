@@ -21,6 +21,7 @@
     "react-router-dom": "^7.7.1",
     "react-scroll": "^1.9.3",
     "react-toastify": "^11.0.5",
+    "redux-persist": "^6.0.0",
     "scroll": "^3.0.1"
   },
   "devDependencies": {

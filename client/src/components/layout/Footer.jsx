@@ -44,7 +44,7 @@ const Footer = () => {
         </div>
 
         {/* Right: Customer Support */}
-        <div className="text-[#313957] bg-white rounded px-2 sm:px-3 sm:py-2 shadow-sm whitespace-nowrap text-xs sm:text-sm md:text-base">
+        <div className="text-[#313957] bg-white rounded px-2 sm:px-3 sm:py-2 whitespace-nowrap text-xs sm:text-sm md:text-base">
           <span className="hidden sm:inline">Customer Support: </span>
           <span className="sm:hidden">Support: </span>
           <span className="font-semibold">+91-8969699521</span>

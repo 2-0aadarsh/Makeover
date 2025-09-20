@@ -8,13 +8,22 @@ import { RxCross2 } from "react-icons/rx";
 
 const ProfileModal = ({ username, onClose }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const modalRef = useRef(null);
+  const desktopModalRef = useRef(null);
+  const mobileModalRef = useRef(null);
   const navigate = useNavigate();
 
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+      const clickedOutsideDesktop =
+        desktopModalRef.current &&
+        !desktopModalRef.current.contains(event.target);
+      const clickedOutsideMobile =
+        mobileModalRef.current &&
+        !mobileModalRef.current.contains(event.target);
+
+      // If clicked outside both modals → close
+      if (clickedOutsideDesktop && clickedOutsideMobile) {
         onClose();
       }
     };
@@ -26,16 +35,14 @@ const ProfileModal = ({ username, onClose }) => {
   }, [onClose]);
 
   const handleScrollOrNavigate = (sectionId) => {
-    onClose(); // Close the modal first
+    onClose();
     if (window.location.pathname === "/") {
-      // Already on home page → just scroll
       scroller.scrollTo(sectionId, {
         smooth: true,
         duration: 800,
         offset: -100,
       });
     } else {
-      // Navigate to home, then scroll after page load
       navigate("/", { replace: false });
       setTimeout(() => {
         scroller.scrollTo(sectionId, {
@@ -62,17 +69,24 @@ const ProfileModal = ({ username, onClose }) => {
         onClick={onClose}
       />
 
-      {/* Modal/Sidebar */}
+      {/* Desktop Modal */}
       <div
-        ref={modalRef}
+        ref={desktopModalRef}
         className="absolute right-0 top-11 w-[280px] h-[216px] text-[#CC2B52] bg-[#F8F8F8] shadow-2xl border z-50 flex flex-col justify-between lg:block md:hidden sm:block"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex justify-between items-center px-4 pb-4 pt-6">
           <h3 className="font-bold text-lg leading-[100%] font-inter">
             {username}
           </h3>
-          <button onClick={onClose} className="text-[#000000] text-xl">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="text-[#000000] text-xl"
+          >
             <RxCross2 />
           </button>
         </div>
@@ -80,14 +94,20 @@ const ProfileModal = ({ username, onClose }) => {
         {/* Logout */}
         <div
           className="flex items-center gap-2 px-4 pb-4 pt-6 text-md cursor-pointer border-t-[0.5px] border-[#CC2B52] font-semibold"
-          onClick={() => setShowLogoutConfirm(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowLogoutConfirm(true);
+          }}
         >
           <HiOutlineLogout className="font-semibold text-[20px]" />
           <span>Log Out</span>
         </div>
 
         {/* Footer */}
-        <div className="px-4 pb-4 pt-6 text-sm leading-[100%] cursor-pointer border-t-[0.5px] border-[#CC2B52] text-[#CC2B52] text-center font-semibold">
+        <div
+          className="px-4 pb-4 pt-6 text-sm leading-[100%] cursor-pointer border-t-[0.5px] border-[#CC2B52] text-[#CC2B52] text-center font-semibold"
+          onClick={(e) => e.stopPropagation()}
+        >
           Crafted with 💖 in India
         </div>
 
@@ -96,10 +116,11 @@ const ProfileModal = ({ username, onClose }) => {
         )}
       </div>
 
-      {/* Sidebar for tablet and mobile */}
+      {/* Mobile/Tablet Sidebar */}
       <div
-        ref={modalRef}
+        ref={mobileModalRef}
         className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 flex flex-col lg:hidden md:block sm:block"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-6 border-b border-gray-200">
@@ -107,7 +128,10 @@ const ProfileModal = ({ username, onClose }) => {
             Profile
           </h3>
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
             className="text-gray-500 hover:text-gray-700"
           >
             <RxCross2 size={24} />
@@ -126,14 +150,20 @@ const ProfileModal = ({ username, onClose }) => {
               {link.type === "route" ? (
                 <NavLink
                   to={link.to}
-                  onClick={onClose}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
                   className="text-[#CC2B52] font-semibold hover:text-[#B02547] transition-colors"
                 >
                   {link.linkName}
                 </NavLink>
               ) : (
                 <button
-                  onClick={() => handleScrollOrNavigate(link.to)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleScrollOrNavigate(link.to);
+                  }}
                   className="text-[#CC2B52] font-semibold hover:text-[#B02547] transition-colors"
                 >
                   {link.linkName}
@@ -146,7 +176,10 @@ const ProfileModal = ({ username, onClose }) => {
         {/* Logout Section */}
         <div className="px-6 py-4 border-t border-pink-100">
           <button
-            onClick={() => setShowLogoutConfirm(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowLogoutConfirm(true);
+            }}
             className="flex items-center gap-3 text-[#CC2B52] font-semibold hover:text-[#B02547] transition-colors"
           >
             <HiOutlineLogout size={20} />
@@ -155,7 +188,10 @@ const ProfileModal = ({ username, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-pink-100 text-center">
+        <div
+          className="px-6 py-4 border-t border-pink-100 text-center"
+          onClick={(e) => e.stopPropagation()}
+        >
           <p className="text-sm text-[#CC2B52] font-semibold">
             Crafted with ❤️ in India
           </p>

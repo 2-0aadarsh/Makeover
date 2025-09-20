@@ -5,9 +5,9 @@ const AboutUs = () => {
     { number: "100+", detail: "bookings completed" },
   ];
   return (
-    <section className="w-full min-h-[414px] py-4 sm:py-6 md:py-8 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20">
+    <section className="w-full md:min-h-[214px] lg:min-h-[414px] py-6 sm:py-4 md:py-6 lg:py-[60px] px-4 sm:px-6 md:px-8 lg:px-20">
       {/* Mobile: Our Milestones Header */}
-      <div className="lg:hidden mb-8">
+      <div className="lg:hidden mb-4 sm:mb-6 md:mb-8">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-[#CC2B52] text-left">
           Our Milestones
         </h2>
@@ -26,16 +26,16 @@ const AboutUs = () => {
       </div>
 
       <div className="service-info">
-        <div className="info-container flex flex-col sm:flex-row justify-between mt-6 sm:mt-8 lg:mt-10 gap-4 sm:gap-0">
+        <div className="info-container flex justify-between items-start mt-3 sm:mt-4 md:mt-6 lg:mt-10 gap-2 sm:gap-3 md:gap-4 lg:gap-10 xl:gap-12">
           {info.map((item, index) => (
             <div
               key={index}
-              className="info-item flex flex-col items-start gap-2 sm:gap-4 border-l-[1px] border-[#E1E1E1] p-3 sm:p-4 lg:p-5 w-full sm:w-auto"
+              className="info-item flex flex-col items-start gap-2 sm:gap-3 md:gap-4 border-l-[1px] border-[#E1E1E1] pl-3 sm:pl-4 md:pl-5 lg:pl-6 flex-1"
             >
-              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-medium text-[#3B486E]">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-medium text-[#3B486E] leading-none">
                 {item.number}
               </h2>
-              <p className="text-sm sm:text-base md:text-lg font-normal text-[#212121] leading-tight">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg font-normal text-[#212121] leading-tight">
                 {item.detail}
               </p>
             </div>

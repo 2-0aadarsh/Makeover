@@ -8,7 +8,7 @@ const AppLayout = () => {
     <div className="w-full min-h-screen flex flex-col justify-between">
       <ScrollToTop />
       <Header />
-      <main className="flex-1 pt-[61px] w-full">
+      <main className="flex-1 pt-16 w-full">
         <Outlet />
       </main>
       <Footer />

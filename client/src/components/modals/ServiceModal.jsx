@@ -128,6 +128,7 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
           {gridCard.length > 0 && (
             <GridCardContainer
               gridCard={gridCard[currentTab].data}
+              category={gridCard[currentTab].title}
               currentTab={currentTab}
             />
           )}

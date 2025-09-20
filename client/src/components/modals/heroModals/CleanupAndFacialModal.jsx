@@ -17,8 +17,6 @@ import MamaEarthUbtanFacial from "../../../assets/modals/cleanup and facical/pre
 import BridalFacial from "../../../assets/modals/cleanup and facical/bridal/O3+BridalFacial.png";
 import AromaMagicBridalFacial from "../../../assets/modals/cleanup and facical/bridal/AromaMagicBridalFacial.png";
 
-
-
 const CleanupAndFacialModal = ({ onClose }) => {
   const card = [
     {
@@ -27,47 +25,57 @@ const CleanupAndFacialModal = ({ onClose }) => {
         {
           img: VitaminCBrighteningFacial,
           cardHeader: "Vitamin C Brightening Facial",
-          description: "Restores luminosity and evens skin tone with the power of Vitamin C",
+          description:
+            "Restores luminosity and evens skin tone with the power of Vitamin C",
           price: "1600",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "60 mins",
           button: "Add +",
+          service_id: "vitamin_c_brightening_facial_regular",
         },
         {
           img: FruitFacial,
           cardHeader: "Fruit Facial",
-          description: "Indulge in a fruity rejuvenation for instantly fresh skin",
+          description:
+            "Indulge in a fruity rejuvenation for instantly fresh skin",
           price: "1600",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "60 mins",
           button: "Add +",
+          service_id: "fruit_facial_regular",
         },
         {
           img: Cleanup,
           cardHeader: "Cleanup",
-          description: "Indulge in a fruity rejuvenation for instantly fresh skin",
+          description:
+            "Indulge in a fruity rejuvenation for instantly fresh skin",
           price: "1600",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "60 mins",
           button: "Add +",
+          service_id: "cleanup_regular",
         },
         {
           img: AntiAgeing,
           cardHeader: "Anti-Ageing For 30+",
-          description: "Combat early signs of ageing with a deeply nourishing facial experience",
+          description:
+            "Combat early signs of ageing with a deeply nourishing facial experience",
           price: "1600",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "60 mins",
           button: "Add +",
+          service_id: "anti_ageing_30_plus_regular",
         },
         {
           img: DeTanFacial,
           cardHeader: "De-Tan Facial",
-          description: "Combat early signs of ageing with a deeply nourishing facial experience",
+          description:
+            "Combat early signs of ageing with a deeply nourishing facial experience",
           price: "1600",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "60 mins",
           button: "Add +",
+          service_id: "detan_facial_regular",
         },
       ],
     },
@@ -77,29 +85,35 @@ const CleanupAndFacialModal = ({ onClose }) => {
         {
           img: RaagaRejuvenatingFacial,
           cardHeader: "Vitamin C Brightening Facial",
-          description: "Experience a serene skincare journey with Raaga’s signature rejuvenating facial",
+          description:
+            "Experience a serene skincare journey with Raaga's signature rejuvenating facial",
           price: "3999",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "1hr 10mins",
           button: "Add +",
+          service_id: "vitamin_c_brightening_facial_premium",
         },
         {
           img: StayYoungFacial,
           cardHeader: "O3+ Stay Young Facial",
-          description: "Restores luminosity and evens skin tone with the power of Vitamin C",
+          description:
+            "Restores luminosity and evens skin tone with the power of Vitamin C",
           price: "1600",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "1hr 10mins",
           button: "Add +",
+          service_id: "o3_stay_young_facial_premium",
         },
         {
           img: MamaEarthUbtanFacial,
           cardHeader: "Vitamin C Brightening Facial",
-          description: "Stay radiant, stay youthful—discover the magic of O3+ Stay Young Facial",
+          description:
+            "Stay radiant, stay youthful—discover the magic of O3+ Stay Young Facial",
           price: "2999",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "1hr 10mins",
           button: "Add +",
+          service_id: "vitamin_c_brightening_facial_premium_2",
         },
       ],
     },
@@ -109,25 +123,28 @@ const CleanupAndFacialModal = ({ onClose }) => {
         {
           img: BridalFacial,
           cardHeader: "O3+ Bridal Facial",
-          description: "Get wedding-ready with the O3+ Bridal Facial-crafted for an instant bridal glow",
+          description:
+            "Get wedding-ready with the O3+ Bridal Facial-crafted for an instant bridal glow",
           price: "6999",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "1hr 40mins",
           button: "Add +",
+          service_id: "o3_bridal_facial_bridal",
         },
         {
           img: AromaMagicBridalFacial,
           cardHeader: "Aroma Magic Bridal Facial",
-          description: "Combat early signs of ageing with a deeply nourishing facial experience",
+          description:
+            "Combat early signs of ageing with a deeply nourishing facial experience",
           price: "3999",
-          taxIncluded: true, 
+          taxIncluded: true,
           duration: "1hr 40mins",
           button: "Add +",
+          service_id: "aroma_magic_bridal_facial_bridal",
         },
       ],
     },
   ];
-
 
   return (
     <ServiceModal
