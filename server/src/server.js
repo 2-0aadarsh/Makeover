@@ -6,10 +6,16 @@ import cookieParser from "cookie-parser";
 
 import connectDB from './configs/mongodb.config.js';
 import redis from './configs/redis.config.js';
+import { initializeSlotGenerationJobs } from './jobs/slotGeneration.job.js';
 import contactRouter from './routes/contactUs.routes.js';
 import authRouter from './routes/auth.routes.js';
 import serviceRouter from './routes/service.routes.js';
 import cartRouter from './routes/cart.routes.js';
+import addressRouter from './routes/address.routes.js';
+import bookingRouter from './routes/booking.routes.js';
+import workingDaysRouter from './routes/workingDays.routes.js';
+import dailySlotsRouter from './routes/dailySlots.routes.js';
+import slotAutomationRouter from './routes/slotAutomation.routes.js';
 
 const app = express();
 
@@ -38,12 +44,20 @@ app.use("/", contactRouter);
 app.use('/auth', authRouter);
 app.use('/api/services', serviceRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/addresses', addressRouter);
+app.use('/api/bookings', bookingRouter);
+app.use('/api/working-days', workingDaysRouter);
+app.use('/api/daily-slots', dailySlotsRouter);
+app.use('/api/slot-automation', slotAutomationRouter);
 
 app.disable('x-powered-by');
 
 connectDB();
 redis.on('connect', () => console.log('Redis connected'));
 redis.on('error', (err) => console.error('Redis connection error:', err));
+
+// Initialize slot generation jobs
+initializeSlotGenerationJobs();
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

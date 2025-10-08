@@ -6,8 +6,20 @@ export const saveCart = async (req, res) => {
     const { items } = req.body;
     const userId = req.user.id;
     
+    console.log('🛒 Backend - saveCart called:', {
+      userId,
+      itemsCount: items ? items.length : 0,
+      items: items ? items.map(item => ({ serviceId: item.serviceId, quantity: item.quantity })) : []
+    });
+    
     // Find existing cart or create new one
     let cart = await Cart.findByUser(userId);
+    
+    console.log('🛒 Backend - Cart found/created:', {
+      cartExists: !!cart,
+      existingItemsCount: cart ? cart.items.length : 0,
+      cartId: cart ? cart._id : 'new'
+    });
     
     if (!cart) {
       cart = new Cart({
@@ -22,34 +34,29 @@ export const saveCart = async (req, res) => {
         }
       });
     } else {
-      // Merge with existing cart (database takes precedence for conflicts)
-      const existingServiceIds = new Set(cart.items.map(item => item.serviceId));
-      
-      // Add new items that don't exist in database
-      items.forEach(item => {
-        if (!existingServiceIds.has(item.serviceId)) {
-          cart.items.push({
-            ...item,
-            quantity: item.quantity || 1,
-            subtotal: item.price * (item.quantity || 1),
-            addedAt: new Date(),
-            lastModified: new Date()
-          });
-        }
-      });
-      
-      // Update existing items with new quantities if they exist
-      items.forEach(item => {
-        const existingItem = cart.items.find(cartItem => cartItem.serviceId === item.serviceId);
-        if (existingItem) {
-          existingItem.quantity = item.quantity || existingItem.quantity;
-          existingItem.subtotal = existingItem.price * existingItem.quantity;
-          existingItem.lastModified = new Date();
-        }
-      });
+      // Replace cart items with new data (frontend data takes precedence)
+      cart.items = items.map(item => ({
+        ...item,
+        quantity: item.quantity || 1,
+        subtotal: item.price * (item.quantity || 1),
+        addedAt: item.addedAt || new Date(),
+        lastModified: new Date()
+      }));
     }
     
+    console.log('🛒 Backend - Before save:', {
+      itemsCount: cart.items.length,
+      items: cart.items.map(item => ({ serviceId: item.serviceId, quantity: item.quantity }))
+    });
+    
     await cart.save();
+    
+    console.log('🛒 Backend - After save:', {
+      cartId: cart._id,
+      itemsCount: cart.items.length,
+      summary: cart.summary,
+      lastUpdated: cart.lastUpdated
+    });
     
     res.status(200).json({
       success: true,
