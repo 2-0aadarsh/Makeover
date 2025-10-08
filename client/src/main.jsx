@@ -4,7 +4,7 @@ import "./index.css";
 import React from "react";
 import App from "./App.jsx";
 import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
+import { PersistGate } from "redux-persist/es/integration/react";
 import { store, persistor } from "./stores/Store.jsx";
 import LenisProvider from "./provider/LenisProvider.jsx";
 

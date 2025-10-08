@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Minus, Plus } from "lucide-react";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
+import AddressDetail from "./AddressDetail";
 
 /**
  * OrderSummary Component
@@ -17,6 +18,7 @@ const OrderSummary = ({
 }) => {
   // State management
   const [services, setServices] = useState(initialServices);
+  const [currentAddress, setCurrentAddress] = useState("");
 
   // Update local services state when props change
   useEffect(() => {
@@ -60,6 +62,11 @@ const OrderSummary = ({
         services,
       });
     }
+  };
+
+  // Handle address update
+  const handleAddressUpdate = (newAddress) => {
+    setCurrentAddress(newAddress);
   };
 
   return (
@@ -203,19 +210,30 @@ const OrderSummary = ({
             </div>
           </div>
 
-          {/* Right Column - Checkout */}
-          <div className="bg-[#FAFAFA] rounded-2xl shadow-sm p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 font-['Inter']">
-              Checkout
-            </h2>
+          {/* Right Column - Address and Checkout */}
+          <div className="space-y-6">
+            {/* Address Section */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <AddressDetail 
+                currentAddress={currentAddress}
+                onAddressUpdate={handleAddressUpdate}
+              />
+            </div>
 
-            {/* Use the Checkout component */}
-            <Checkout
-              totalAmount={totalAmount}
-              onPaymentComplete={handleCheckoutComplete}
-              isLoading={isLoading}
-              isModal={false}
-            />
+            {/* Checkout Section */}
+            <div className="bg-[#FAFAFA] rounded-2xl shadow-sm p-4 sm:p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 font-['Inter']">
+                Checkout
+              </h2>
+
+              {/* Use the Checkout component */}
+              <Checkout
+                totalAmount={totalAmount}
+                onPaymentComplete={handleCheckoutComplete}
+                isLoading={isLoading}
+                isModal={false}
+              />
+            </div>
           </div>
         </div>
       </div>
