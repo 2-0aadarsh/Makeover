@@ -1,4 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { debounce } from 'lodash';
 import { 
   saveCartToDatabase, 
   getCartFromDatabase, 
@@ -150,3 +151,34 @@ export const removeItemFromDBCart = createAsyncThunk(
     }
   }
 );
+
+// Auto-save cart data to database (debounced)
+export const autoSaveCart = createAsyncThunk(
+  'cart/autoSaveCart',
+  async (cartData, { rejectWithValue }) => {
+    try {
+      console.log('🔄 Cart Thunk - Auto-saving cart to database:', {
+        itemsCount: cartData.items.length,
+        totalItems: cartData.summary.totalItems,
+        totalServices: cartData.summary.totalServices,
+        subtotal: cartData.summary.subtotal,
+        total: cartData.summary.total
+      });
+
+      const response = await saveCartToDatabase(cartData);
+      
+      console.log('✅ Cart Thunk - Cart auto-saved to database successfully:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Cart Thunk - Failed to auto-save cart to database:', error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Create debounced auto-save function
+export const createDebouncedAutoSave = (dispatch) => {
+  return debounce((cartData) => {
+    dispatch(autoSaveCart(cartData));
+  }, 2000); // 2-second delay
+};
