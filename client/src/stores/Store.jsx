@@ -6,6 +6,7 @@ import { combineReducers } from "@reduxjs/toolkit";
 import AuthReducer from "../features/auth/AuthSlice";
 import ContactReducer from "../features/contact/ContactSlice";
 import CartReducer from "../features/cart/cartSlice";
+import PaymentReducer from "../features/payment/paymentSlice";
 
 // Redux Persist Configuration
 const persistConfig = {
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   auth: AuthReducer,
   contact: ContactReducer,
   cart: CartReducer,
+  payment: PaymentReducer,
 });
 
 // Persisted reducer

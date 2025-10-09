@@ -19,6 +19,8 @@ const OrderSummary = ({
   // State management
   const [services, setServices] = useState(initialServices);
   const [currentAddress, setCurrentAddress] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState("");
 
   // Update local services state when props change
   useEffect(() => {
@@ -69,6 +71,12 @@ const OrderSummary = ({
     setCurrentAddress(newAddress);
   };
 
+  // Handle booking slot update
+  const handleBookingUpdate = (date, slot) => {
+    setSelectedDate(date);
+    setSelectedSlot(slot);
+  };
+
   return (
     <div className="min-h-screen bg-white pt-16">
       {/* Main Content - Responsive padding */}
@@ -109,9 +117,9 @@ const OrderSummary = ({
                       className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 border-b border-[#E8ECEF] min-h-[160px] w-full gap-4"
                     >
                       {/* Service Image & Details - Responsive layout */}
-                      <div className="flex flex-col sm:flex-row items-start p-3 sm:p-4 w-full sm:w-[285px] min-h-[112px] bg-[#F8F8F8] rounded-xl shadow-[0px_1px_4px_rgba(12,12,13,0.05)]">
-                        <div className="flex items-center gap-3 sm:gap-[18px] w-full h-[80px]">
-                          <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] rounded-xl overflow-hidden flex-shrink-0">
+                       <div className="flex items-center p-3 sm:p-4 w-full h-[142px] bg-[#F8F8F8] rounded-xl shadow-[0px_1px_4px_rgba(12,12,13,0.05)]">
+                        <div className="flex items-center gap-3 sm:gap-[18px] w-full h-full">
+                          <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
                             <img
                               src={service.image}
                               alt={service.name}
@@ -122,12 +130,12 @@ const OrderSummary = ({
                               }}
                             />
                           </div>
-                          <div className="flex flex-col items-start gap-1 sm:gap-[6px] flex-1">
+                           <div className="flex flex-col items-start gap-1 sm:gap-[6px] flex-1 h-full justify-center">
                             <h3 className="font-['DM_Sans'] font-semibold text-xs leading-4 text-[#CC2B52] flex items-center">
                               {service.name}
                             </h3>
                             <div className="w-full h-0 border-[0.5px] border-[#DCDCDC]"></div>
-                            <p className="font-['DM_Sans'] font-semibold text-xs sm:text-sm leading-[18px] flex items-center text-black w-full">
+                            <p className="font-['DM_Sans'] font-semibold text-xs sm:text-sm leading-[18px] text-black w-full">
                               {service.description}
                             </p>
                           </div>
@@ -135,7 +143,7 @@ const OrderSummary = ({
                       </div>
 
                       {/* Quantity, Price, Subtotal - Responsive layout */}
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-[62px] w-full sm:w-[328px]">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-[62px] w-full">
                         {/* Mobile: Show price and subtotal inline */}
                         <div className="flex justify-between items-center w-full sm:hidden">
                           <div className="flex flex-col gap-1">
@@ -217,6 +225,7 @@ const OrderSummary = ({
               <AddressDetail 
                 currentAddress={currentAddress}
                 onAddressUpdate={handleAddressUpdate}
+                onBookingUpdate={handleBookingUpdate}
               />
             </div>
 
@@ -230,8 +239,15 @@ const OrderSummary = ({
               <Checkout
                 totalAmount={totalAmount}
                 onPaymentComplete={handleCheckoutComplete}
+                services={services}
+                bookingDetails={{
+                  date: selectedDate,
+                  slot: selectedSlot,
+                  address: currentAddress
+                }}
                 isLoading={isLoading}
                 isModal={false}
+                showBookSlot={true}
               />
             </div>
           </div>

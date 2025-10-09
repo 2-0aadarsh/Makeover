@@ -24,6 +24,7 @@ const TermsAndConditionsPage = lazy(() => import("../pages/home/TermsAndConditio
 const PrivacyPolicy = lazy(() => import("../pages/home/PrivacyPolicy"));
 const ForgotPasswordPage = lazy(() => import("../components/common/auth/ForgotPasswordPage"));
 const MyBookings = lazy(() => import("../components/common/bookings/BookingPage"));
+const CartPage = lazy(() => import("../components/common/cart/CartPage"));
 
 // Loading wrapper component
 const LazyWrapper = ({ children }) => (
@@ -77,6 +78,14 @@ export const router = createBrowserRouter([
             )
           }
         ],
+      },
+      { 
+        path: "Cart", 
+        element: (
+          <LazyWrapper>
+            <CartPage />
+          </LazyWrapper>
+        )
       },
       { 
         path: "terms-and-conditions", 

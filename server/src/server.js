@@ -10,6 +10,7 @@ import contactRouter from './routes/contactUs.routes.js';
 import authRouter from './routes/auth.routes.js';
 import serviceRouter from './routes/service.routes.js';
 import cartRouter from './routes/cart.routes.js';
+import paymentRouter from './routes/payment.routes.js';
 
 const app = express();
 
@@ -38,21 +39,21 @@ app.use("/", contactRouter);
 app.use('/auth', authRouter);
 app.use('/api/services', serviceRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/payment', paymentRouter);
 
 app.disable('x-powered-by');
 
 connectDB();
-redis.on('connect', () => console.log('Redis connected'));
-redis.on('error', (err) => console.error('Redis connection error:', err));
+// Redis connection is now handled in redis.config.js with better error handling
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
 // Export for Vercel instead of listen
-export default app;
+//export default app;
 
 // for developemental
-//app.listen(3000, () => {
-  //console.log('Server is running on port 3000');
-// });
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+ });
