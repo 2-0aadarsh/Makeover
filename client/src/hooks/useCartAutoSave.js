@@ -1,6 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { debounce } from 'lodash';
+
+// Simple debounce function to replace lodash dependency
+const debounce = (func, delay) => {
+  let timeoutId;
+  const debounced = (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+  
+  // Add cancel method to match lodash debounce API
+  debounced.cancel = () => {
+    clearTimeout(timeoutId);
+  };
+  
+  return debounced;
+};
 import { autoSaveCart } from '../features/cart/cartThunks';
 
 // Custom hook for auto-saving cart data

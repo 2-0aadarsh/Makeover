@@ -37,17 +37,25 @@ export const usePayment = () => {
   useEffect(() => {
     const initRazorpay = async () => {
       try {
+        console.log('🔍 Initializing Razorpay script...');
         setIsRazorpayLoading(true);
         await loadRazorpayScript();
         dispatch(setRazorpayLoaded(true));
+        console.log('✅ Razorpay script loaded successfully');
       } catch (error) {
-        console.error('Failed to load Razorpay:', error);
+        console.error('❌ Failed to load Razorpay:', error);
         dispatch(setRazorpayError(error.message));
         setPaymentError(error.message);
       } finally {
         setIsRazorpayLoading(false);
       }
     };
+
+    console.log('🔍 Razorpay initialization check:', {
+      razorpayLoaded: paymentState.razorpayLoaded,
+      razorpayError: paymentState.razorpayError,
+      shouldInit: !paymentState.razorpayLoaded && !paymentState.razorpayError
+    });
 
     if (!paymentState.razorpayLoaded && !paymentState.razorpayError) {
       initRazorpay();
@@ -143,14 +151,23 @@ export const usePayment = () => {
    */
   const completePaymentFlow = useCallback(async (orderData) => {
     try {
+      console.log('🔍 completePaymentFlow called with:', orderData);
+      console.log('🔍 Razorpay state:', {
+        isRazorpayLoaded: paymentState.razorpayLoaded,
+        razorpayError: paymentState.razorpayError,
+        isRazorpayLoading
+      });
+      
       setPaymentError(null);
       const result = await dispatch(completePaymentFlowThunk(orderData));
+      console.log('🔍 completePaymentFlow result:', result);
       return result;
     } catch (error) {
+      console.error('❌ completePaymentFlow error:', error);
       setPaymentError(error.message);
       throw error;
     }
-  }, [dispatch]);
+  }, [dispatch, paymentState.razorpayLoaded, paymentState.razorpayError, isRazorpayLoading]);
 
   /**
    * Complete COD flow

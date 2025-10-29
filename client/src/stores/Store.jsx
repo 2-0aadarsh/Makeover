@@ -7,6 +7,8 @@ import AuthReducer from "../features/auth/AuthSlice";
 import ContactReducer from "../features/contact/ContactSlice";
 import CartReducer from "../features/cart/cartSlice";
 import PaymentReducer from "../features/payment/paymentSlice";
+import AddressReducer from "../features/address/addressSlice";
+import BookingReducer from "../features/booking/bookingSlice";
 
 // Redux Persist Configuration
 const persistConfig = {
@@ -21,6 +23,8 @@ const rootReducer = combineReducers({
   contact: ContactReducer,
   cart: CartReducer,
   payment: PaymentReducer,
+  address: AddressReducer,
+  booking: BookingReducer,
 });
 
 // Persisted reducer

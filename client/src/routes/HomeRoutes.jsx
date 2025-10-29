@@ -24,7 +24,10 @@ const TermsAndConditionsPage = lazy(() => import("../pages/home/TermsAndConditio
 const PrivacyPolicy = lazy(() => import("../pages/home/PrivacyPolicy"));
 const ForgotPasswordPage = lazy(() => import("../components/common/auth/ForgotPasswordPage"));
 const MyBookings = lazy(() => import("../components/common/bookings/BookingPage"));
+const MyBookingsPage = lazy(() => import("../pages/MyBookingsPage"));
+const BookingDetailsPage = lazy(() => import("../pages/BookingDetailsPage"));
 const CartPage = lazy(() => import("../components/common/cart/CartPage"));
+const AddressManagement = lazy(() => import("../pages/AddressManagement"));
 
 // Loading wrapper component
 const LazyWrapper = ({ children }) => (
@@ -74,6 +77,30 @@ export const router = createBrowserRouter([
             element: (
               <LazyWrapper>
                 <MyBookings />
+              </LazyWrapper>
+            )
+          },
+          { 
+            path: "addresses", 
+            element: (
+              <LazyWrapper>
+                <AddressManagement />
+              </LazyWrapper>
+            )
+          },
+          { 
+            path: "my-bookings", 
+            element: (
+              <LazyWrapper>
+                <MyBookingsPage />
+              </LazyWrapper>
+            )
+          },
+          { 
+            path: "my-bookings/:id", 
+            element: (
+              <LazyWrapper>
+                <BookingDetailsPage />
               </LazyWrapper>
             )
           }

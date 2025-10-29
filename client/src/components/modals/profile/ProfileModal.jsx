@@ -5,6 +5,7 @@ import { scroller } from "react-scroll";
 import LogoutModal from "./LogoutModal";
 import { HiOutlineLogout } from "react-icons/hi";
 import { RxCross2 } from "react-icons/rx";
+import { HiLocationMarker, HiChatAlt2 } from "react-icons/hi";
 
 const ProfileModal = ({ username, onClose }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -72,7 +73,7 @@ const ProfileModal = ({ username, onClose }) => {
       {/* Desktop Modal */}
       <div
         ref={desktopModalRef}
-        className="absolute right-0 top-11 w-[280px] h-[216px] text-[#CC2B52] bg-[#F8F8F8] shadow-2xl border z-50 flex flex-col justify-between lg:block md:hidden sm:block"
+        className="absolute right-0 top-11 w-[280px] h-[320px] text-[#CC2B52] bg-[#F8F8F8] shadow-2xl border z-50 flex flex-col justify-between lg:block md:hidden sm:block"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -91,9 +92,35 @@ const ProfileModal = ({ username, onClose }) => {
           </button>
         </div>
 
+        {/* Address Management */}
+        <NavLink
+          to="/addresses"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="flex items-center gap-2 px-4 pb-4 pt-6 text-md cursor-pointer border-t-[0.5px] border-[#CC2B52] font-semibold hover:bg-gray-100"
+        >
+          <HiLocationMarker className="font-semibold text-[20px]" />
+          <span>Add/Update Address</span>
+        </NavLink>
+
+        {/* Complaint Link */}
+        <div
+          className="flex items-center gap-2 px-4 pb-4 pt-6 text-md cursor-pointer border-t-[0.5px] border-[#CC2B52] font-semibold hover:bg-gray-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            // TODO: Add complaint functionality
+            console.log('Complaint functionality to be implemented');
+          }}
+        >
+          <HiChatAlt2 className="font-semibold text-[20px]" />
+          <span>Raise a Complaint</span>
+        </div>
+
         {/* Logout */}
         <div
-          className="flex items-center gap-2 px-4 pb-4 pt-6 text-md cursor-pointer border-t-[0.5px] border-[#CC2B52] font-semibold"
+          className="flex items-center gap-2 px-4 pb-4 pt-6 text-md cursor-pointer border-t-[0.5px] border-[#CC2B52] font-semibold hover:bg-gray-100"
           onClick={(e) => {
             e.stopPropagation();
             setShowLogoutConfirm(true);
@@ -171,6 +198,36 @@ const ProfileModal = ({ username, onClose }) => {
               )}
             </div>
           ))}
+
+          {/* Address Management */}
+          <div className="py-3 border-b border-pink-100">
+            <NavLink
+              to="/addresses"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="flex items-center gap-3 text-[#CC2B52] font-semibold hover:text-[#B02547] transition-colors"
+            >
+              <HiLocationMarker size={20} />
+              <span>Add/Update Address</span>
+            </NavLink>
+          </div>
+
+          {/* Complaint Link */}
+          <div className="py-3 border-b border-pink-100">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                // TODO: Add complaint functionality
+                console.log('Complaint functionality to be implemented');
+              }}
+              className="flex items-center gap-3 text-[#CC2B52] font-semibold hover:text-[#B02547] transition-colors"
+            >
+              <HiChatAlt2 size={20} />
+              <span>Raise a Complaint</span>
+            </button>
+          </div>
         </div>
 
         {/* Logout Section */}

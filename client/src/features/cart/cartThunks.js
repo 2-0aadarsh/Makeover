@@ -1,5 +1,20 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { debounce } from 'lodash';
+
+// Simple debounce function to replace lodash dependency
+const debounce = (func, delay) => {
+  let timeoutId;
+  const debounced = (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+  
+  // Add cancel method to match lodash debounce API
+  debounced.cancel = () => {
+    clearTimeout(timeoutId);
+  };
+  
+  return debounced;
+};
 import { 
   saveCartToDatabase, 
   getCartFromDatabase, 

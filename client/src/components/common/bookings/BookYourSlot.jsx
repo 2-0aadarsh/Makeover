@@ -18,6 +18,17 @@ const BookYourSlot = ({
   availableDates = [],
   unavailableDates = []
 }) => {
+  console.log('🔍 [CRITICAL DEBUG] BookYourSlot component rendered with:', {
+    selectedDate,
+    selectedSlot,
+    availableSlots: availableSlots.length,
+    componentVersion: 'SENIOR_DEBUG_v1',
+    timestamp: new Date().toISOString()
+  });
+  
+  // Force a very obvious log to test if component is loading new code
+  console.log('🚨🚨🚨 BOOKYOURSLOT COMPONENT IS LOADING NEW CODE - SENIOR DEBUG ACTIVE 🚨🚨🚨');
+  
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDateType, setSelectedDateType] = useState("today");
 
@@ -65,20 +76,50 @@ const BookYourSlot = ({
 
   // Handle date type selection
   const handleDateTypeSelect = (type) => {
+    console.log('🔍 [SENIOR DEBUG] BookYourSlot - Date type selected:', type);
+    console.log('🔍 [SENIOR DEBUG] Current state before change:', {
+      selectedDateType,
+      selectedDate,
+      selectedSlot,
+      currentDate: currentDate.toISOString()
+    });
+    
     setSelectedDateType(type);
     
     const today = new Date();
     let targetDate;
     
     if (type === "today") {
-      targetDate = today;
+      // Create today's date without time (same format as calendar picker)
+      targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     } else if (type === "tomorrow") {
-      targetDate = new Date(today);
-      targetDate.setDate(today.getDate() + 1);
+      // Create tomorrow's date without time
+      targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
     }
     
     if (targetDate && onDateChange) {
-      onDateChange(targetDate.toISOString().split('T')[0]);
+      const dateString = targetDate.toISOString().split('T')[0];
+      console.log('🔍 [SENIOR DEBUG] BookYourSlot - About to call onDateChange:', {
+        type,
+        targetDate: targetDate.toISOString(),
+        dateString,
+        selectedDateType: type,
+        hasTime: targetDate.getHours() !== 0 || targetDate.getMinutes() !== 0 || targetDate.getSeconds() !== 0,
+        onDateChangeExists: !!onDateChange,
+        onDateChangeType: typeof onDateChange
+      });
+      
+      // Call the parent callback
+      onDateChange(dateString);
+      
+      console.log('🔍 [SENIOR DEBUG] BookYourSlot - onDateChange called successfully');
+    } else {
+      console.error('🔍 [SENIOR DEBUG] BookYourSlot - Cannot call onDateChange:', {
+        hasTargetDate: !!targetDate,
+        hasOnDateChange: !!onDateChange,
+        targetDate,
+        onDateChange
+      });
     }
   };
 

@@ -152,11 +152,15 @@ class PaymentService {
       // Create order record
       const order = await this.createOrderFromPayment(payment, paymentDetails.data);
 
+      // Create booking record for My Bookings page
+      const booking = await this.createBookingFromPayment(payment, paymentDetails.data, order);
+
       return {
         success: true,
         data: {
           paymentId: payment._id,
           orderId: order._id,
+          bookingId: booking._id,
           orderNumber: order.orderNumber,
           amount: payment.amount,
           currency: payment.currency,
@@ -194,14 +198,16 @@ class PaymentService {
       const order = new Order({
         user: payment.user,
         payment: payment._id,
+        orderNumber: payment.orderNumber || `ORD-${Date.now()}-${payment._id}`, // Generate if missing
         services: services.map(service => ({
-          serviceId: service.serviceId,
+          serviceId: service.serviceId || service.id || `service-${Date.now()}-${Math.random()}`,
           name: service.name,
+          description: service.description || `${service.name} - Professional beauty service`, // Required field
           price: service.price,
           quantity: service.quantity,
-          image: service.image,
-          category: 'Regular', // Default category
-          duration: '60' // Default duration in minutes
+          image: service.image || '/src/assets/images/default-service.jpg', // Required field
+          category: service.category || 'Regular', // Required field with enum
+          duration: service.duration || '60' // Default duration in minutes
         })),
         pricing: {
           subtotal: subtotal,
@@ -239,6 +245,189 @@ class PaymentService {
       console.error('Order creation from payment failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Create booking from successful payment
+   * @param {Object} payment - Payment record
+   * @param {Object} paymentDetails - Payment details from Razorpay
+   * @param {Object} order - Created order record
+   * @returns {Promise<Object>} Created booking
+   */
+  static async createBookingFromPayment(payment, paymentDetails, order) {
+    try {
+      const Booking = (await import('../models/booking.model.js')).default;
+      
+      // Calculate pricing breakdown
+      const services = payment.bookingDetails.services;
+      const subtotal = services.reduce((sum, service) => sum + (service.price * service.quantity), 0);
+      const taxAmount = payment.bookingDetails.taxAmount;
+      const totalAmount = payment.bookingDetails.totalAmount;
+
+      // Create booking record
+      const booking = new Booking({
+        userId: payment.user,
+        orderNumber: order.orderNumber,
+        services: services.map(service => ({
+          serviceId: service.serviceId || service.id || `service-${Date.now()}-${Math.random()}`,
+          name: service.name,
+          description: service.description || `${service.name} - Professional beauty service`,
+          price: service.price,
+          quantity: service.quantity,
+          image: service.image || '/src/assets/images/default-service.jpg',
+          category: service.category || 'Regular',
+          duration: service.duration || '60'
+        })),
+        pricing: {
+          subtotal: subtotal,
+          taxAmount: taxAmount,
+          totalAmount: totalAmount,
+          currency: 'INR'
+        },
+        bookingDetails: {
+          date: payment.bookingDetails.bookingDate,
+          slot: payment.bookingDetails.bookingSlot,
+          duration: this.calculateTotalDuration(services),
+          address: this.mapAddressFields(payment.bookingDetails.address),
+          notes: payment.bookingDetails.notes || null
+        },
+        totalAmount: totalAmount,
+        status: 'confirmed', // Payment completed, so booking is confirmed
+        paymentStatus: 'completed', // Payment is completed
+        paymentDetails: {
+          razorpayOrderId: payment.razorpayOrderId,
+          razorpayPaymentId: paymentDetails.id,
+          razorpaySignature: paymentDetails.signature,
+          paymentMethod: payment.paymentMethod || 'online',
+          paidAt: new Date()
+        },
+        metadata: {
+          source: 'web',
+          userAgent: payment.metadata?.userAgent,
+          ipAddress: payment.metadata?.ipAddress,
+          orderId: order._id,
+          paymentId: payment._id
+        }
+      });
+
+      // Validate before saving
+      await booking.validate();
+      await booking.save();
+
+      return booking;
+
+    } catch (error) {
+      console.error('Booking creation from payment failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create booking from COD order
+   * @param {Object} order - Created order record
+   * @param {Array} services - Services array
+   * @param {Object} bookingDetails - Booking details
+   * @returns {Promise<Object>} Created booking
+   */
+  static async createCODBookingFromOrder(order, services, bookingDetails) {
+    try {
+      const Booking = (await import('../models/booking.model.js')).default;
+      
+      // Calculate pricing breakdown
+      const subtotal = services.reduce((sum, service) => sum + (service.price * service.quantity), 0);
+      const taxAmount = bookingDetails.taxAmount || 0;
+      const totalAmount = order.pricing.totalAmount;
+
+      // Create booking record for COD
+      const booking = new Booking({
+        userId: order.user,
+        orderNumber: order.orderNumber,
+        services: services.map(service => ({
+          serviceId: service.id || service.serviceId || `service-${Date.now()}-${Math.random()}`,
+          name: service.name,
+          description: service.description || `${service.name} - Professional beauty service`,
+          price: service.price,
+          quantity: service.quantity,
+          image: service.image || '/src/assets/images/default-service.jpg',
+          category: service.category || 'Regular',
+          duration: service.duration || '60'
+        })),
+        pricing: {
+          subtotal: subtotal,
+          taxAmount: taxAmount,
+          totalAmount: totalAmount,
+          currency: 'INR'
+        },
+        bookingDetails: {
+          date: bookingDetails.date,
+          slot: bookingDetails.slot,
+          duration: this.calculateTotalDuration(services),
+          address: this.mapAddressFields(bookingDetails.address),
+          notes: bookingDetails.notes || null
+        },
+        totalAmount: totalAmount,
+        status: 'confirmed', // COD order is confirmed immediately
+        paymentStatus: 'pending', // Payment is pending for COD
+        paymentDetails: {
+          paymentMethod: 'cod',
+          paidAt: null // Not paid yet for COD
+        },
+        metadata: {
+          source: 'web',
+          orderId: order._id,
+          paymentMethod: 'cod'
+        }
+      });
+
+      // Validate before saving
+      await booking.validate();
+      await booking.save();
+
+      return booking;
+
+    } catch (error) {
+      console.error('COD booking creation failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Map address fields to match booking schema
+   * @param {Object} address - Address object from payment
+   * @returns {Object} Mapped address object
+   */
+  static mapAddressFields(address) {
+    if (!address) return {};
+
+    // Handle different address formats
+    const mappedAddress = {
+      // Map common fields
+      city: address.city || '',
+      state: address.state || '',
+      pincode: address.pincode || '',
+      phone: address.phone || '',
+      country: address.country || 'India',
+      
+      // Map address fields (handle both old and new formats)
+      houseFlatNumber: address.houseFlatNumber || address.houseNumber || address.flatNumber || '',
+      streetAreaName: address.streetAreaName || address.street || address.area || '',
+      completeAddress: address.completeAddress || address.fullAddress || address.address || '',
+      landmark: address.landmark || ''
+    };
+
+    // If completeAddress is empty but we have parts, construct it
+    if (!mappedAddress.completeAddress && (mappedAddress.houseFlatNumber || mappedAddress.streetAreaName)) {
+      const parts = [];
+      if (mappedAddress.houseFlatNumber) parts.push(mappedAddress.houseFlatNumber);
+      if (mappedAddress.streetAreaName) parts.push(mappedAddress.streetAreaName);
+      if (mappedAddress.city) parts.push(mappedAddress.city);
+      if (mappedAddress.state) parts.push(mappedAddress.state);
+      if (mappedAddress.pincode) parts.push(mappedAddress.pincode);
+      
+      mappedAddress.completeAddress = parts.join(', ');
+    }
+
+    return mappedAddress;
   }
 
   /**
@@ -418,10 +607,14 @@ class PaymentService {
 
       await order.save();
 
+      // Create booking record for COD orders
+      const booking = await this.createCODBookingFromOrder(order, services, bookingDetails);
+
       return {
         success: true,
         data: {
           orderId: order._id,
+          bookingId: booking._id,
           orderNumber: order.orderNumber,
           amount: totalAmount,
           currency: 'INR',

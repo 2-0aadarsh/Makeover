@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import PropTypes from "prop-types";
+import { 
+  getUserAddresses, 
+  createAddress, 
+  updateAddress, 
+  deleteAddress, 
+  setDefaultAddress 
+} from '../../../features/address/addressThunks';
 
 /**
  * AddressDetail Component
@@ -11,40 +20,50 @@ const AddressDetail = ({
   currentAddress = "",
   onAddressUpdate = null 
 }) => {
+  const dispatch = useDispatch();
+  const { addresses, isLoading, error, defaultAddress } = useSelector((state) => state.address);
+  const { user } = useSelector((state) => state.auth);
+
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [showSavedAddresses, setShowSavedAddresses] = useState(false);
-  const [address, setAddress] = useState({
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [formData, setFormData] = useState({
     houseFlatNumber: "",
     streetAreaName: "",
-    completeAddress: "",
+    address: "", // This will be mapped to completeAddress
     landmark: "",
-    pincode: "",
     city: "",
+    state: "Bihar",
+    country: "India",
+    pincode: "",
+    addressType: "home",
     isDefault: false
   });
 
-  // Start with empty saved addresses - first address added will be default
-  const [savedAddresses, setSavedAddresses] = useState([]);
-
-  // Load saved addresses from localStorage on component mount
+  // Load addresses from Redux store on component mount
   useEffect(() => {
-    const saved = localStorage.getItem('savedAddresses');
-    if (saved) {
-      try {
-        setSavedAddresses(JSON.parse(saved));
-      } catch (error) {
-        console.error('Error loading saved addresses:', error);
-      }
+    if (user) {
+      dispatch(getUserAddresses());
     }
-  }, []);
+  }, [dispatch, user]);
 
-  // Save addresses to localStorage whenever savedAddresses changes
+  // Auto-sync with default address from Redux store
   useEffect(() => {
-    localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
-  }, [savedAddresses]);
+    // If no currentAddress is provided and we have a default address, use it
+    if (!currentAddress && defaultAddress && onAddressUpdate) {
+      const fullAddress = formatAddressString(defaultAddress);
+      onAddressUpdate(fullAddress);
+    }
+  }, [addresses, defaultAddress, currentAddress, onAddressUpdate]);
+
+  // Helper function to format address string
+  const formatAddressString = (address) => {
+    if (!address) return '';
+    return `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})`;
+  };
 
   // Sort addresses so default is always first
-  const sortedAddresses = [...savedAddresses].sort((a, b) => {
+  const sortedAddresses = [...addresses].sort((a, b) => {
     if (a.isDefault && !b.isDefault) return -1;
     if (!a.isDefault && b.isDefault) return 1;
     return 0;
@@ -52,15 +71,17 @@ const AddressDetail = ({
 
   // Check if form is valid
   const isFormValid = () => {
-    return address.houseFlatNumber.trim() !== "" &&
-           address.streetAreaName.trim() !== "" &&
-           address.completeAddress.trim() !== "" &&
-           address.pincode.trim() !== "";
+    return formData.houseFlatNumber.trim() !== "" &&
+           formData.streetAreaName.trim() !== "" &&
+           formData.address.trim() !== "" &&
+           formData.city.trim() !== "" &&
+           formData.state.trim() !== "" &&
+           formData.pincode.trim() !== "";
   };
 
   // Handle input changes
   const handleInputChange = (field, value) => {
-    setAddress(prev => ({
+    setFormData(prev => ({
       ...prev,
       [field]: value
     }));
@@ -69,7 +90,7 @@ const AddressDetail = ({
     if (field === "pincode" && value.length === 6) {
       const detectedCity = detectCityFromPincode(value);
       if (detectedCity) {
-        setAddress(prev => ({
+        setFormData(prev => ({
           ...prev,
           city: detectedCity
         }));
@@ -101,85 +122,102 @@ const AddressDetail = ({
   };
 
   // Handle form submission
-  const handleSaveAddress = () => {
+  const handleSaveAddress = async () => {
     if (isFormValid()) {
-      const fullAddress = `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})`;
-      
-      // Check if this is the first address - if so, make it default
-      const isFirstAddress = savedAddresses.length === 0;
-      const shouldBeDefault = isFirstAddress || address.isDefault;
-      
-      // Add new address to saved addresses
-      const newAddress = {
-        id: Date.now(),
-        address: fullAddress,
-        isDefault: shouldBeDefault
-      };
-
-      // If this is set as default, remove default from other addresses
-      if (shouldBeDefault) {
-        setSavedAddresses(prev => 
-          prev.map(addr => ({ ...addr, isDefault: false }))
-        );
+      try {
+        if (editingAddress) {
+          await dispatch(updateAddress({ id: editingAddress._id, data: formData })).unwrap();
+          toast.success('Address updated successfully!');
+        } else {
+          await dispatch(createAddress(formData)).unwrap();
+          toast.success('Address added successfully!');
+        }
+        
+        // Create full address string for display
+        const fullAddress = `${formData.houseFlatNumber}, ${formData.streetAreaName}, ${formData.address}, ${formData.landmark}, ${formData.city} (${formData.pincode})`;
+        
+        // Also create address object for payment processing
+        const addressObject = {
+          street: formData.streetAreaName,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          houseFlatNumber: formData.houseFlatNumber,
+          completeAddress: formData.address,
+          landmark: formData.landmark,
+          country: formData.country,
+          phone: formData.phone || '+91-0000000000' // Include phone number
+        };
+        
+        if (onAddressUpdate) {
+          // Send both string and object for backward compatibility
+          onAddressUpdate(fullAddress, addressObject);
+        }
+        
+        setShowAddressForm(false);
+        setEditingAddress(null);
+        // Reset form
+        setFormData({
+          houseFlatNumber: "",
+          streetAreaName: "",
+          address: "",
+          landmark: "",
+          city: "",
+          state: "Bihar",
+          country: "India",
+          pincode: "",
+          addressType: "home",
+          isDefault: false
+        });
+      } catch (error) {
+        toast.error(error.message || 'Failed to save address');
       }
-
-      setSavedAddresses(prev => [...prev, newAddress]);
-      
-      if (onAddressUpdate) {
-        onAddressUpdate(fullAddress);
-      }
-      
-      setShowAddressForm(false);
-      // Reset form
-      setAddress({
-        houseFlatNumber: "",
-        streetAreaName: "",
-        completeAddress: "",
-        landmark: "",
-        pincode: "",
-        city: "",
-        isDefault: false
-      });
     }
   };
 
   // Handle address selection from saved addresses
-  const handleSelectAddress = (selectedAddressId) => {
-    setSavedAddresses(prev => 
-      prev.map(addr => ({
-        ...addr,
-        isDefault: addr.id === selectedAddressId
-      }))
-    );
-
-    // Find the selected address and update parent component
-    const selectedAddr = savedAddresses.find(addr => addr.id === selectedAddressId);
-    if (selectedAddr && onAddressUpdate) {
-      onAddressUpdate(selectedAddr.address);
+  const handleSelectAddress = async (selectedAddressId) => {
+    try {
+      await dispatch(setDefaultAddress(selectedAddressId)).unwrap();
+      toast.success('Default address updated!');
+      
+      // Find the selected address and update parent component
+      const selectedAddr = addresses.find(addr => addr._id === selectedAddressId);
+      if (selectedAddr && onAddressUpdate) {
+        const fullAddress = formatAddressString(selectedAddr);
+        
+        // Also create address object for payment processing
+        const addressObject = {
+          street: selectedAddr.streetAreaName,
+          city: selectedAddr.city,
+          state: selectedAddr.state,
+          pincode: selectedAddr.pincode,
+          houseFlatNumber: selectedAddr.houseFlatNumber,
+          completeAddress: selectedAddr.completeAddress,
+          landmark: selectedAddr.landmark,
+          country: selectedAddr.country,
+          phone: selectedAddr.phone || '+91-0000000000' // Include phone number
+        };
+        
+        onAddressUpdate(fullAddress, addressObject);
+      }
+      
+      setShowSavedAddresses(false);
+    } catch (error) {
+      toast.error(error.message || 'Failed to set default address');
     }
-    
-    setShowSavedAddresses(false);
   };
 
   // Handle delete address
-  const handleDeleteAddress = (addressId) => {
-    setSavedAddresses(prev => {
-      const updatedAddresses = prev.filter(addr => addr.id !== addressId);
-      
-      // If we deleted the default address, make the first remaining address default
-      if (updatedAddresses.length > 0) {
-        const hasDefault = updatedAddresses.some(addr => addr.isDefault);
-        if (!hasDefault) {
-          updatedAddresses[0].isDefault = true;
-          // Update parent component with new default address
-          if (onAddressUpdate) {
-            onAddressUpdate(updatedAddresses[0].address);
-          }
-        }
+  const handleDeleteAddress = async (addressId) => {
+    if (window.confirm('Are you sure you want to delete this address?')) {
+      try {
+        await dispatch(deleteAddress(addressId)).unwrap();
+        toast.success('Address deleted successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Failed to delete address');
       }
-      
-      return updatedAddresses;
-    });
+    }
   };
 
   // Handle different button clicks
@@ -195,25 +233,37 @@ const AddressDetail = ({
 
   // Handle edit address
   const handleEditAddress = (addressToEdit) => {
-    // Parse the address to fill the form
-    const addressParts = addressToEdit.split(', ');
-    setAddress({
-      houseFlatNumber: addressParts[0] || "",
-      streetAreaName: addressParts[1] || "",
-      completeAddress: addressParts[2] || "",
-      landmark: addressParts[3] || "",
-      city: addressParts[4]?.split(' (')[0] || "",
-      pincode: addressParts[4]?.match(/\((\d+)\)/)?.[1] || "",
-      isDefault: false
+    // Find the address object from the addresses array
+    const addressObj = addresses.find(addr => {
+      const fullAddress = formatAddressString(addr);
+      return fullAddress === addressToEdit;
     });
-    setShowAddressForm(true);
-    setShowSavedAddresses(false);
+
+    if (addressObj) {
+      setEditingAddress(addressObj);
+      setFormData({
+        houseFlatNumber: addressObj.houseFlatNumber || "",
+        streetAreaName: addressObj.streetAreaName || "",
+        address: addressObj.completeAddress || "",
+        landmark: addressObj.landmark || "",
+        city: addressObj.city || "",
+        state: addressObj.state || "Bihar",
+        country: addressObj.country || "India",
+        pincode: addressObj.pincode || "",
+        addressType: addressObj.addressType || "home",
+        isDefault: addressObj.isDefault || false
+      });
+      setShowAddressForm(true);
+      setShowSavedAddresses(false);
+    }
   };
 
   // Handle edit current address
   const handleEditCurrentAddress = () => {
-    if (currentAddress) {
-      handleEditAddress(currentAddress);
+    const addressToEdit = currentAddress || formatAddressString(defaultAddress);
+    
+    if (addressToEdit) {
+      handleEditAddress(addressToEdit);
     }
   };
 
@@ -241,9 +291,11 @@ const AddressDetail = ({
           </div>
         </div>
         <div className="mt-2">
-          {currentAddress ? (
+          {(currentAddress || defaultAddress) ? (
             <div className="flex items-center justify-between">
-              <p className="text-black text-sm flex-1">{currentAddress}</p>
+              <p className="text-black text-sm flex-1">
+                {currentAddress || formatAddressString(defaultAddress)}
+              </p>
               <button
                 onClick={handleEditCurrentAddress}
                 className="text-[#CC2B52] text-sm font-medium hover:underline cursor-pointer ml-2"
@@ -265,14 +317,38 @@ const AddressDetail = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-800">Address Details</h2>
+              <h2 className="text-xl font-bold text-gray-800">
+                {editingAddress ? 'Edit Address' : 'Add New Address'}
+              </h2>
               <button
-                onClick={() => setShowAddressForm(false)}
+                onClick={() => {
+                  setShowAddressForm(false);
+                  setEditingAddress(null);
+                  setFormData({
+                    houseFlatNumber: "",
+                    streetAreaName: "",
+                    address: "",
+                    landmark: "",
+                    city: "",
+                    state: "Bihar",
+                    country: "India",
+                    pincode: "",
+                    addressType: "home",
+                    isDefault: false
+                  });
+                }}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
               >
                 ×
               </button>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
 
             <div className="space-y-4">
               {/* House/Flat Number */}
@@ -283,7 +359,7 @@ const AddressDetail = ({
                 <input
                   type="text"
                   placeholder="Enter House/Flat Number"
-                  value={address.houseFlatNumber}
+                  value={formData.houseFlatNumber}
                   onChange={(e) => handleInputChange("houseFlatNumber", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
                 />
@@ -297,7 +373,7 @@ const AddressDetail = ({
                 <input
                   type="text"
                   placeholder="Enter Street Name"
-                  value={address.streetAreaName}
+                  value={formData.streetAreaName}
                   onChange={(e) => handleInputChange("streetAreaName", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
                 />
@@ -306,18 +382,18 @@ const AddressDetail = ({
               {/* Complete Address */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Complete Address *
+                  Address *
                 </label>
                 <textarea
                   placeholder="Enter Your Complete Address"
-                  value={address.completeAddress}
-                  onChange={(e) => handleInputChange("completeAddress", e.target.value)}
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
                 />
               </div>
 
-              {/* Landmark, Pincode, City Row */}
+              {/* Landmark, City, State Row */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -326,11 +402,43 @@ const AddressDetail = ({
                   <input
                     type="text"
                     placeholder="Enter A Landmark"
-                    value={address.landmark}
+                    value={formData.landmark}
                     onChange={(e) => handleInputChange("landmark", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Your City"
+                    value={formData.city}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent ${
+                      formData.pincode.length === 6 && detectCityFromPincode(formData.pincode) && formData.city
+                        ? "border-[#CC2B52] bg-pink-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    State *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Your State"
+                    value={formData.state}
+                    onChange={(e) => handleInputChange("state", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Pincode and Address Type Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Pincode *
@@ -338,10 +446,10 @@ const AddressDetail = ({
                   <input
                     type="text"
                     placeholder="Pin Code"
-                    value={address.pincode}
+                    value={formData.pincode}
                     onChange={(e) => handleInputChange("pincode", e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent ${
-                      address.pincode.length === 6 && detectCityFromPincode(address.pincode)
+                      formData.pincode.length === 6 && detectCityFromPincode(formData.pincode)
                         ? "border-[#CC2B52]"
                         : "border-gray-300"
                     }`}
@@ -349,19 +457,17 @@ const AddressDetail = ({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    City
+                    Address Type
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Your City"
-                    value={address.city}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent ${
-                      address.pincode.length === 6 && detectCityFromPincode(address.pincode) && address.city
-                        ? "border-[#CC2B52] bg-pink-50"
-                        : "border-gray-300"
-                    }`}
-                  />
+                  <select
+                    value={formData.addressType}
+                    onChange={(e) => handleInputChange("addressType", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
+                  >
+                    <option value="home">Home</option>
+                    <option value="office">Office</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
               </div>
 
@@ -370,13 +476,13 @@ const AddressDetail = ({
                 <input
                   type="checkbox"
                   id="defaultAddress"
-                  checked={savedAddresses.length === 0 || address.isDefault}
+                  checked={addresses.length === 0 || formData.isDefault}
                   onChange={(e) => handleInputChange("isDefault", e.target.checked)}
                   className="w-4 h-4 text-[#CC2B52] border-gray-300 rounded focus:ring-[#CC2B52]"
                 />
                 <label htmlFor="defaultAddress" className="ml-2 text-sm text-gray-700">
-                  Make this my default address
-                  {savedAddresses.length === 0 && (
+                  Set as default address
+                  {addresses.length === 0 && (
                     <span className="text-[#CC2B52] ml-1">(First address will be default)</span>
                   )}
                 </label>
@@ -386,14 +492,14 @@ const AddressDetail = ({
               <div className="pt-4">
                 <button
                   onClick={handleSaveAddress}
-                  disabled={!isFormValid()}
+                  disabled={!isFormValid() || isLoading}
                   className={`w-full py-3 px-6 rounded-lg text-white font-medium transition-colors ${
-                    isFormValid()
+                    isFormValid() && !isLoading
                       ? "bg-[#CC2B52] hover:bg-[#CC2B52]/90 cursor-pointer"
                       : "bg-gray-400 cursor-not-allowed"
                   }`}
                 >
-                  Save Address
+                  {isLoading ? 'Saving...' : editingAddress ? 'Update Address' : 'Save Address'}
                 </button>
               </div>
             </div>
@@ -416,69 +522,73 @@ const AddressDetail = ({
             </div>
 
             <div className="space-y-4">
-              {sortedAddresses.map((savedAddress) => (
-                <div
-                  key={savedAddress.id}
-                  className={`border rounded-lg p-4 shadow-sm relative overflow-hidden transition-all duration-300 ${
-                    savedAddress.isDefault 
-                      ? 'border-[#CC2B52] bg-pink-50' 
-                      : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  {/* Default Badge */}
-                  {savedAddress.isDefault && (
-                    <div className="absolute top-3 right-3">
-                      <span className="bg-[#CC2B52] text-white text-xs px-2 py-1 rounded-full font-medium">
-                        Selected
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 pr-4">
-                      <p className="text-sm font-medium text-[#CC2B52] mb-1">Address:</p>
-                      <p className={`text-gray-900 ${savedAddress.isDefault ? 'font-medium' : ''}`}>
-                        {savedAddress.address}
-                      </p>
-                    </div>
+              {sortedAddresses.map((savedAddress) => {
+                const fullAddress = formatAddressString(savedAddress);
+                
+                return (
+                  <div
+                    key={savedAddress._id}
+                    className={`border rounded-lg p-4 shadow-sm relative overflow-hidden transition-all duration-300 ${
+                      savedAddress.isDefault 
+                        ? 'border-[#CC2B52] bg-pink-50' 
+                        : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    {/* Default Badge */}
+                    {savedAddress.isDefault && (
+                      <div className="absolute top-3 right-3">
+                        <span className="bg-[#CC2B52] text-white text-xs px-2 py-1 rounded-full font-medium">
+                          Selected
+                        </span>
+                      </div>
+                    )}
                     
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEditAddress(savedAddress.address)}
-                          className="text-blue-500 hover:text-blue-700 text-sm p-1 hover:bg-blue-50 rounded transition-colors"
-                          title="Edit Address"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        
-                        <button
-                          onClick={() => handleDeleteAddress(savedAddress.id)}
-                          className="text-red-500 hover:text-red-700 text-sm p-1 hover:bg-red-50 rounded transition-colors"
-                          title="Delete Address"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 pr-4">
+                        <p className="text-sm font-medium text-[#CC2B52] mb-1">Address:</p>
+                        <p className={`text-gray-900 ${savedAddress.isDefault ? 'font-medium' : ''}`}>
+                          {fullAddress}
+                        </p>
                       </div>
                       
-                      {!savedAddress.isDefault && (
-                        <button
-                          onClick={() => handleSelectAddress(savedAddress.id)}
-                          className="bg-[#CC2B52] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#CC2B52]/90 transition-colors font-medium"
-                        >
-                          Select This Address
-                        </button>
-                      )}
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEditAddress(fullAddress)}
+                            className="text-blue-500 hover:text-blue-700 text-sm p-1 hover:bg-blue-50 rounded transition-colors"
+                            title="Edit Address"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDeleteAddress(savedAddress._id)}
+                            className="text-red-500 hover:text-red-700 text-sm p-1 hover:bg-red-50 rounded transition-colors"
+                            title="Delete Address"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                        
+                        {!savedAddress.isDefault && (
+                          <button
+                            onClick={() => handleSelectAddress(savedAddress._id)}
+                            className="bg-[#CC2B52] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#CC2B52]/90 transition-colors font-medium"
+                          >
+                            Select This Address
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               
-              {savedAddresses.length === 0 && (
+              {addresses.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   <p>No saved addresses found.</p>
                   <button

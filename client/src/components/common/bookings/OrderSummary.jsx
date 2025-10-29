@@ -16,10 +16,24 @@ const OrderSummary = ({
   onQuantityChange,
   isLoading = false,
 }) => {
+  console.log('🔍 OrderSummary component rendered with:', {
+    servicesCount: initialServices.length,
+    onPaymentComplete: !!onPaymentComplete,
+    onQuantityChange: !!onQuantityChange,
+    isLoading
+  });
   // State management
   const [services, setServices] = useState(initialServices);
   const [currentAddress, setCurrentAddress] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [currentAddressObject, setCurrentAddressObject] = useState(null);
+  
+  // Initialize selectedDate with today's date to avoid past date validation errors
+  const getDefaultDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+  
+  const [selectedDate, setSelectedDate] = useState(getDefaultDate());
   const [selectedSlot, setSelectedSlot] = useState("");
 
   // Update local services state when props change
@@ -27,10 +41,23 @@ const OrderSummary = ({
     setServices(initialServices);
   }, [initialServices]);
 
-  // Calculate total amount from services
-  const totalAmount = services.reduce((sum, service) => {
+  // Calculate subtotal from services (before tax)
+  const subtotal = services.reduce((sum, service) => {
     return sum + service.price * service.quantity;
   }, 0);
+
+  // Calculate tax amount (18% of subtotal)
+  const taxAmount = Math.round(subtotal * 0.18);
+  
+  // Calculate total amount (subtotal + tax)
+  const totalAmount = subtotal + taxAmount;
+
+  console.log('🔍 OrderSummary calculations:', {
+    services: services.map(s => ({ name: s.name, price: s.price, quantity: s.quantity, total: s.price * s.quantity })),
+    subtotal,
+    taxAmount,
+    totalAmount
+  });
 
   // Handle quantity changes for services
   const handleQuantityChange = (serviceIndex, change) => {
@@ -67,8 +94,9 @@ const OrderSummary = ({
   };
 
   // Handle address update
-  const handleAddressUpdate = (newAddress) => {
+  const handleAddressUpdate = (newAddress, addressObject) => {
     setCurrentAddress(newAddress);
+    setCurrentAddressObject(addressObject);
   };
 
   // Handle booking slot update
@@ -89,20 +117,20 @@ const OrderSummary = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Left Column - Order Summary */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-4 sm:p-6">
-              {/* Table Header - Responsive layout */}
-              <div className="hidden sm:flex justify-between items-start pb-6 border-b border-[#6C7275] h-[50px]">
-                <div className="font-['DM_Sans'] font-semibold text-sm sm:text-base leading-[26px] text-[#121212]">
+            <div className="p-6">
+              {/* Table Header */}
+              <div className="hidden md:flex justify-between items-center pb-4 border-b border-gray-300">
+                <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
                   Service
                 </div>
-                <div className="flex justify-between items-center gap-[77px] w-[322px]">
-                  <div className="font-['DM_Sans'] font-semibold text-sm sm:text-base leading-[26px] text-[#121212]">
+                <div className="flex justify-between items-center w-[350px]">
+                  <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
                     Quantity
                   </div>
-                  <div className="font-['DM_Sans'] font-semibold text-sm sm:text-base leading-[26px] text-[#121212]">
+                  <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
                     Price
                   </div>
-                  <div className="font-['DM_Sans'] font-semibold text-sm sm:text-base leading-[26px] text-[#121212]">
+                  <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
                     Subtotal
                   </div>
                 </div>
@@ -114,86 +142,140 @@ const OrderSummary = ({
                   {services.map((service, index) => (
                     <div
                       key={index}
-                      className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 border-b border-[#E8ECEF] min-h-[160px] w-full gap-4"
+                      className="py-6 border-b border-gray-200"
                     >
-                      {/* Service Image & Details - Responsive layout */}
-                       <div className="flex items-center p-3 sm:p-4 w-full h-[142px] bg-[#F8F8F8] rounded-xl shadow-[0px_1px_4px_rgba(12,12,13,0.05)]">
-                        <div className="flex items-center gap-3 sm:gap-[18px] w-full h-full">
-                          <div className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {/* Desktop Layout */}
+                      <div className="hidden md:flex justify-between items-center">
+                        {/* Service Details */}
+                        <div className="flex items-center gap-4 flex-1">
+                          {/* Service Image */}
+                          <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                             <img
                               src={service.image}
                               alt={service.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = "https://via.placeholder.com/80";
+                                e.target.src = "https://via.placeholder.com/64x64/CC2B52/FFFFFF?text=" + service.name.charAt(0);
                               }}
                             />
                           </div>
-                           <div className="flex flex-col items-start gap-1 sm:gap-[6px] flex-1 h-full justify-center">
-                            <h3 className="font-['DM_Sans'] font-semibold text-xs leading-4 text-[#CC2B52] flex items-center">
+                          
+                          {/* Service Info */}
+                          <div className="flex-1">
+                            <h3 className="font-['DM_Sans'] font-semibold text-sm text-[#CC2B52] mb-1">
                               {service.name}
                             </h3>
-                            <div className="w-full h-0 border-[0.5px] border-[#DCDCDC]"></div>
-                            <p className="font-['DM_Sans'] font-semibold text-xs sm:text-sm leading-[18px] text-black w-full">
+                            <p className="font-['DM_Sans'] text-xs text-gray-600 leading-relaxed">
                               {service.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Quantity, Price, Subtotal */}
+                        <div className="flex items-center gap-16">
+                          {/* Quantity Controls */}
+                          <div className="flex items-center border border-gray-300 rounded-lg w-20 h-8">
+                            <button
+                              onClick={() => handleQuantityChange(index, -1)}
+                              className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-l-lg transition-colors"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="w-3 h-3 text-gray-600" />
+                            </button>
+                            <span className="flex-1 text-center font-['DM_Sans'] font-medium text-sm text-gray-800">
+                              {service.quantity}
+                            </span>
+                            <button
+                              onClick={() => handleQuantityChange(index, 1)}
+                              className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-r-lg transition-colors"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus className="w-3 h-3 text-gray-600" />
+                            </button>
+                          </div>
+
+                          {/* Price */}
+                          <div className="w-20 text-right">
+                            <p className="font-['DM_Sans'] font-medium text-sm text-gray-800">
+                              {formatPrice(service.price)}
+                            </p>
+                          </div>
+
+                          {/* Subtotal */}
+                          <div className="w-20 text-right">
+                            <p className="font-['DM_Sans'] font-medium text-sm text-gray-800">
+                              {formatPrice(service.price * service.quantity)}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Quantity, Price, Subtotal - Responsive layout */}
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-[62px] w-full">
-                        {/* Mobile: Show price and subtotal inline */}
-                        <div className="flex justify-between items-center w-full sm:hidden">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-xs text-gray-500">Price</span>
-                            <p className="font-['DM_Sans'] font-normal text-sm text-[#121212]">
-                              {formatPrice(service.price)}
+                      {/* Mobile Layout */}
+                      <div className="md:hidden">
+                        {/* Service Details */}
+                        <div className="flex items-center gap-4 mb-4">
+                          {/* Service Image */}
+                          <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                            <img
+                              src={service.image}
+                              alt={service.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://via.placeholder.com/64x64/CC2B52/FFFFFF?text=" + service.name.charAt(0);
+                              }}
+                            />
+                          </div>
+                          
+                          {/* Service Info */}
+                          <div className="flex-1">
+                            <h3 className="font-['DM_Sans'] font-semibold text-sm text-[#CC2B52] mb-1">
+                              {service.name}
+                            </h3>
+                            <p className="font-['DM_Sans'] text-xs text-gray-600 leading-relaxed">
+                              {service.description}
                             </p>
                           </div>
-                          <div className="flex flex-col gap-1">
-                            <span className="text-xs text-gray-500">
-                              Subtotal
+                        </div>
+
+                        {/* Price and Quantity Row */}
+                        <div className="flex justify-between items-center">
+                          {/* Price and Subtotal */}
+                          <div className="flex gap-6">
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Price</p>
+                              <p className="font-['DM_Sans'] font-medium text-sm text-gray-800">
+                                {formatPrice(service.price)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Subtotal</p>
+                              <p className="font-['DM_Sans'] font-medium text-sm text-gray-800">
+                                {formatPrice(service.price * service.quantity)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Quantity Controls */}
+                          <div className="flex items-center border border-gray-300 rounded-lg w-20 h-8">
+                            <button
+                              onClick={() => handleQuantityChange(index, -1)}
+                              className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-l-lg transition-colors"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="w-3 h-3 text-gray-600" />
+                            </button>
+                            <span className="flex-1 text-center font-['DM_Sans'] font-medium text-sm text-gray-800">
+                              {service.quantity}
                             </span>
-                            <p className="font-['DM_Sans'] font-bold text-sm text-[#121212]">
-                              {formatPrice(service.price * service.quantity)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Quantity Controls */}
-                        <div className="flex items-center justify-center border border-[#6C7275] rounded w-[80px] h-[32px] px-2">
-                          <button
-                            onClick={() => handleQuantityChange(index, -1)}
-                            className="w-5 h-5 flex items-center justify-center"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="w-4 h-4 text-[#121212]" />
-                          </button>
-                          <span className="w-full text-center font-['DM_Sans'] font-semibold text-xs">
-                            {service.quantity}
-                          </span>
-                          <button
-                            onClick={() => handleQuantityChange(index, 1)}
-                            className="w-5 h-5 flex items-center justify-center"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="w-4 h-4 text-[#121212]" />
-                          </button>
-                        </div>
-
-                        {/* Desktop: Price and Subtotal */}
-                        <div className="hidden sm:flex justify-between items-center gap-[62px]">
-                          <div className="text-right">
-                            <p className="font-['DM_Sans'] font-normal text-lg leading-[30px] text-[#121212]">
-                              {formatPrice(service.price)}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-['DM_Sans'] font-bold text-lg leading-[30px] text-[#121212]">
-                              {formatPrice(service.price * service.quantity)}
-                            </p>
+                            <button
+                              onClick={() => handleQuantityChange(index, 1)}
+                              className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-r-lg transition-colors"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus className="w-3 h-3 text-gray-600" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -207,11 +289,11 @@ const OrderSummary = ({
               )}
 
               {/* Total Amount */}
-              <div className="flex justify-between items-center py-4 sm:py-6 pl-3 sm:pl-6 pr-0">
-                <span className="text-lg sm:text-xl lg:text-2xl font-bold text-black font-['DM_Sans'] leading-6">
+              <div className="flex justify-between items-center py-6">
+                <span className="text-lg font-bold text-gray-900 font-['DM_Sans']">
                   Total Amount:
                 </span>
-                <span className="text-lg sm:text-xl lg:text-2xl font-bold text-black font-['DM_Sans'] leading-6">
+                <span className="text-lg font-bold text-gray-900 font-['DM_Sans']">
                   {formatPrice(totalAmount)}
                 </span>
               </div>
@@ -243,7 +325,7 @@ const OrderSummary = ({
                 bookingDetails={{
                   date: selectedDate,
                   slot: selectedSlot,
-                  address: currentAddress
+                  address: currentAddressObject || currentAddress
                 }}
                 isLoading={isLoading}
                 isModal={false}

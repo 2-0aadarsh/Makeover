@@ -8,7 +8,25 @@ import { validateAmount, validateIndianPhone } from '../utils/payment.utils.js';
  */
 export const validatePaymentOrder = (req, res, next) => {
   try {
-    const { services, bookingDetails, totalAmount, subtotal, taxAmount } = req.body;
+    const { services, bookingDetails, booking, totalAmount, subtotal, taxAmount } = req.body;
+    
+    console.log('🔍 [SERVER DEBUG] Received payment order data:', {
+      hasBookingDetails: !!bookingDetails,
+      hasBooking: !!booking,
+      bookingDetails: bookingDetails,
+      booking: booking,
+      servicesCount: services?.length,
+      totalAmount: totalAmount,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Handle both old format (bookingDetails) and new format (booking)
+    const bookingData = bookingDetails || booking;
+    
+    console.log('🔍 [SERVER DEBUG] Using booking data:', {
+      bookingData: bookingData,
+      hasBookingData: !!bookingData
+    });
 
     // Validate services array
     if (!services || !Array.isArray(services) || services.length === 0) {
@@ -46,7 +64,7 @@ export const validatePaymentOrder = (req, res, next) => {
     }
 
     // Validate booking details
-    if (!bookingDetails) {
+    if (!bookingData) {
       return res.status(400).json({
         success: false,
         message: 'Booking details are required'
@@ -54,17 +72,18 @@ export const validatePaymentOrder = (req, res, next) => {
     }
 
     // Validate booking date
-    if (!bookingDetails.date) {
+    if (!bookingData.date) {
       return res.status(400).json({
         success: false,
         message: 'Booking date is required'
       });
     }
 
-    const bookingDate = new Date(bookingDetails.date);
+    const bookingDate = new Date(bookingData.date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Allow today's bookings but check time slot
     if (bookingDate < today) {
       return res.status(400).json({
         success: false,
@@ -72,8 +91,15 @@ export const validatePaymentOrder = (req, res, next) => {
       });
     }
 
+    // If it's today, validate that the time slot is reasonable
+    if (bookingDate.getTime() === today.getTime()) {
+      // For today's bookings, we'll let the time slot validation handle it
+      // The frontend should already validate 30-minute advance booking
+      console.log('Today booking detected, proceeding with validation');
+    }
+
     // Validate booking slot
-    if (!bookingDetails.slot) {
+    if (!bookingData.slot) {
       return res.status(400).json({
         success: false,
         message: 'Booking slot is required'
@@ -81,14 +107,14 @@ export const validatePaymentOrder = (req, res, next) => {
     }
 
     // Validate address
-    if (!bookingDetails.address) {
+    if (!bookingData.address) {
       return res.status(400).json({
         success: false,
         message: 'Address is required'
       });
     }
 
-    const { address } = bookingDetails;
+    const { address } = bookingData;
     if (!address.street || !address.city || !address.state || !address.pincode) {
       return res.status(400).json({
         success: false,
@@ -299,9 +325,10 @@ export const sanitizePaymentData = (req, res, next) => {
       }));
     }
 
-    // Sanitize booking details
-    if (req.body.bookingDetails) {
-      const { bookingDetails } = req.body;
+    // Sanitize booking details (handle both old and new format)
+    const bookingDataToSanitize = req.body.bookingDetails || req.body.booking;
+    if (bookingDataToSanitize) {
+      const bookingDetails = bookingDataToSanitize;
       
       // Sanitize address
       if (bookingDetails.address) {
@@ -393,17 +420,22 @@ export const paymentRateLimit = (req, res, next) => {
  */
 export const validateAmountConsistency = (req, res, next) => {
   try {
-    const { services, totalAmount, subtotal, taxAmount } = req.body;
+    const { services, pricing, totalAmount, subtotal, taxAmount } = req.body;
+    
+    // Handle both old format (direct amounts) and new format (pricing object)
+    const finalTotalAmount = totalAmount || pricing?.totalAmount;
+    const finalSubtotal = subtotal || pricing?.subtotal;
+    const finalTaxAmount = taxAmount || pricing?.taxAmount;
 
-    if (services && totalAmount) {
+    if (services && finalTotalAmount) {
       // Calculate expected subtotal from services
       const calculatedSubtotal = services.reduce((sum, service) => {
         return sum + (service.price * service.quantity);
       }, 0);
 
       // Check if provided subtotal matches calculated subtotal
-      if (subtotal !== undefined) {
-        const difference = Math.abs(subtotal - calculatedSubtotal);
+      if (finalSubtotal !== undefined) {
+        const difference = Math.abs(finalSubtotal - calculatedSubtotal);
         if (difference > 1) { // Allow 1 rupee difference for rounding
           return res.status(400).json({
             success: false,
@@ -413,9 +445,9 @@ export const validateAmountConsistency = (req, res, next) => {
       }
 
       // Check if total amount is reasonable
-      if (taxAmount !== undefined) {
-        const expectedTotal = calculatedSubtotal + taxAmount;
-        const totalDifference = Math.abs(totalAmount - expectedTotal);
+      if (finalTaxAmount !== undefined) {
+        const expectedTotal = calculatedSubtotal + finalTaxAmount;
+        const totalDifference = Math.abs(finalTotalAmount - expectedTotal);
         if (totalDifference > 1) { // Allow 1 rupee difference for rounding
           return res.status(400).json({
             success: false,

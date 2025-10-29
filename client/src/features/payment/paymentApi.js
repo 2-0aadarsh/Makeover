@@ -31,6 +31,17 @@ paymentApi.interceptors.response.use(
  */
 export const createPaymentOrder = async (orderData) => {
   try {
+    console.log('🔍 [PAYMENT API DEBUG] Sending order data to server:', {
+      hasBookingDetails: !!orderData.bookingDetails,
+      hasBooking: !!orderData.booking,
+      bookingDetails: orderData.bookingDetails,
+      booking: orderData.booking,
+      servicesCount: orderData.services?.length,
+      totalAmount: orderData.totalAmount,
+      orderNumber: orderData.orderNumber,
+      timestamp: new Date().toISOString()
+    });
+    
     const response = await paymentApi.post('/create-order', orderData);
     return response;
   } catch (error) {
@@ -46,10 +57,22 @@ export const createPaymentOrder = async (orderData) => {
  */
 export const verifyPayment = async (paymentData) => {
   try {
+    console.log('🔍 [PAYMENT API DEBUG] Verifying payment with data:', {
+      hasOrderId: !!paymentData.orderId,
+      hasPaymentId: !!paymentData.paymentId,
+      hasSignature: !!paymentData.signature,
+      hasOrderNumber: !!paymentData.orderNumber,
+      hasServices: !!paymentData.services,
+      servicesLength: paymentData.services?.length,
+      paymentDataKeys: Object.keys(paymentData),
+      timestamp: new Date().toISOString()
+    });
+
     const response = await paymentApi.post('/verify', paymentData);
+    console.log('✅ [PAYMENT API DEBUG] Verification response:', response);
     return response;
   } catch (error) {
-    console.error('Payment verification error:', error);
+    console.error('❌ [PAYMENT API DEBUG] Payment verification error:', error);
     throw error;
   }
 };

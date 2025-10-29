@@ -343,8 +343,22 @@ export const isTerminalPaymentStatus = (status) => {
  * @returns {Object} Razorpay options
  */
 export const getRazorpayOptions = (orderData) => {
-  return {
-    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+  const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+  
+  console.log('🔍 Razorpay key check:', {
+    key: razorpayKey,
+    keyType: typeof razorpayKey,
+    keyLength: razorpayKey ? razorpayKey.length : 0,
+    isTestKey: razorpayKey ? razorpayKey.startsWith('rzp_test_') : false,
+    isLiveKey: razorpayKey ? razorpayKey.startsWith('rzp_live_') : false
+  });
+
+  if (!razorpayKey) {
+    throw new Error('Razorpay key not configured. Please check VITE_RAZORPAY_KEY_ID in .env file');
+  }
+
+  const options = {
+    key: razorpayKey,
     amount: orderData.amount,
     currency: orderData.currency || 'INR',
     name: 'Makeover',
@@ -356,19 +370,38 @@ export const getRazorpayOptions = (orderData) => {
       contact: orderData.customer?.phone || ''
     },
     notes: {
-      booking_date: orderData.bookingDetails?.date,
-      booking_slot: orderData.bookingDetails?.slot,
-      services_count: orderData.services?.length || 0
+      // Temporarily remove date info to test if it's causing Razorpay issues
+      // booking_date: orderData.bookingDetails?.date,
+      // booking_slot: orderData.bookingDetails?.slot,
+      services_count: orderData.services?.length || 0,
+      booking_info: orderData.bookingDetails?.date && orderData.bookingDetails?.slot 
+        ? `Service booking for ${orderData.bookingDetails.date} at ${orderData.bookingDetails.slot}` 
+        : 'Beauty service booking'
     },
     theme: {
       color: '#CC2B52'
     },
     modal: {
       ondismiss: function() {
-        console.log('Payment modal dismissed');
+        console.log('🔍 Payment modal dismissed by user');
       }
+    },
+    // Add retry configuration
+    retry: {
+      enabled: true,
+      max_count: 3
+    },
+    // Add timeout
+    timeout: 300,
+    // Add reminder
+    reminder: {
+      enabled: true,
+      period: 1
     }
   };
+
+  console.log('🔍 Final Razorpay options:', options);
+  return options;
 };
 
 /**
@@ -377,7 +410,10 @@ export const getRazorpayOptions = (orderData) => {
  */
 export const loadRazorpayScript = () => {
   return new Promise((resolve, reject) => {
+    console.log('🔍 Loading Razorpay script...');
+    
     if (window.Razorpay) {
+      console.log('✅ Razorpay already loaded');
       resolve();
       return;
     }
@@ -387,13 +423,17 @@ export const loadRazorpayScript = () => {
     script.async = true;
     
     script.onload = () => {
+      console.log('✅ Razorpay script loaded successfully');
+      console.log('🔍 Window.Razorpay available:', !!window.Razorpay);
       resolve();
     };
     
-    script.onerror = () => {
+    script.onerror = (error) => {
+      console.error('❌ Failed to load Razorpay script:', error);
       reject(new Error('Failed to load Razorpay script'));
     };
 
+    console.log('📡 Adding Razorpay script to document head...');
     document.head.appendChild(script);
   });
 };

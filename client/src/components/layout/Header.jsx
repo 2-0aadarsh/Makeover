@@ -92,7 +92,7 @@ const Header = () => {
           {isAuthenticated ? (
             <ProfileButton username={user.name} />
           ) : (
-            <Button content="Login/Register" redirect="/auth/signup" />
+            <Button content="Login/Register" redirect="/auth/login" />
           )}
         </div>
       </div>

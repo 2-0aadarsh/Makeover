@@ -16,6 +16,13 @@ export const createPaymentOrderThunk = createAsyncThunk(
   'payment/createOrder',
   async (orderData, { rejectWithValue, getState }) => {
     try {
+      console.log('🔍 [CREATE PAYMENT ORDER DEBUG] Received orderData:', {
+        orderData,
+        hasBookingDetails: !!orderData?.bookingDetails,
+        hasBooking: !!orderData?.booking,
+        orderDataKeys: orderData ? Object.keys(orderData) : 'orderData is null/undefined',
+        timestamp: new Date().toISOString()
+      });
       console.log('Creating payment order with data:', orderData);
       
       // Note: Authentication is handled via HTTP cookies automatically
@@ -26,7 +33,22 @@ export const createPaymentOrderThunk = createAsyncThunk(
         throw new Error('Services are required');
       }
 
-      if (!orderData.bookingDetails) {
+      // Handle both old format (bookingDetails) and new format (booking)
+      const bookingData = orderData.bookingDetails || orderData.booking;
+      
+      console.log('🔍 [PAYMENT THUNK DEBUG] Booking data validation:', {
+        hasBookingDetails: !!orderData.bookingDetails,
+        hasBooking: !!orderData.booking,
+        bookingDetails: orderData.bookingDetails,
+        booking: orderData.booking,
+        bookingData: bookingData,
+        hasBookingData: !!bookingData,
+        orderDataKeys: Object.keys(orderData),
+        timestamp: new Date().toISOString()
+      });
+      
+      if (!bookingData) {
+        console.error('❌ [PAYMENT THUNK DEBUG] Missing booking data in orderData:', orderData);
         throw new Error('Booking details are required');
       }
 
@@ -59,10 +81,23 @@ export const verifyPaymentThunk = createAsyncThunk(
   'payment/verifyPayment',
   async (paymentData, { rejectWithValue, getState }) => {
     try {
+      console.log('🔍 [VERIFY PAYMENT THUNK DEBUG] Received paymentData:', {
+        hasOrderId: !!paymentData.orderId,
+        hasPaymentId: !!paymentData.paymentId,
+        hasSignature: !!paymentData.signature,
+        hasOrderNumber: !!paymentData.orderNumber,
+        hasServices: !!paymentData.services,
+        servicesLength: paymentData.services?.length,
+        paymentDataKeys: Object.keys(paymentData),
+        timestamp: new Date().toISOString()
+      });
+
       // Validate required fields
       if (!paymentData.orderId || !paymentData.paymentId || !paymentData.signature) {
         throw new Error('Order ID, Payment ID, and Signature are required');
       }
+
+      console.log('🔍 [VERIFY PAYMENT THUNK DEBUG] Sending to server:', paymentData);
 
       const response = await verifyPayment(paymentData);
       return response;
@@ -85,7 +120,22 @@ export const createCODOrderThunk = createAsyncThunk(
         throw new Error('Services are required');
       }
 
-      if (!orderData.bookingDetails) {
+      // Handle both old format (bookingDetails) and new format (booking)
+      const bookingData = orderData.bookingDetails || orderData.booking;
+      
+      console.log('🔍 [PAYMENT THUNK DEBUG] Booking data validation:', {
+        hasBookingDetails: !!orderData.bookingDetails,
+        hasBooking: !!orderData.booking,
+        bookingDetails: orderData.bookingDetails,
+        booking: orderData.booking,
+        bookingData: bookingData,
+        hasBookingData: !!bookingData,
+        orderDataKeys: Object.keys(orderData),
+        timestamp: new Date().toISOString()
+      });
+      
+      if (!bookingData) {
+        console.error('❌ [PAYMENT THUNK DEBUG] Missing booking data in orderData:', orderData);
         throw new Error('Booking details are required');
       }
 
@@ -196,6 +246,17 @@ export const completePaymentFlowThunk = createAsyncThunk(
   'payment/completeFlow',
   async (orderData, { rejectWithValue, dispatch }) => {
     try {
+      console.log('🔍 [COMPLETE PAYMENT FLOW DEBUG] Received orderData:', {
+        orderData,
+        hasBookingDetails: !!orderData?.bookingDetails,
+        hasBooking: !!orderData?.booking,
+        orderDataKeys: orderData ? Object.keys(orderData) : 'orderData is null/undefined',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Handle both old format (bookingDetails) and new format (booking)
+      const bookingData = orderData.bookingDetails || orderData.booking;
+      
       // Step 1: Create payment order
       const orderResponse = await dispatch(createPaymentOrderThunk(orderData));
       
@@ -207,8 +268,17 @@ export const completePaymentFlowThunk = createAsyncThunk(
 
       // Step 2: Initialize Razorpay and handle payment
       return new Promise((resolve, reject) => {
+        console.log('🔍 Debug - Razorpay check:', {
+          windowRazorpay: !!window.Razorpay,
+          key: key,
+          amount: amount,
+          currency: currency,
+          orderId: orderId
+        });
+        
         // Check if Razorpay is loaded
         if (!window.Razorpay) {
+          console.error('❌ Razorpay not loaded - Script failed to load');
           reject(new Error('Razorpay not loaded'));
           return;
         }
@@ -222,12 +292,47 @@ export const completePaymentFlowThunk = createAsyncThunk(
           order_id: orderId,
           handler: async function (response) {
             try {
-              // Step 3: Verify payment
+              console.log('🔍 [RAZORPAY SUCCESS DEBUG] Payment successful, building verification data:', {
+                razorpayResponse: response,
+                originalOrderData: orderData,
+                hasBookingDetails: !!orderData.bookingDetails,
+                hasBooking: !!orderData.booking,
+                orderNumber: orderData.orderNumber,
+                servicesCount: orderData.services?.length
+              });
+
+              // Step 3: Verify payment with complete order data
               const verificationData = {
                 orderId: response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature
+                signature: response.razorpay_signature,
+                // Add required fields for server validation
+                orderNumber: orderData.orderNumber,
+                services: orderData.services?.map(service => ({
+                  serviceId: service.serviceId || service.id,
+                  name: service.name,
+                  description: service.description || `${service.name} - Professional beauty service`,
+                  price: service.price,
+                  quantity: service.quantity,
+                  image: service.image || '/src/assets/images/default-service.jpg',
+                  category: service.category || 'Regular',
+                  duration: service.duration || '60'
+                })) || []
               };
+
+              console.log('🔍 [VERIFICATION DEBUG] OrderData validation:', {
+                hasOrderNumber: !!orderData.orderNumber,
+                orderNumber: orderData.orderNumber,
+                hasServices: !!orderData.services,
+                servicesLength: orderData.services?.length,
+                servicesWithDescription: orderData.services?.map(s => ({
+                  name: s.name,
+                  hasDescription: !!s.description,
+                  description: s.description
+                }))
+              });
+
+              console.log('📦 [RAZORPAY SUCCESS DEBUG] Complete verification payload:', verificationData);
 
               const verificationResponse = await dispatch(verifyPaymentThunk(verificationData));
               
@@ -241,13 +346,13 @@ export const completePaymentFlowThunk = createAsyncThunk(
             }
           },
           prefill: {
-            name: orderData.bookingDetails.address.name || 'Customer',
-            email: orderData.bookingDetails.address.email || '',
-            contact: orderData.bookingDetails.address.phone || ''
+            name: bookingData.address?.name || 'Customer',
+            email: bookingData.address?.email || '',
+            contact: bookingData.address?.phone || ''
           },
           notes: {
-            booking_date: orderData.bookingDetails.date,
-            booking_slot: orderData.bookingDetails.slot,
+            booking_date: bookingData.date,
+            booking_slot: bookingData.slot,
             services_count: orderData.services.length
           },
           theme: {
@@ -260,8 +365,78 @@ export const completePaymentFlowThunk = createAsyncThunk(
           }
         };
 
-        const razorpay = new window.Razorpay(options);
-        razorpay.open();
+        console.log('🔍 Debug - Creating Razorpay instance with options:', options);
+        console.log('🔍 Debug - Key Razorpay options comparison:', {
+          key: options.key,
+          amount: options.amount,
+          currency: options.currency,
+          order_id: options.order_id,
+          booking_date: options.notes?.booking_date,
+          booking_slot: options.notes?.booking_slot,
+          booking_datetime: options.notes?.booking_datetime,
+          isTodayBooking: options.notes?.booking_date === new Date().toISOString().split('T')[0],
+          currentDate: new Date().toISOString().split('T')[0]
+        });
+        
+        try {
+          const razorpay = new window.Razorpay(options);
+          console.log('✅ Razorpay instance created successfully');
+          
+          // Add event handlers to debug modal behavior
+          razorpay.on('payment.success', (response) => {
+            console.log('🔍 Razorpay payment success:', response);
+          });
+          
+          razorpay.on('payment.error', (error) => {
+            console.error('❌ Razorpay payment error:', error);
+          });
+          
+          razorpay.on('payment.cancel', (error) => {
+            console.log('🔍 Razorpay payment cancelled:', error);
+          });
+          
+          razorpay.on('modal.close', () => {
+            console.log('🔍 Razorpay modal closed');
+          });
+          
+          console.log('🚀 Opening Razorpay payment gateway...');
+          console.log('🔍 Browser info:', {
+            userAgent: navigator.userAgent,
+            isHTTPS: location.protocol === 'https:',
+            isLocalhost: location.hostname === 'localhost',
+            windowSize: { width: window.innerWidth, height: window.innerHeight },
+            documentReadyState: document.readyState
+          });
+          
+          // Try opening with a slight delay to ensure DOM is ready
+          setTimeout(() => {
+            console.log('🔍 Attempting to open Razorpay modal with delay...');
+            razorpay.open();
+            console.log('✅ razorpay.open() called successfully');
+          }, 100);
+          
+          // Check if modal opened immediately
+          setTimeout(() => {
+            console.log('🔍 Immediate check - Razorpay modal status');
+            const razorpayElements = document.querySelectorAll('[class*="razorpay"], [id*="razorpay"]');
+            console.log('🔍 Found Razorpay elements:', razorpayElements.length);
+            if (razorpayElements.length > 0) {
+              console.log('🔍 Razorpay modal elements:', razorpayElements);
+            }
+          }, 100);
+          
+          // Add a timeout to check if modal opened
+          setTimeout(() => {
+            console.log('🔍 Checking if Razorpay modal opened after 2 seconds...');
+            console.log('🔍 Document body:', document.body);
+            console.log('🔍 Razorpay modal elements:', document.querySelectorAll('[class*="razorpay"]'));
+            console.log('🔍 All modal/overlay elements:', document.querySelectorAll('[class*="modal"], [class*="overlay"], [class*="popup"]'));
+          }, 2000);
+          
+        } catch (razorpayError) {
+          console.error('❌ Razorpay initialization error:', razorpayError);
+          reject(new Error(`Razorpay initialization failed: ${razorpayError.message}`));
+        }
       });
 
     } catch (error) {

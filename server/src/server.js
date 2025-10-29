@@ -16,6 +16,7 @@ import bookingRouter from './routes/booking.routes.js';
 import workingDaysRouter from './routes/workingDays.routes.js';
 import dailySlotsRouter from './routes/dailySlots.routes.js';
 import slotAutomationRouter from './routes/slotAutomation.routes.js';
+import paymentRouter from './routes/payment.routes.js';
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/bookings', bookingRouter);
 app.use('/api/working-days', workingDaysRouter);
 app.use('/api/daily-slots', dailySlotsRouter);
 app.use('/api/slot-automation', slotAutomationRouter);
+app.use('/api/payment', paymentRouter);
 
 app.disable('x-powered-by');
 
