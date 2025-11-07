@@ -369,7 +369,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                       htmlFor="preferredDate"
                       className="block text-sm font-medium text-gray-700 mb-1.5"
                     >
-                      Preferred Date
+                      Preferred Callback Date
                     </label>
                     <div className="relative">
                       <Calendar
@@ -395,7 +395,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                       htmlFor="preferredTimeSlot"
                       className="block text-sm font-medium text-gray-700 mb-1.5"
                     >
-                      Preferred Time
+                      Preferred Callback Time
                     </label>
                     <div className="relative">
                       <Clock

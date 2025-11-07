@@ -5,7 +5,7 @@ import { isSlotDisabled, getAvailableSlots } from "../../../utils/slotUtils";
 
 /**
  * BookYourSlot Component
- * 
+ *
  * Displays date and time slot selection with 30-minute buffer logic
  * Matches the exact UI design from the image
  */
@@ -16,41 +16,49 @@ const BookYourSlot = ({
   onSlotSelect,
   availableSlots = [],
   availableDates = [],
-  unavailableDates = []
+  unavailableDates = [],
 }) => {
-  console.log('🔍 [CRITICAL DEBUG] BookYourSlot component rendered with:', {
+  console.log("🔍 [CRITICAL DEBUG] BookYourSlot component rendered with:", {
     selectedDate,
     selectedSlot,
     availableSlots: availableSlots.length,
-    componentVersion: 'SENIOR_DEBUG_v1',
-    timestamp: new Date().toISOString()
+    componentVersion: "SENIOR_DEBUG_v1",
+    timestamp: new Date().toISOString(),
   });
-  
+
   // Force a very obvious log to test if component is loading new code
-  console.log('🚨🚨🚨 BOOKYOURSLOT COMPONENT IS LOADING NEW CODE - SENIOR DEBUG ACTIVE 🚨🚨🚨');
-  
+  console.log(
+    "🚨🚨🚨 BOOKYOURSLOT COMPONENT IS LOADING NEW CODE - SENIOR DEBUG ACTIVE 🚨🚨🚨"
+  );
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDateType, setSelectedDateType] = useState("today");
+
+  const getLocalDateInputValue = (date) => {
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(date.getTime() - tzOffset).toISOString();
+    return localISOTime.split("T")[0];
+  };
 
   // Time slots configuration (9 AM to 5 PM, 1-hour intervals)
   const allTimeSlots = [
     "09:00 AM",
-    "10:00 AM", 
+    "10:00 AM",
     "11:00 AM",
     "12:00 PM",
     "01:00 PM",
     "02:00 PM",
     "03:00 PM",
     "04:00 PM",
-    "05:00 PM"
+    "05:00 PM",
   ];
 
   // Get today's date string
   const getTodayString = () => {
-    return currentDate.toLocaleDateString('en-IN', {
-      weekday: 'long',
-      month: 'long', 
-      day: 'numeric'
+    return currentDate.toLocaleDateString("en-IN", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -58,10 +66,10 @@ const BookYourSlot = ({
   const getTomorrowString = () => {
     const tomorrow = new Date(currentDate);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toLocaleDateString('en-IN', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric'
+    return tomorrow.toLocaleDateString("en-IN", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -70,56 +78,75 @@ const BookYourSlot = ({
     if (selectedDateType !== "today") {
       return false; // All slots available for future dates
     }
-    
+
     return isSlotDisabled(slotTime, currentDate, selectedDate);
   };
 
   // Handle date type selection
   const handleDateTypeSelect = (type) => {
-    console.log('🔍 [SENIOR DEBUG] BookYourSlot - Date type selected:', type);
-    console.log('🔍 [SENIOR DEBUG] Current state before change:', {
+    console.log("🔍 [SENIOR DEBUG] BookYourSlot - Date type selected:", type);
+    console.log("🔍 [SENIOR DEBUG] Current state before change:", {
       selectedDateType,
       selectedDate,
       selectedSlot,
-      currentDate: currentDate.toISOString()
+      currentDate: currentDate.toISOString(),
     });
-    
+
     setSelectedDateType(type);
-    
+
     const today = new Date();
     let targetDate;
-    
+
     if (type === "today") {
       // Create today's date without time (same format as calendar picker)
-      targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      targetDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
     } else if (type === "tomorrow") {
       // Create tomorrow's date without time
-      targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      targetDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1
+      );
     }
-    
+
     if (targetDate && onDateChange) {
-      const dateString = targetDate.toISOString().split('T')[0];
-      console.log('🔍 [SENIOR DEBUG] BookYourSlot - About to call onDateChange:', {
-        type,
-        targetDate: targetDate.toISOString(),
-        dateString,
-        selectedDateType: type,
-        hasTime: targetDate.getHours() !== 0 || targetDate.getMinutes() !== 0 || targetDate.getSeconds() !== 0,
-        onDateChangeExists: !!onDateChange,
-        onDateChangeType: typeof onDateChange
-      });
-      
+      const dateString = getLocalDateInputValue(targetDate);
+      console.log(
+        "🔍 [SENIOR DEBUG] BookYourSlot - About to call onDateChange:",
+        {
+          type,
+          targetDate: targetDate.toISOString(),
+          dateString,
+          selectedDateType: type,
+          hasTime:
+            targetDate.getHours() !== 0 ||
+            targetDate.getMinutes() !== 0 ||
+            targetDate.getSeconds() !== 0,
+          onDateChangeExists: !!onDateChange,
+          onDateChangeType: typeof onDateChange,
+        }
+      );
+
       // Call the parent callback
       onDateChange(dateString);
-      
-      console.log('🔍 [SENIOR DEBUG] BookYourSlot - onDateChange called successfully');
+
+      console.log(
+        "🔍 [SENIOR DEBUG] BookYourSlot - onDateChange called successfully"
+      );
     } else {
-      console.error('🔍 [SENIOR DEBUG] BookYourSlot - Cannot call onDateChange:', {
-        hasTargetDate: !!targetDate,
-        hasOnDateChange: !!onDateChange,
-        targetDate,
-        onDateChange
-      });
+      console.error(
+        "🔍 [SENIOR DEBUG] BookYourSlot - Cannot call onDateChange:",
+        {
+          hasTargetDate: !!targetDate,
+          hasOnDateChange: !!onDateChange,
+          targetDate,
+          onDateChange,
+        }
+      );
     }
   };
 
@@ -144,9 +171,7 @@ const BookYourSlot = ({
   return (
     <div className="w-full">
       {/* Title */}
-      <h3 className="text-lg font-bold text-[#CC2B52] mb-4">
-        Book Your Slot
-      </h3>
+      <h3 className="text-lg font-bold text-[#CC2B52] mb-4">Book Your Slot</h3>
 
       {/* Date Selection */}
       <div className="mb-6">
@@ -194,7 +219,7 @@ const BookYourSlot = ({
           <div className="mb-4">
             <input
               type="date"
-              min={new Date().toISOString().split('T')[0]}
+              min={getLocalDateInputValue(new Date())}
               onChange={handleCustomDateChange}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent"
             />
@@ -202,17 +227,12 @@ const BookYourSlot = ({
         )}
 
         {/* Date Display */}
-        <div className="text-sm text-gray-600">
-          {selectedDateType === "today" && getTodayString()}
-          {selectedDateType === "tomorrow" && getTomorrowString()}
-          {selectedDateType === "custom" && selectedDate && (
-            new Date(selectedDate).toLocaleDateString('en-IN', {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric'
-            })
-          )}
-        </div>
+        {(selectedDateType === "today" || selectedDateType === "tomorrow") && (
+          <div className="text-sm text-gray-600">
+            {selectedDateType === "today" && getTodayString()}
+            {selectedDateType === "tomorrow" && getTomorrowString()}
+          </div>
+        )}
       </div>
 
       {/* Time Slots Grid */}
@@ -221,11 +241,13 @@ const BookYourSlot = ({
           {allTimeSlots.map((slot) => {
             const isDisabled = isSlotDisabledForToday(slot);
             const isSelected = selectedSlot === slot;
-            
+
             return (
               <button
                 key={slot}
-                onClick={() => !isDisabled && onSlotSelect && onSlotSelect(slot)}
+                onClick={() =>
+                  !isDisabled && onSlotSelect && onSlotSelect(slot)
+                }
                 disabled={isDisabled}
                 className={`px-3 py-2 rounded-lg border-2 transition-all duration-200 text-sm font-medium ${
                   isSelected
@@ -250,9 +272,7 @@ const BookYourSlot = ({
           </p>
         )}
         {selectedDateType !== "today" && (
-          <p>
-            All slots are available for future dates.
-          </p>
+          <p>All slots are available for future dates.</p>
         )}
       </div>
     </div>
@@ -266,7 +286,7 @@ BookYourSlot.propTypes = {
   onSlotSelect: PropTypes.func,
   availableSlots: PropTypes.array,
   availableDates: PropTypes.array,
-  unavailableDates: PropTypes.array
+  unavailableDates: PropTypes.array,
 };
 
 export default BookYourSlot;

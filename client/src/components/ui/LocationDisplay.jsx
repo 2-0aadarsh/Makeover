@@ -97,12 +97,12 @@ const LocationDisplay = () => {
   };
 
   return (
-    <div className="flex items-center gap-1 md:gap-2">
+    <div className="flex items-center gap-1 md:gap-2 max-w-[120px] sm:max-w-[200px] overflow-hidden shrink pr-1">
       {/* Location Pin Icon */}
-      <HiLocationMarker className="text-[#CC2B52] flex-shrink-0" size={16} />
+      <HiLocationMarker className="text-[#CC2B52] flex-shrink-0" size={14} />
 
       {/* Location Text */}
-      <span className="text-[#CC2B52] font-inter font-bold text-xs md:text-sm whitespace-nowrap">
+      <span className="text-[#CC2B52] font-inter font-bold text-xs md:text-sm truncate">
         {isLoading ? "Loading..." : location}
       </span>
 
@@ -110,12 +110,12 @@ const LocationDisplay = () => {
       {error && !isLoading && (
         <button
           onClick={handleRetry}
-          className="ml-1 text-[#CC2B52] hover:text-[#B02547] transition-colors"
+          className="ml-1 text-[#CC2B52] hover:text-[#B02547] transition-colors flex-shrink-0"
           aria-label="Retry location"
         >
           <svg
-            width="14"
-            height="14"
+            width="12"
+            height="12"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

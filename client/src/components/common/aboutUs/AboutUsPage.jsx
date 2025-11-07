@@ -29,7 +29,7 @@ const socialIconConfig = {
 
 const AboutUsPage = () => {
   const AboutUsContent =
-    "Makeover began with a simple yet powerful vision—to bring the luxury and comfort of salon services to every doorstep. It started when we noticed how busy lives, travel hassles, and the lack of trusted professionals often made self-care feel like a chore. We set out to change that. Today, Makeover is more than just a beauty service—it's an experience tailored to you. From a relaxing facial after a long week to bridal glam that makes your big day unforgettable, we offer everything—skin care, hair treatments, waxing, mehendi, and more—delivered with professionalism, hygiene, and heart. Every artist we onboard is trained to not just serve, but to pamper. Our clients aren't just customers—they're the reason we exist. As we grow, our upcoming Android and iOS apps will make self-care even more effortless. Because we believe beauty shouldn't wait in a queue—it should come to you, whenever you need it most.";
+    "Wemakeover began with a simple yet powerful vision to bring the luxury and comfort of salon services to every doorstep. It started when we noticed how busy lives, travel hassles, and the lack of trusted professionals often made self-care feel like a chore. We set out to change that. Today, Wemakeover is more than just a beauty service—it's an experience tailored to you. From a relaxing facial after a long week to bridal glam that makes your big day unforgettable, we offer everything—skin care, hair treatments, waxing, mehendi, and more—delivered with professionalism, hygiene, and heart. Every artist we onboard is trained to not just serve, but to pamper. Our clients aren't just customers—they're the reason we exist. As we grow, our upcoming Android and iOS apps will make self-care even more effortless. Because we believe beauty shouldn't wait in a queue—it should come to you, whenever you need it most.";
 
   const whyChooseUsCards = [
     {
@@ -41,7 +41,7 @@ const AboutUsPage = () => {
     {
       title: "Certified Professionals & Hygiene First",
       description:
-        "Every Makeover artist is trained, background-verified, and equipped with sanitized tools to ensure a safe, hygienic, and satisfying experience every time.",
+        "Every Wemakeover artist is trained, background-verified, and equipped with sanitized tools to ensure a safe, hygienic, and satisfying experience every time.",
       bgColor: "#FAF0EC",
     },
     {
@@ -58,14 +58,14 @@ const AboutUsPage = () => {
       designation: "Founder & Chief Executive Officer (CEO)",
       image: founder1,
       description:
-        "A dynamic leader with a sharp eye for growth, Priyanshu brings in-depth expertise in sales, marketing, and team management. Her entrepreneurial spirit and people-first approach have played a pivotal role in building Makeover's trusted reputation. From crafting customer acquisition strategies to nurturing a high-performance team, Priyanshu ensures the brand stays aligned with evolving market needs while always putting customer delight at the forefront.",
+        "A dynamic leader with a sharp eye for growth, Priyanshu brings in-depth expertise in sales, marketing, and team management. Her entrepreneurial spirit and people-first approach have played a pivotal role in building Wemakeover's trusted reputation. From crafting customer acquisition strategies to nurturing a high-performance team, Priyanshu ensures the brand stays aligned with evolving market needs while always putting customer delight at the forefront.",
     },
     // {
     //   name: "Ravindu Ranjan",
     //   designation: "Co-Founder & Chief Technology Officer (CTO)",
     //   image: founder2,
     //   description:
-    //     "The tech and product brain behind Makeover, Ravindu leads technology, product strategy, design, and cross-functional planning. With a strong foundation in building user-centric platforms, he focuses on driving innovation, operational efficiency, and seamless customer experiences. His holistic approach ensures that every service we deliver is backed by thoughtful design, reliable systems, and long-term vision.",
+    //     "The tech and product brain behind Wemakeover, Ravindu leads technology, product strategy, design, and cross-functional planning. With a strong foundation in building user-centric platforms, he focuses on driving innovation, operational efficiency, and seamless customer experiences. His holistic approach ensures that every service we deliver is backed by thoughtful design, reliable systems, and long-term vision.",
     // },
   ];
 
@@ -76,7 +76,7 @@ const AboutUsPage = () => {
       designation: "Software Development Engineer (SDE)",
       image: Aadarsh,
       description:
-        "A skilled software engineer with expertise in building scalable and responsive web applications. Aadarsh focuses on creating seamless user experiences and robust backend systems that power the Makeover platform, ensuring reliability and performance.",
+        "A skilled software engineer with expertise in building scalable and responsive web applications. Aadarsh focuses on creating seamless user experiences and robust backend systems that power the Wemakeover platform, ensuring reliability and performance.",
       socialMedia: {
         linkedin:
           "https://www.linkedin.com/in/aadarsh-upadhyaybackenddeveloper",
@@ -288,7 +288,7 @@ const AboutUsPage = () => {
           <div className="w-full sm:w-80 lg:w-[260px] h-auto sm:h-[320px] lg:h-[383px] bg-[#FF2F54] p-3 sm:p-4 rounded-xl mt-6 lg:mt-0">
             <img
               src={model}
-              alt="Makeover model"
+              alt="Wemakeover model"
               className="w-full h-full object-cover rounded-lg lg:rounded-xl"
             />
           </div>
@@ -325,9 +325,9 @@ const AboutUsPage = () => {
       {/* our founders */}
       <section className="bg-[#F3F3F3] py-10 md:py-16 lg:py-20">
         <div className="px-4 sm:px-6 md:px-10 lg:px-20 w-full flex flex-col items-start gap-8 md:gap-10 lg:gap-14">
-          <SectionTitle title="Our Founders" />
+          <SectionTitle title="Our Founder" />
           <p className="text-base sm:text-lg md:text-xl lg:text-[20px] leading-relaxed text-gray-700 w-full lg:pr-10">
-            At the heart of Makeover is a vision powered by two driven
+            At the heart of Wemakeover is a vision powered by two driven
             individuals who blend creativity, strategy, and execution to
             redefine at-home beauty experiences.
           </p>
@@ -366,7 +366,7 @@ const AboutUsPage = () => {
           <SectionTitle title="Our Team" />
           <p className="text-base sm:text-lg md:text-xl lg:text-[20px] leading-relaxed text-gray-700 w-full lg:pr-10">
             Meet the talented developers who bring technical excellence and
-            innovation to the Makeover platform, ensuring seamless digital
+            innovation to the Wemakeover platform, ensuring seamless digital
             experiences for our users.
           </p>
 
@@ -392,7 +392,7 @@ const AboutUsPage = () => {
             source="about-page"
             variant="default"
             title="Stay in the loop"
-            description="Subscribe to receive the latest news and updates about Makeover. We promise not to spam you!"
+            description="Subscribe to receive the latest news and updates about Wemakeover. We promise not to spam you!"
           />
         </div>
       </section>

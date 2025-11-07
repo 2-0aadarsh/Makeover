@@ -9,7 +9,7 @@ import f7 from "../../../assets/feedback/f7.jpg";
 
 const Testimonial = () => {
   const review =
-    "“I loved how professional and well-prepared the beautician was—felt like a salon at home!” says one of our happy clients. Another shares, “Makeover is my go-to for last-minute grooming; always on time, clean, and super relaxing.” Many of our customers rave about the convenience: “I booked a facial during my lunch break and came out glowing—without stepping out!” Whether it's bridal services, waxing, or a simple manicure, the feedback is unanimous: Makeover makes self-care seamless, luxurious, and dependable.";
+    "“I loved how professional and well-prepared the beautician was—felt like a salon at home!” says one of our happy clients. Another shares, Wemakeover is my go-to for last-minute grooming; always on time, clean, and super relaxing.” Many of our customers rave about the convenience: “I booked a facial during my lunch break and came out glowing—without stepping out!” Whether it's bridal services, waxing, or a simple manicure, the feedback is unanimous: Wemakeover makes self-care seamless, luxurious, and dependable.";
 
   const imageContainer = [f1, f2, f3, f4, f5, f6, f7];
 

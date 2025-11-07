@@ -60,10 +60,12 @@ const sendContactUsMail = async (userData) => {
     // Generate HTML template
     const emailHtml = contactUsEmailTemplate(name, email, message);
 
+    const adminEmail = process.env.ADMIN_EMAIL;
+
     // Mail options
     const mailOptions = {
-      from: `"Makeover Contact" <no-reply@chittchat.com>`,
-      to: "aadarsh0811@gmail.com", // 🔥 Admin email (replace with real admin email)
+      from: `"Wemakeover Contact" <no-reply@chittchat.com>`,
+      to: adminEmail, // 🔥 Admin email (replace with real admin email)
       subject: `New Contact Us Message `,
       replyTo: email, // allows admin to reply directly to user
       html: emailHtml,
@@ -117,11 +119,11 @@ const sendBookingNotificationToAdmin = async (bookingData) => {
     const emailHtml = bookingNotificationEmailTemplate(emailData);
 
     // Get admin email from environment variable or use default
-    const adminEmail = process.env.ADMIN_EMAIL || "aadarsh2021@vitbhopal.ac.in";
+    const adminEmail = process.env.ADMIN_EMAIL ;
 
     // Mail options
     const mailOptions = {
-      from: `"Makeover Bookings" <no-reply@chittchat.com>`,
+      from: `"Wemakeover Bookings" <no-reply@chittchat.com>`,
       to: adminEmail,
       subject: `🎉 New Booking Received - Order #${bookingData.orderNumber}`,
       replyTo: emailData.customerEmail, // allows admin to reply directly to customer
@@ -165,9 +167,9 @@ const sendWelcomeNewsletterEmail = async (subscriberData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Makeover Newsletter" <no-reply@chittchat.com>',
+      from: '"Wemakeover Newsletter" <no-reply@chittchat.com>',
       to: email,
-      subject: 'Welcome to Makeover\'s Beauty Circle! 💄',
+      subject: "Welcome to Wemakeover's Community Circle! ✨",
       html: emailHtml,
     };
     
@@ -199,11 +201,11 @@ const sendEnquiryNotificationToAdmin = async (enquiryData) => {
     const emailHtml = enquiryNotificationEmailTemplate(enquiryData);
     
     // Get admin email from environment variable or use default
-    const adminEmail = process.env.ADMIN_EMAIL || "aadarsh2021@vitbhopal.ac.in";
+    const adminEmail = process.env.ADMIN_EMAIL;
     
     // Mail options
     const mailOptions = {
-      from: '"Makeover Enquiries" <no-reply@chittchat.com>',
+      from: '"Wemakeover Enquiries" <no-reply@chittchat.com>',
       to: adminEmail,
       subject: `🔔 New Service Enquiry - ${enquiryData.enquiryNumber}`,
       replyTo: enquiryData.userDetails.email, // allows admin to reply directly to customer
@@ -241,7 +243,7 @@ const sendEnquiryConfirmationToUser = async (enquiryData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Makeover Services" <no-reply@chittchat.com>',
+      from: '"Wemakeover Services" <no-reply@chittchat.com>',
       to: userDetails.email,
       subject: `✅ We received your enquiry - ${enquiryNumber}`,
       html: emailHtml,

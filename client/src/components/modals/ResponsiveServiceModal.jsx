@@ -7,6 +7,9 @@ import GridCardContainer from "../ui/GridCardContainer";
 const ResponsiveServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
   const modalRef = useRef(null);
   const contentRef = useRef(null);
+  const touchStateRef = useRef({
+    startY: 0,
+  });
   const [scrollPosition, setScrollPosition] = useState(0);
   const tabs = gridCard.map((item) => item?.title);
   const [currentTab, setCurrentTab] = useState(0);
@@ -45,6 +48,34 @@ const ResponsiveServiceModal = ({ title, cards = [], gridCard = [], onClose }) =
       document.removeEventListener("keydown", handleEscape);
     };
   }, [onClose, scrollPosition]);
+
+  const handleContentTouchStart = (e) => {
+    e.stopPropagation();
+    if (!contentRef.current) return;
+    touchStateRef.current.startY = e.touches[0].clientY;
+  };
+
+  const handleContentTouchMove = (e) => {
+    if (!contentRef.current) return;
+    const content = contentRef.current;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStateRef.current.startY;
+
+    const atTop = content.scrollTop <= 0;
+    const atBottom =
+      Math.ceil(content.scrollTop + content.clientHeight) >=
+      content.scrollHeight;
+
+    const pullingDown = deltaY > 0;
+    const pullingUp = deltaY < 0;
+
+    if ((pullingDown && atTop) || (pullingUp && atBottom)) {
+      e.stopPropagation();
+      e.preventDefault();
+    } else {
+      e.stopPropagation();
+    }
+  };
 
   // Handle wheel events on the modal to ensure scrolling works
   const handleWheel = (e) => {
@@ -118,8 +149,10 @@ const ResponsiveServiceModal = ({ title, cards = [], gridCard = [], onClose }) =
         <div
           ref={contentRef}
           tabIndex={0} // Make div focusable for keyboard navigation
-          className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 outline-none"
+          className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 outline-none pb-10"
           style={{ WebkitOverflowScrolling: "touch" }} // Enable smooth scrolling on iOS
+          onTouchStart={handleContentTouchStart}
+          onTouchMove={handleContentTouchMove}
         >
           {/* FlexCards Section */}
           {cards.length > 0 && <FlexCardContainer cards={cards} />}

@@ -124,28 +124,28 @@ const PrivacyPolicy = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-[#CC2B52] hover:text-[#B02547] transition-colors duration-200 font-medium"
           >
-            <svg 
-              className="w-5 h-5" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M15 19l-7-7 7-7" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
               />
             </svg>
             Back
           </button>
         </div>
-        
+
         <SectionTitle title="Privacy Policy" />
 
         <div className="text-[20px] leading-[200%] font-normal">
           <p className="mb-5">
-            At Makeover, your privacy is our top priority. This Privacy Policy
+            At Wemakeover, your privacy is our top priority. This Privacy Policy
             explains how we collect, use, protect, and share your personal
             information when you interact with our website, mobile application,
             or services.

@@ -111,7 +111,7 @@ const ProfileModal = ({ username, onClose }) => {
           onClick={(e) => {
             e.stopPropagation();
             // TODO: Add complaint functionality
-            console.log('Complaint functionality to be implemented');
+            console.log("Complaint functionality to be implemented");
           }}
         >
           <HiChatAlt2 className="font-semibold text-[20px]" />
@@ -167,7 +167,7 @@ const ProfileModal = ({ username, onClose }) => {
 
         {/* User Name */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <h4 className="font-semibold text-lg text-[#CC2B52]">{username}</h4>
+          <h4 className="font-semibold text-lg text-black/75">{username}</h4>
         </div>
 
         {/* Navigation Links */}
@@ -215,19 +215,19 @@ const ProfileModal = ({ username, onClose }) => {
           </div>
 
           {/* Complaint Link */}
-          <div className="py-3 border-b border-pink-100">
+          {/* <div className="py-3 border-b border-pink-100">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 // TODO: Add complaint functionality
-                console.log('Complaint functionality to be implemented');
+                console.log("Complaint functionality to be implemented");
               }}
               className="flex items-center gap-3 text-[#CC2B52] font-semibold hover:text-[#B02547] transition-colors"
             >
               <HiChatAlt2 size={20} />
               <span>Raise a Complaint</span>
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Logout Section */}

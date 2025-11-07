@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +12,9 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
   const [currentTab, setCurrentTab] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
+  const touchStateRef = useRef({
+    startY: 0,
+  });
 
   // Animation variants
   const overlayVariants = {
@@ -159,7 +161,16 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
   }, [onClose]);
 
   // Handle drag gestures for mobile
+  const isInteractionInsideContent = (target) => {
+    if (!contentRef.current) return false;
+    return contentRef.current.contains(target);
+  };
+
   const handleDragStart = (e) => {
+    if (isInteractionInsideContent(e.target)) {
+      return;
+    }
+
     setIsDragging(true);
     dragStartY.current =
       e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
@@ -201,6 +212,34 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
     }
   };
 
+  const handleContentTouchStart = (e) => {
+    e.stopPropagation();
+    if (!contentRef.current) return;
+    touchStateRef.current.startY = e.touches[0].clientY;
+  };
+
+  const handleContentTouchMove = (e) => {
+    if (!contentRef.current) return;
+
+    const content = contentRef.current;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStateRef.current.startY;
+    const atTop = content.scrollTop <= 0;
+    const atBottom =
+      Math.ceil(content.scrollTop + content.clientHeight) >=
+      content.scrollHeight;
+
+    const pullingDown = deltaY > 0;
+    const pullingUp = deltaY < 0;
+
+    if ((pullingDown && atTop) || (pullingUp && atBottom)) {
+      e.stopPropagation();
+      e.preventDefault();
+    } else {
+      e.stopPropagation();
+    }
+  };
+
   // Enhanced wheel handling with momentum
   const handleWheel = (e) => {
     if (contentRef.current) {
@@ -230,7 +269,7 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
       >
         <motion.div
           ref={modalRef}
-          className="relative w-full md:w-auto md:max-w-[1104px] h-[65vh] md:h-auto md:max-h-[90vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
+          className="relative w-full md:w-auto md:max-w-[1104px] h-[93vh] md:h-auto md:max-h-[90vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
           variants={
             window.innerWidth < 768 ? modalVariants : desktopModalVariants
           }
@@ -328,8 +367,10 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
           <motion.div
             ref={contentRef}
             tabIndex={0}
-            className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 sm:mt-6 outline-none"
+            className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 sm:mt-6 outline-none pb-10"
             style={{ WebkitOverflowScrolling: "touch" }}
+            onTouchStart={handleContentTouchStart}
+            onTouchMove={handleContentTouchMove}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.4 }}

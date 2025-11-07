@@ -582,7 +582,7 @@ const bookingNotificationEmailTemplate = (bookingData) => {
           Please review this booking and prepare for the scheduled service.
         </p>
         <div style="font-size: 12px; color: #9ca3af; margin-top: 20px;">
-          © ${new Date().getFullYear()} Makeover - Beauty Services Platform<br/>
+          © ${new Date().getFullYear()} Wemakeover - Beauty Services Platform<br/>
           This is an automated notification. Please do not reply to this email.
         </div>
       </div>
@@ -601,7 +601,7 @@ const welcomeNewsletterEmailTemplate = (data) => {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome to Makeover Newsletter</title>
+    <title>Welcome to Wemakeover Newsletter</title>
     <style>
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -733,7 +733,7 @@ const welcomeNewsletterEmailTemplate = (data) => {
     <div class="container">
       <!-- Header -->
       <div class="header">
-        <h1>Welcome to Makeover</h1>
+        <h1>Welcome to Wemakeover</h1>
         <p>Your Beauty Journey Starts Here</p>
       </div>
 
@@ -809,7 +809,7 @@ const welcomeNewsletterEmailTemplate = (data) => {
         </div>
         
         <p style="margin: 15px 0;">
-          Questions? Contact us at <a href="mailto:support@makeover.com">support@makeover.com</a>
+          Questions? Contact us at <a href="mailto:support@Wemakeover.com">support@Wemakeover.com</a>
         </p>
         
         <p style="margin: 15px 0; font-size: 12px;">
@@ -818,7 +818,7 @@ const welcomeNewsletterEmailTemplate = (data) => {
         </p>
         
         <p style="margin: 15px 0; color: #9ca3af; font-size: 11px;">
-          © ${new Date().getFullYear()} Makeover - Beauty Services Platform<br/>
+          © ${new Date().getFullYear()} Wemakeover - Beauty Services Platform<br/>
           Delivering beauty to your doorstep
         </p>
       </div>
@@ -1188,7 +1188,7 @@ const enquiryNotificationEmailTemplate = (enquiryData) => {
           Please contact the customer as soon as possible to discuss their requirements.
         </p>
         <div style="font-size: 11px; color: #9ca3af; margin-top: 15px;">
-          © ${new Date().getFullYear()} Makeover - Beauty Services Platform<br/>
+          © ${new Date().getFullYear()} Wemakeover - Beauty Services Platform<br/>
           This is an automated notification. Please do not reply to this email.
         </div>
       </div>
@@ -1504,13 +1504,13 @@ const enquiryConfirmationEmailTemplate = (enquiryData) => {
       <!-- Footer -->
       <div class="footer">
         <p style="font-weight: 600; color: #374151;">
-          Thank you for choosing Makeover!
+          Thank you for choosing Wemakeover!
         </p>
         <p>
           We're committed to providing you with the best beauty services.
         </p>
         <div style="font-size: 11px; color: #9ca3af; margin-top: 15px;">
-          © ${new Date().getFullYear()} Makeover - Beauty Services Platform<br/>
+          © ${new Date().getFullYear()} Wemakeover - Beauty Services Platform<br/>
           Delivering beauty to your doorstep
         </div>
       </div>

@@ -98,7 +98,10 @@ const Header = () => {
       </div>
 
       {/* TABLET LAYOUT (md to lg) */}
-      <div className="hidden md:flex lg:hidden items-center gap-4">
+      <div className="hidden md:flex lg:hidden items-center gap-3">
+        {/* Location Display */}
+        <LocationDisplay />
+
         {/* Cart Button - Only for authenticated users */}
         {isAuthenticated && <CartButton />}
 
@@ -106,12 +109,15 @@ const Header = () => {
         {isAuthenticated ? (
           <ProfileButton username={user.name} />
         ) : (
-          <Button content="Login/Register" redirect="/auth/signup" />
+          <Button content="Login/Register" redirect="/auth/login" />
         )}
       </div>
 
       {/* MOBILE LAYOUT (below md) */}
-      <div className="flex md:hidden items-center gap-3">
+      <div className="flex md:hidden items-center gap-2">
+        {/* Location Display */}
+        <LocationDisplay />
+
         {/* Cart Button - Only for authenticated users */}
         {isAuthenticated && <CartButton />}
 
@@ -119,7 +125,7 @@ const Header = () => {
         {isAuthenticated ? (
           <ProfileButton username={user.name} />
         ) : (
-          <Button content="Login/Register" redirect="/auth/signup" />
+          <Button content="Login/Register" redirect="/auth/login" />
         )}
       </div>
     </nav>

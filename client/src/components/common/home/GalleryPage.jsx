@@ -44,7 +44,7 @@ const GalleryPage = () => {
       <div className="flex flex-col gap-8 sm:gap-12 lg:gap-20 items-start">
         {/* First Container: Heading Section */}
         <div className="w-full flex flex-col items-start justify-between gap-3">
-          <SectionTitle title="Makeover Gallery" />
+          <SectionTitle title="Wemakeover Gallery" />
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] leading-tight sm:leading-relaxed lg:leading-[62.4px] text-[#212121] font-sans font-normal">
             We have created amazing stories for our customers!
           </h2>
@@ -80,14 +80,14 @@ const GalleryPage = () => {
               <div className="font-normal font-sans text-[18px] leading-[36px]">
                 <p>
                   Transform your look and boost your confidence with our premium
-                  at-home makeover and makeup services. Whether it&#39;s a glam
-                  evening look, bridal makeup, or a flawless everyday glow – our
-                  professional artists bring the salon experience to your
+                  at home. Wemakeover and makeup services. Whether it&#39;s a
+                  glam evening look, bridal makeup, or a flawless everyday glow
+                  , our professional artists bring the salon experience to your
                   doorstep, using top-quality products and personalized
                   technique. Ready to feel your best without stepping out? Tap
                   the button above to enquire now.
                   <span className="font-semibold ml-1">
-                    Your perfect makeover is just a click away!
+                    Your perfect Wemakeover is just a click away!
                   </span>
                 </p>
               </div>
@@ -125,14 +125,14 @@ const GalleryPage = () => {
           <div className="font-normal font-sans text-sm sm:text-base leading-relaxed">
             <p>
               Transform your look and boost your confidence with our premium
-              at-home makeover and makeup services. Whether it&#39;s a glam
-              evening look, bridal makeup, or a flawless everyday glow – our
+              at-home Wemakeover and makeup services. Whether it&#39;s a glam
+              evening look, bridal makeup, or a flawless everyday glow, our
               professional artists bring the salon experience to your doorstep,
               using top-quality products and personalized technique. Ready to
               feel your best without stepping out? Tap the button above to
               enquire now.
               <span className="font-semibold ml-1">
-                Your perfect makeover is just a click away!
+                Your perfect Wemakeover is just a click away!
               </span>
             </p>
           </div>

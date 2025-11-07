@@ -13,15 +13,15 @@ const ContactUsLoggedin = () => {
           Our application for Android & iOS will be releasing soon
         </h3>
         <h4 className="flex items-start text-lg sm:text-xl md:text-2xl lg:text-[40px]">
-          Makeover`&apos;s application is on the way!
+          Wemakeover&apos;s application is on the way!
         </h4>
         <p className="text-xs sm:text-sm md:text-base lg:text-[18px] font-normal leading-relaxed lg:leading-[28px] font-sans">
-          We`&apos;re busy behind the scenes, crafting the Makeover app for both
-          Android and iOS—so your beauty rituals can soon be booked with just a
-          tap! ✨ Whether you&apos;re team Apple or Android, we`&apos;ve got you
-          covered. Stay tuned—your personalized pampering experience is almost
-          ready to land in your pocket! 💅📱 We'll notify you the moment it goes
-          live. Until then, keep glowing! 💖
+          We&apos;re busy behind the scenes, crafting the Wemakeover app for
+          both Android and iOS, so your beauty rituals can soon be booked with
+          just a tap! ✨ Whether you&apos;re team Apple or Android, we&apos;ve
+          got you covered. Stay tuned, your personalized pampering experience is
+          almost ready to land in your pocket! 💅📱 We&apos;ll notify you the
+          moment it goes live. Until then, keep glowing! 💖
         </p>
       </div>
 

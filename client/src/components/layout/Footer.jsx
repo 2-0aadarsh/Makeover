@@ -28,7 +28,7 @@ const Footer = () => {
         {/* Left: Copyright and Legal */}
         <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 lg:gap-6 text-[#313957]">
           <span className="text-[#A0A0A0] whitespace-nowrap text-xs sm:text-sm md:text-base">
-            © Makeover 2025
+            © Wemakeover 2025
           </span>
           <div className="flex items-center gap-2 md:gap-4">
             {legalLinks.map((item, index) => (

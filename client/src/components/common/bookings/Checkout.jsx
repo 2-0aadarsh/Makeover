@@ -37,6 +37,28 @@ const Checkout = ({
     extractedUserPhone: userPhone,
   });
 
+  const {
+    completePaymentFlow,
+    completeCODFlow,
+    isLoading: paymentLoading,
+    hasError,
+    errorMessage,
+  } = usePayment();
+
+  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [formValid, setFormValid] = useState(false);
+
+  // Book Your Slot state - Initialize with today's date if no date provided
+  const getDefaultDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const [selectedDate, setSelectedDate] = useState(
+    bookingDetails.date || getDefaultDate()
+  );
+  const [selectedSlot, setSelectedSlot] = useState(bookingDetails.slot || "");
+
   console.log("🔍 [CRITICAL DEBUG] Checkout component rendered with:", {
     totalAmount,
     servicesCount: services.length,
@@ -72,27 +94,6 @@ const Checkout = ({
     schemaCompliant: "YES",
     timestamp: new Date().toISOString(),
   });
-  const {
-    completePaymentFlow,
-    completeCODFlow,
-    isLoading: paymentLoading,
-    hasError,
-    errorMessage,
-  } = usePayment();
-
-  const [paymentMethod, setPaymentMethod] = useState("online");
-  const [formValid, setFormValid] = useState(false);
-
-  // Book Your Slot state - Initialize with today's date if no date provided
-  const getDefaultDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  };
-
-  const [selectedDate, setSelectedDate] = useState(
-    bookingDetails.date || getDefaultDate()
-  );
-  const [selectedSlot, setSelectedSlot] = useState(bookingDetails.slot || "");
 
   // Validate form based on selected payment method and booking slot
   useEffect(() => {
@@ -104,7 +105,7 @@ const Checkout = ({
       timestamp: new Date().toISOString(),
     });
 
-    let paymentValid = true; // Both payment methods are valid
+    const paymentValid = paymentMethod !== null;
 
     // If showBookSlot is true, also validate that date and slot are selected
     const bookingValid = showBookSlot ? selectedDate && selectedSlot : true;
@@ -412,8 +413,7 @@ const Checkout = ({
       // Ensure address has phone and all required fields
       const addressWithPhone = parseAddress(bookingDetails.address);
       // Fallback priority: address phone -> authenticated user's phone -> hardcoded fallback
-      addressWithPhone.phone =
-        addressWithPhone.phone || userPhone ;
+      addressWithPhone.phone = addressWithPhone.phone || userPhone;
 
       // Calculate total duration for booking
       const totalDuration = servicesWithRequiredFields.reduce(
@@ -687,7 +687,7 @@ const Checkout = ({
                   <span className="text-white text-xs">💰</span>
                 </div>
                 <h3 className="text-sm font-semibold text-green-800">
-                  Cash on Delivery
+                  Pay After Service
                 </h3>
               </div>
               <p className="text-sm text-green-700 mb-2">
@@ -777,8 +777,10 @@ const Checkout = ({
             </div>
           ) : paymentMethod === "online" ? (
             `Pay ${formatAmount(totalAmount)}`
-          ) : (
+          ) : paymentMethod === "cod" ? (
             "Book Now"
+          ) : (
+            "Select Payment Method"
           )}
         </button>
       </div>
