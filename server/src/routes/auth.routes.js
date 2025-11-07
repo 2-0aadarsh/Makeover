@@ -1,6 +1,6 @@
 import express from "express";
 
-import { forgotPasswordController, loginController, logoutController, resetPasswordController, signupController, validateOtpController } from "../controllers/auth.contoller.js";
+import { forgotPasswordController, loginController, logoutController, resetPasswordController, signupController, validateOtpController, checkStatusController } from "../controllers/auth.contoller.js";
 import { checkAuth, validateLogin, validateSignup } from "../middlewares/auth.middleware.js";
 
 const authRouter = express.Router();
@@ -18,9 +18,7 @@ authRouter.post("/logout", logoutController);
 
 
 // Check Logged-in State
-authRouter.get('/status', checkAuth, (req,res)=>{
-  res.json({ success : true, loggedIn: true, user: req.user });
-})
+authRouter.get('/status', checkAuth, checkStatusController);
 
 // Route for user forget password
 authRouter.post("/forget-password", forgotPasswordController);

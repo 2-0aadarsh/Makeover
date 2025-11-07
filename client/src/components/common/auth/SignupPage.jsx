@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// import FormHeader from "./forms/FormHeader";
 import FormSection from "../forms/FormSection";
 import FormFooter from "../forms/FormFooter";
-
 import signupHeader from "../../../assets/signupHeader.jpg";
 import Logo from "../../ui/Logo";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,15 +22,25 @@ const SignupPage = () => {
     password: "",
     confirmPassword: "",
   });
+  const [formError, setFormError] = useState("");
 
   // Input handler
   const handleInputChange = ({ target: { id, value } }) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (formError) {
+      setFormError("");
+    }
   };
 
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.phoneNumber.trim()) {
+      setFormError("Phone number is required.");
+      return;
+    }
+
+    setFormError("");
     dispatch(signupUser(formData));
   };
 
@@ -47,13 +54,13 @@ const SignupPage = () => {
         password: "",
         confirmPassword: "",
       });
+      setFormError("");
       navigate("/auth/verify-email");
       dispatch(resetAuthState()); // cleanup after redirect
     }
   }, [signupSuccess, navigate, formData.email, dispatch]);
 
   // Static content
-  // const headerData = [{ url: signupHeader, alt: "Signup Header" }];
   const inputData = [
     {
       labelName: "Name",
@@ -88,11 +95,13 @@ const SignupPage = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-[1240px] min-h-[600px] lg:h-[960px] flex flex-col lg:flex-row shadow-xl rounded-2xl overflow-hidden">
+    <div className="w-full min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8 py-6">
+      <div className="w-full max-w-[1100px] flex flex-col lg:flex-row shadow-xl rounded-2xl overflow-hidden bg-white">
         {/* LEFT FORM */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-between px-4 sm:px-8 lg:px-20 py-6 lg:py-6">
-          <Logo />
+        <div className="w-full lg:w-1/2 flex flex-col px-6 sm:px-8 lg:px-12 py-6 lg:py-8">
+          <div className="mb-6 lg:mb-8">
+            <Logo />
+          </div>
 
           <FormSection
             title="Create Your Account 👋"
@@ -102,15 +111,17 @@ const SignupPage = () => {
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
             buttonText={status === "loading" ? "Signing Up..." : "Sign Up"}
-            error={error}
+            error={formError || error}
             isLoading={status === "loading"}
           />
 
-          <FormFooter
-            accDetails="Already have an account?"
-            switchToButton="Login"
-            switchTo="/auth/login"
-          />
+          <div className="mt-6 lg:mt-8">
+            <FormFooter
+              accDetails="Already have an account?"
+              switchToButton="Login"
+              switchTo="/auth/login"
+            />
+          </div>
         </div>
 
         {/* RIGHT IMAGE */}

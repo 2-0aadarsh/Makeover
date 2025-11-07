@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Booking from '../models/booking.model.js';
 import { generatePaymentReference } from '../utils/payment.utils.js';
 
@@ -307,8 +308,25 @@ class BookingService {
   // Get booking statistics for a user
   async getBookingStats(userId) {
     try {
+      // Convert userId to ObjectId if it's a string
+      const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+        ? new mongoose.Types.ObjectId(userId) 
+        : userId;
+      
+      console.log('📊 getBookingStats - userId:', userId, 'type:', typeof userId);
+      console.log('📊 getBookingStats - userObjectId:', userObjectId);
+      
+      // First, check if there are any bookings at all (try both string and ObjectId)
+      const bookingCountString = await Booking.countDocuments({ userId: userId });
+      const bookingCountObjectId = await Booking.countDocuments({ userId: userObjectId });
+      console.log('📊 Bookings found with string userId:', bookingCountString);
+      console.log('📊 Bookings found with ObjectId userId:', bookingCountObjectId);
+      
+      // Use the one that finds bookings, or ObjectId as default
+      const effectiveUserId = bookingCountString > 0 ? userId : userObjectId;
+      
       const stats = await Booking.aggregate([
-        { $match: { userId: userId } },
+        { $match: { userId: effectiveUserId } },
         {
           $group: {
             _id: null,
@@ -335,7 +353,7 @@ class BookingService {
       }]);
 
       const statusCounts = await Booking.aggregate([
-        { $match: { userId: userId } },
+        { $match: { userId: effectiveUserId } },
         {
           $group: {
             _id: '$status',
@@ -344,15 +362,29 @@ class BookingService {
         }
       ]);
 
+      // Handle case when user has no bookings (stats[0] will be undefined)
+      const defaultStats = {
+        totalBookings: 0,
+        totalSpent: 0,
+        completedBookings: 0,
+        cancelledBookings: 0,
+        upcomingBookings: 0
+      };
+
+      const finalStats = {
+        ...defaultStats,
+        ...(stats[0] || {}), // Use stats[0] if it exists, otherwise use empty object
+        statusBreakdown: statusCounts.reduce((acc, item) => {
+          acc[item._id] = item.count;
+          return acc;
+        }, {})
+      };
+      
+      console.log('📊 Final stats to return:', finalStats);
+      
       return {
         success: true,
-        data: {
-          ...stats[0],
-          statusBreakdown: statusCounts.reduce((acc, item) => {
-            acc[item._id] = item.count;
-            return acc;
-          }, {})
-        },
+        data: finalStats,
         message: 'Booking statistics retrieved successfully'
       };
     } catch (error) {

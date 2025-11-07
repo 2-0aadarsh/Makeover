@@ -1,8 +1,31 @@
 import SectionTitle from "../../ui/SectionTitle";
+import NewsletterSubscription from "../../ui/NewsletterSubscription";
 import model from "../../../assets/About/model.jpg";
 import founder1 from "../../../assets/About/founder1.jpg";
-import founder2 from "../../../assets/About/founder2.jpg";
-import { useState } from "react";
+import Aadarsh from "../../../assets/About/Aadarsh.jpg";
+import Pushpraj from "../../../assets/About/Pushpraj.jpg";
+import { motion } from "framer-motion";
+import PropTypes from "prop-types";
+import { FaLinkedin, FaInstagram, FaTwitter, FaGithub } from "react-icons/fa";
+
+const socialIconConfig = {
+  linkedin: {
+    icon: FaLinkedin,
+    color: "bg-blue-600 hover:bg-blue-700",
+  },
+  instagram: {
+    icon: FaInstagram,
+    color: "bg-pink-500 hover:bg-pink-600",
+  },
+  twitter: {
+    icon: FaTwitter,
+    color: "bg-sky-400 hover:bg-sky-500",
+  },
+  github: {
+    icon: FaGithub,
+    color: "bg-gray-700 hover:bg-gray-800",
+  },
+};
 
 const AboutUsPage = () => {
   const AboutUsContent =
@@ -37,28 +60,217 @@ const AboutUsPage = () => {
       description:
         "A dynamic leader with a sharp eye for growth, Priyanshu brings in-depth expertise in sales, marketing, and team management. Her entrepreneurial spirit and people-first approach have played a pivotal role in building Makeover's trusted reputation. From crafting customer acquisition strategies to nurturing a high-performance team, Priyanshu ensures the brand stays aligned with evolving market needs while always putting customer delight at the forefront.",
     },
+    // {
+    //   name: "Ravindu Ranjan",
+    //   designation: "Co-Founder & Chief Technology Officer (CTO)",
+    //   image: founder2,
+    //   description:
+    //     "The tech and product brain behind Makeover, Ravindu leads technology, product strategy, design, and cross-functional planning. With a strong foundation in building user-centric platforms, he focuses on driving innovation, operational efficiency, and seamless customer experiences. His holistic approach ensures that every service we deliver is backed by thoughtful design, reliable systems, and long-term vision.",
+    // },
+  ];
+
+  // Enhanced Team Data with Social Media
+  const teamData = [
     {
-      name: "Ravindu Ranjan",
-      designation: "Co-Founder & Chief Technology Officer (CTO)",
-      image: founder2,
+      name: "Aadarsh Upadhyay",
+      designation: "Software Development Engineer (SDE)",
+      image: Aadarsh,
       description:
-        "The tech and product brain behind Makeover, Ravindu leads technology, product strategy, design, and cross-functional planning. With a strong foundation in building user-centric platforms, he focuses on driving innovation, operational efficiency, and seamless customer experiences. His holistic approach ensures that every service we deliver is backed by thoughtful design, reliable systems, and long-term vision.",
+        "A skilled software engineer with expertise in building scalable and responsive web applications. Aadarsh focuses on creating seamless user experiences and robust backend systems that power the Makeover platform, ensuring reliability and performance.",
+      socialMedia: {
+        linkedin:
+          "https://www.linkedin.com/in/aadarsh-upadhyaybackenddeveloper",
+        instagram: "https://www.instagram.com/notsoaadarshh",
+        twitter: "https://x.com/Aadarsh_717",
+        github: "https://github.com/2-0aadarsh",
+      },
+    },
+    {
+      name: "Pushpraj Ranjan",
+      designation: "Software Development Engineer (SDE)",
+      image: Pushpraj,
+      description:
+        "Passionate about modern web technologies and user-centric design, Pushpraj contributes to developing innovative features and maintaining code quality. His dedication to clean architecture and best practices helps deliver exceptional digital experiences.",
+      socialMedia: {
+        linkedin: "https://www.linkedin.com/in/pushpraj-ranjan-454931215",
+        instagram:
+          "https://www.instagram.com/pushpraj_31?igsh=MWJ3c2Z1eWxycHBnYg==",
+        github: "https://github.com/Pushpraj31",
+      },
     },
   ];
 
-  const [formData, setFormData] = useState({ email: "" });
-
-  const handleChange = (event) => {
-    setFormData((prev) => ({
-      ...prev,
-      [event.target.name]: event.target.value,
-    }));
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 50,
+      scale: 0.9,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const imageVariants = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+    hover: {
+      scale: 1.05,
+      rotateY: 10,
+      transition: {
+        duration: 0.3,
+        ease: "easeInOut",
+      },
+    },
+  };
+
+  const socialIconVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+    hover: {
+      scale: 1.2,
+      y: -5,
+      transition: {
+        duration: 0.2,
+        ease: "easeInOut",
+      },
+    },
+  };
+
+  // Social Media Icon Component
+  const SocialIcon = ({ href, icon: Icon, color, delay }) => (
+    <motion.a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`p-2 rounded-full ${color} text-white hover:shadow-lg transform transition-all duration-200`}
+      variants={socialIconVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover="hover"
+      transition={{ delay }}
+    >
+      <Icon className="w-4 h-4" />
+    </motion.a>
+  );
+
+  SocialIcon.propTypes = {
+    href: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired,
+    color: PropTypes.string.isRequired,
+    delay: PropTypes.number.isRequired,
+  };
+
+  // Team Member Card Component
+  const TeamMemberCard = ({ member }) => (
+    <motion.div
+      variants={cardVariants}
+      className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group"
+      whileHover={{ y: -5 }}
+    >
+      <div className="p-6 sm:p-8">
+        {/* Image with different styling from founders */}
+        <div className="flex justify-center mb-6">
+          <motion.div
+            className="relative"
+            variants={imageVariants}
+            whileHover="hover"
+          >
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 p-1 shadow-lg">
+              <img
+                src={member.image}
+                alt={member.name}
+                className="w-full h-full object-cover rounded-full border-4 border-white"
+              />
+            </div>
+            {/* Animated ring effect */}
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-400 border-r-purple-500"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            />
+          </motion.div>
+        </div>
+
+        {/* Content */}
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {member.name}
+          </h3>
+          <p className="text-blue-600 font-semibold mb-4 text-sm">
+            {member.designation}
+          </p>
+          <p className="text-gray-600 text-sm leading-relaxed mb-6">
+            {member.description}
+          </p>
+
+          {/* Social Media Links */}
+          <motion.div
+            className="flex justify-center space-x-3"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {Object.entries(member.socialMedia || {})
+              .filter(([platform, url]) => url && socialIconConfig[platform])
+              .map(([platform, url], socialIndex) => {
+                const { icon, color } = socialIconConfig[platform];
+
+                return (
+                  <SocialIcon
+                    key={platform}
+                    href={url}
+                    icon={icon}
+                    color={color}
+                    delay={0.1 * (socialIndex + 1)}
+                  />
+                );
+              })}
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  TeamMemberCard.propTypes = {
+    member: PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      designation: PropTypes.string.isRequired,
+      image: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+      socialMedia: PropTypes.objectOf(PropTypes.string).isRequired,
+    }).isRequired,
   };
 
   return (
@@ -126,7 +338,6 @@ const AboutUsPage = () => {
                 key={index}
                 className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-12"
               >
-                {/* Updated image container for full width on mobile */}
                 <div className="w-full md:w-64 lg:w-[220px] h-auto md:h-80 lg:h-[294px] rounded-lg overflow-hidden">
                   <img
                     src={founder.image}
@@ -149,48 +360,42 @@ const AboutUsPage = () => {
         </div>
       </section>
 
+      {/* Enhanced Our Team Section */}
+      <section className="bg-gradient-to-b from-white to-gray-50 py-10 md:py-16 lg:py-20">
+        <div className="px-4 sm:px-6 md:px-10 lg:px-20 w-full flex flex-col items-start gap-8 md:gap-10 lg:gap-14">
+          <SectionTitle title="Our Team" />
+          <p className="text-base sm:text-lg md:text-xl lg:text-[20px] leading-relaxed text-gray-700 w-full lg:pr-10">
+            Meet the talented developers who bring technical excellence and
+            innovation to the Makeover platform, ensuring seamless digital
+            experiences for our users.
+          </p>
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 w-full max-w-6xl mx-auto"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {teamData.map((member, index) => (
+              <TeamMemberCard key={index} member={member} index={index} />
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* newsletter */}
       <section className="px-4 sm:px-6 md:px-10 lg:px-20 py-10 md:py-16 lg:py-20">
         <div className="w-full flex flex-col items-start gap-8 md:gap-12 lg:gap-16 font-inter">
           <SectionTitle title="Subscribe For Newsletters" />
 
-          <div className="w-full p-6 sm:p-8 md:p-12 lg:p-20 bg-[#CC2B52] rounded-2xl text-white flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10">
-            <div className="w-full lg:w-1/2 font-medium text-xl sm:text-2xl md:text-3xl lg:text-[28px] leading-tight sm:leading-relaxed flex flex-col items-start gap-3 md:gap-4">
-              <h3>Stay in the loop</h3>
-              <p className="font-normal text-sm sm:text-base md:text-lg lg:text-[18px] pr-0 lg:pr-10 tracking-normal">
-                Subscribe to receive the latest news and updates about Makeover.
-                We promise not to spam you!
-              </p>
-            </div>
-
-            <div className="w-full lg:w-1/2 flex items-center justify-center lg:justify-end">
-              <form
-                onSubmit={handleSubmit}
-                className="w-full sm:w-96 lg:w-[422px] h-12 sm:h-14 bg-white rounded-lg relative"
-              >
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email"
-                  className="w-full h-full rounded-lg text-black px-4 text-sm outline-none"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="bg-[#CC2B52] absolute right-1 top-1 bottom-1 px-4 sm:px-6 md:px-9 py-1 sm:py-2 text-xs sm:text-sm capitalize rounded-[8px] cursor-pointer"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
+          <NewsletterSubscription
+            source="about-page"
+            variant="default"
+            title="Stay in the loop"
+            description="Subscribe to receive the latest news and updates about Makeover. We promise not to spam you!"
+          />
         </div>
       </section>
-
-      
     </div>
   );
 };

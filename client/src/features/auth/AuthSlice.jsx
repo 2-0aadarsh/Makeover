@@ -1,5 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { checkLoginStatus, forgetPasswordThunk, loginUser, logoutUser, resendOtpThunk, resetPasswordThunk, signupUser, verifyOtpThunk } from "./authThunks";
+import {
+  checkLoginStatus,
+  forgetPasswordThunk,
+  loginUser,
+  logoutUser,
+  resendOtpThunk,
+  resetPasswordThunk,
+  signupUser,
+  verifyOtpThunk,
+} from "./authThunks";
 import { toast } from "react-toastify";
 
 const initialState = {
@@ -66,7 +75,8 @@ export const AuthSlice = createSlice({
       })
       .addCase(verifyOtpThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user; // comes from backend
+        // Store complete user object including phoneNumber: { name, email, phoneNumber }
+        state.user = action.payload.user; // comes from backend with phoneNumber
         state.isAuthenticated = true; // user is now logged in after verification
         state.userEmail = null;
         toast.success("OTP verified successfully");
@@ -96,7 +106,8 @@ export const AuthSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        // Store complete user object including phoneNumber: { id, name, email, phoneNumber }
+        state.user = action.payload.user; // comes from backend with phoneNumber
         state.isAuthenticated = true;
       })
 
@@ -112,7 +123,8 @@ export const AuthSlice = createSlice({
       })
       .addCase(checkLoginStatus.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        // Store complete user object including phoneNumber: { id, name, email, phoneNumber, role }
+        state.user = action.payload.user; // comes from backend with phoneNumber (fetched from database)
         state.isAuthenticated = action.payload.loggedIn;
       })
 

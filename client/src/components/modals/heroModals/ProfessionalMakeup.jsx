@@ -8,6 +8,7 @@ const ProfessionalMakeup = ({ onClose }) => {
     {
       img: BridalMakeup,
       cardHeader: "Bridal Makeup",
+      serviceCategory: "Professional Makeup",
       description:
         "We create the most elegant bridal looks! Contact us to book yours today.",
       PriceEstimate: "12k-28k",
@@ -16,6 +17,7 @@ const ProfessionalMakeup = ({ onClose }) => {
     {
       img: PartyMakeup,
       cardHeader: "Party Makeup",
+      serviceCategory: "Professional Makeup",
       description:
         "We create the most elegant bridal looks! Contact us to book yours today.",
       PriceEstimate: "4k-6k",
@@ -24,6 +26,7 @@ const ProfessionalMakeup = ({ onClose }) => {
     {
       img: EngagementMakeup,
       cardHeader: "Engagement/Reception",
+      serviceCategory: "Professional Makeup",
       description:
         "Seamless looks by our professionals! Contact us to book yours today.",
       PriceEstimate: "10k-16k",
@@ -37,6 +40,7 @@ const ProfessionalMakeup = ({ onClose }) => {
       cards={makeupCard}
       onClose={onClose}
       onConfirm={() => alert("Professional Makeup Booking Confirmed!")}
+      source="professional-makeup"
     />
   );
 };

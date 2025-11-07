@@ -3,6 +3,7 @@ import { Minus, Plus } from "lucide-react";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
 import AddressDetail from "./AddressDetail";
+import RemoveServiceModal from "../../modals/RemoveServiceModal";
 
 /**
  * OrderSummary Component
@@ -26,6 +27,14 @@ const OrderSummary = ({
   const [services, setServices] = useState(initialServices);
   const [currentAddress, setCurrentAddress] = useState("");
   const [currentAddressObject, setCurrentAddressObject] = useState(null);
+  
+  // Modal state for remove confirmation
+  const [removeModal, setRemoveModal] = useState({
+    isOpen: false,
+    serviceIndex: null,
+    serviceName: "",
+    serviceId: null,
+  });
   
   // Initialize selectedDate with today's date to avoid past date validation errors
   const getDefaultDate = () => {
@@ -61,8 +70,21 @@ const OrderSummary = ({
 
   // Handle quantity changes for services
   const handleQuantityChange = (serviceIndex, change) => {
+    const currentQuantity = services[serviceIndex].quantity;
+    
+    // If trying to decrease quantity to 0, show confirmation modal
+    if (currentQuantity === 1 && change === -1) {
+      setRemoveModal({
+        isOpen: true,
+        serviceIndex,
+        serviceName: services[serviceIndex].name,
+        serviceId: services[serviceIndex].id,
+      });
+      return;
+    }
+    
+    // Normal quantity change (increase or decrease when quantity > 1)
     const newServices = [...services];
-    const currentQuantity = newServices[serviceIndex].quantity;
     const newQuantity = Math.max(1, currentQuantity + change);
     newServices[serviceIndex].quantity = newQuantity;
     setServices(newServices);
@@ -71,6 +93,26 @@ const OrderSummary = ({
     if (onQuantityChange && newServices[serviceIndex].id) {
       onQuantityChange(newServices[serviceIndex].id, newQuantity);
     }
+  };
+
+  // Handle confirmation to remove service
+  const handleConfirmRemove = () => {
+    if (removeModal.serviceId && onQuantityChange) {
+      // Set quantity to 0, which will trigger removal in cart slice
+      onQuantityChange(removeModal.serviceId, 0);
+    }
+    
+    // Remove from local services state
+    const newServices = services.filter((_, index) => index !== removeModal.serviceIndex);
+    setServices(newServices);
+    
+    // Close modal
+    setRemoveModal({ isOpen: false, serviceIndex: null, serviceName: "", serviceId: null });
+  };
+
+  // Handle cancel - keep service at quantity 1
+  const handleCancelRemove = () => {
+    setRemoveModal({ isOpen: false, serviceIndex: null, serviceName: "", serviceId: null });
   };
 
   // Format price to INR currency format
@@ -106,6 +148,16 @@ const OrderSummary = ({
   };
 
   return (
+    <>
+      {/* Remove Service Confirmation Modal */}
+      {removeModal.isOpen && (
+        <RemoveServiceModal
+          serviceName={removeModal.serviceName}
+          onConfirm={handleConfirmRemove}
+          onCancel={handleCancelRemove}
+        />
+      )}
+
     <div className="min-h-screen bg-white pt-16">
       {/* Main Content - Responsive padding */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-20">
@@ -336,6 +388,7 @@ const OrderSummary = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -10,6 +10,7 @@ const ProfessionalMehendiModal = ({ onClose }) => {
     {
       img: BridalMehendi,
       cardHeader: "Bridal Mehendi",
+      serviceCategory: "Professional Mehendi",
       description:
         "Let your hands tell a love story with our bespoke Bridal Mehendi designs",
       Price: "6999",
@@ -22,6 +23,7 @@ const ProfessionalMehendiModal = ({ onClose }) => {
     {
       img: MehendiForAll,
       cardHeader: "Mehendi For All",
+      serviceCategory: "Professional Mehendi",
       description:
         "From casual charm to festive flair—mehendi that suits every style",
       Price: "899",
@@ -34,6 +36,7 @@ const ProfessionalMehendiModal = ({ onClose }) => {
     {
       img: CustomDesigns,
       cardHeader: "Custom Designs",
+      serviceCategory: "Professional Mehendi",
       description:
         "From names to motifs—custom mehendi that's as unique as you are ",
       Price: null,
@@ -50,6 +53,7 @@ const ProfessionalMehendiModal = ({ onClose }) => {
       cards={mehendiCard}
       onClose={onClose}
       onConfirm={() => alert("Professional Mehendi Booking Confirmed!")}
+      source="professional-mehendi"
     />
   );
 };

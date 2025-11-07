@@ -14,7 +14,7 @@ import BookingReducer from "../features/booking/bookingSlice";
 const persistConfig = {
   key: "root",
   storage: storage,
-  whitelist: ["cart"], // Only persist cart data, not auth/contact
+  whitelist: ["cart", "booking"], // Persist cart and booking data
 };
 
 // Root reducer

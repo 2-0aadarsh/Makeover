@@ -416,5 +416,44 @@ const resetPasswordController = async (req, res) => {
   }
 };
 
+// Check authentication status and return full user data
+const checkStatusController = async (req, res) => {
+  try {
+    // req.user comes from checkAuth middleware (contains JWT payload: id, name, email, role)
+    const userId = req.user.id;
 
-export { signupController, validateOtpController, loginController, logoutController, forgotPasswordController, resetPasswordController };
+    // Fetch the complete user data from database to get phoneNumber
+    const user = await User.findById(userId).select('-password -__v');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        loggedIn: false,
+        message: "User not found"
+      });
+    }
+
+    // Return full user data including phoneNumber
+    return res.status(200).json({
+      success: true,
+      loggedIn: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+      }
+    });
+  } catch (error) {
+    console.error("Error checking status:", error);
+    return res.status(500).json({
+      success: false,
+      loggedIn: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
+export { signupController, validateOtpController, loginController, logoutController, forgotPasswordController, resetPasswordController, checkStatusController };

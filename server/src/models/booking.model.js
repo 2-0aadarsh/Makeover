@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { sendBookingNotificationToAdmin } from '../services/email.service.js';
 
 const serviceSchema = new mongoose.Schema({
   name: {
@@ -365,6 +366,33 @@ bookingSchema.pre('save', function(next) {
     this.pricing.totalAmount = this.pricing.subtotal + this.pricing.taxAmount;
   }
   next();
+});
+
+// Post-save middleware to send email notification to admin after booking is created
+bookingSchema.post('save', async function(doc, next) {
+  try {
+    console.log('🔔 Booking saved! Sending notification email to admin...');
+    
+    // Populate userId to get customer details for email
+    await doc.populate('userId', 'name email phone');
+    
+    // Send email notification to admin (non-blocking)
+    // Using setImmediate to not block the save operation
+    setImmediate(async () => {
+      try {
+        await sendBookingNotificationToAdmin(doc);
+        console.log('✅ Admin notification email queued successfully for order:', doc.orderNumber);
+      } catch (emailError) {
+        console.error('❌ Failed to send admin notification email:', emailError);
+        // Don't throw - we don't want to fail the booking if email fails
+      }
+    });
+  } catch (error) {
+    console.error('⚠️ Error in post-save email notification:', error);
+    // Don't throw error - booking should succeed even if email fails
+  }
+  
+  if (next) next();
 });
 
 // Instance methods

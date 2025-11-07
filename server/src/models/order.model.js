@@ -16,11 +16,12 @@ const orderSchema = new mongoose.Schema({
     unique: true
   },
 
-  // Payment reference
+  // Payment reference (optional for COD orders)
   payment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Payment',
-    required: true
+    required: false, // Optional for COD orders
+    default: null
   },
 
   // Order status
@@ -225,11 +226,24 @@ const orderSchema = new mongoose.Schema({
     }
   },
 
+  // Payment status tracking (for COD orders)
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'completed', 'failed', 'cancelled'],
+    default: 'pending',
+    index: true
+  },
+
   // Metadata
   metadata: {
     source: {
       type: String,
       default: 'web'
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['online', 'cod'],
+      default: 'online'
     },
     userAgent: String,
     ipAddress: String,
@@ -262,6 +276,8 @@ orderSchema.index({ user: 1, status: 1 });
 orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ 'booking.date': 1, status: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ paymentStatus: 1 }); // Index for payment status queries
+orderSchema.index({ 'metadata.paymentMethod': 1 }); // Index for COD/Online filtering
 
 // Pre-save middleware to generate order number
 orderSchema.pre('save', async function(next) {

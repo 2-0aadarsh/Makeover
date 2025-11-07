@@ -14,25 +14,22 @@ const FormSection = ({
   onInputChange,
   onSubmit,
   isLoading,
+  error = "",
 }) => {
   return (
-    <div className="flex flex-col justify-evenly font-inter max-h-[800px] min-h-[350px] h-full">
-      <div className="flex flex-col gap-1">
+    <div className="flex flex-col font-inter">
+      <div className="flex flex-col gap-2 mb-6">
         {title && (
-          <h2 className="title font-semibold text-2xl sm:text-3xl lg:text-[32px]">
+          <h2 className="font-semibold text-xl sm:text-2xl lg:text-2xl text-gray-900">
             {title}
           </h2>
         )}
         {description && (
-          <p className="text-xs sm:text-sm lg:text-[12px] text-[#313957]">
-            {description}
-          </p>
+          <p className="text-xs text-gray-600 leading-relaxed">{description}</p>
         )}
       </div>
-      <form
-        className="input-containers flex flex-col gap-4 sm:gap-6"
-        onSubmit={onSubmit}
-      >
+
+      <form className="flex flex-col gap-3" onSubmit={onSubmit}>
         {inputData.map((input, index) => (
           <Input
             key={index}
@@ -40,7 +37,7 @@ const FormSection = ({
             type={input.type}
             id={input.id}
             placeholder={input.placeholder}
-            value={formData[input.id] || ""} // Controlled input
+            value={formData[input.id] || ""}
             onChange={onInputChange}
             inputcss={inputcss}
             labelcss={labelcss}
@@ -50,20 +47,23 @@ const FormSection = ({
         {forgetPassword && (
           <button
             type="button"
-            className="text-[#000000] font-inter text-xs sm:text-sm lg:text-[12px] font-semibold underline flex justify-end -mt-3"
+            className="text-gray-600 font-inter text-xs font-medium underline flex justify-end -mt-2"
             onClick={forgetPassword}
           >
             Forget Password?
           </button>
         )}
 
-        <Button
-          content={isLoading ? "Loading..." : buttonText}
-          css="rounded-[26px] py-1 px-3"
-          type="submit"
-          disabled={isLoading}
-          onClick={forgetPassword}
-        />
+        {error && <p className="text-sm text-red-500 -mt-1">{error}</p>}
+
+        <div className="mt-4">
+          <Button
+            content={isLoading ? "Loading..." : buttonText}
+            css="w-full rounded-xl py-3 text-sm font-medium"
+            type="submit"
+            disabled={isLoading}
+          />
+        </div>
       </form>
     </div>
   );

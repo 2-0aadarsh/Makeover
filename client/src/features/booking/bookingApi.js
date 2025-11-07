@@ -9,21 +9,11 @@ const bookingApiInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Include cookies in requests (accessToken & refreshToken)
 });
 
-// Request interceptor to add auth token
-bookingApiInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Note: Authentication is handled via HttpOnly cookies (accessToken & refreshToken)
+// No need to manually add Authorization header since cookies are sent automatically
 
 // Response interceptor for error handling
 bookingApiInstance.interceptors.response.use(

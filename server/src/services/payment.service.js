@@ -194,11 +194,15 @@ class PaymentService {
       const taxAmount = payment.bookingDetails.taxAmount;
       const totalAmount = payment.bookingDetails.totalAmount;
 
+      // Generate orderNumber before creating order (atomic generation)
+      const orderCount = await Order.countDocuments();
+      const orderNumber = `ORD${String(orderCount + 1).padStart(6, '0')}`;
+
       // Create order
       const order = new Order({
         user: payment.user,
         payment: payment._id,
-        orderNumber: payment.orderNumber || `ORD-${Date.now()}-${payment._id}`, // Generate if missing
+        orderNumber: orderNumber, // Explicitly set to ensure it exists
         services: services.map(service => ({
           serviceId: service.serviceId || service.id || `service-${Date.now()}-${Math.random()}`,
           name: service.name,
@@ -222,8 +226,10 @@ class PaymentService {
           address: payment.bookingDetails.address
         },
         status: 'confirmed',
+        paymentStatus: 'completed', // Payment is completed for online orders
         metadata: {
           source: 'web',
+          paymentMethod: 'online', // Store payment method as online
           userAgent: payment.metadata.userAgent,
           ipAddress: payment.metadata.ipAddress
         }
@@ -564,10 +570,15 @@ class PaymentService {
     try {
       const { totalAmount, taxAmount, subtotal } = paymentData;
 
+      // Generate orderNumber before creating order (atomic generation)
+      const orderCount = await Order.countDocuments();
+      const orderNumber = `ORD${String(orderCount + 1).padStart(6, '0')}`;
+
       // Create order directly without payment
       const order = new Order({
         user: userId,
-        payment: null, // No payment for COD
+        payment: null, // No payment for COD - will be updated when customer pays later
+        orderNumber: orderNumber, // Explicitly set to ensure it exists
         services: services.map(service => ({
           serviceId: service.id,
           name: service.name,
@@ -591,9 +602,10 @@ class PaymentService {
           address: bookingDetails.address
         },
         status: 'confirmed',
+        paymentStatus: 'pending', // Track that payment is pending for COD
         metadata: {
           source: 'web',
-          paymentMethod: 'cod'
+          paymentMethod: 'cod' // Store payment method as COD
         }
       });
 

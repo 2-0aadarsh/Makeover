@@ -21,9 +21,9 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Face & Neck De-Tan",
           description:
             "Step into softness with our expertly done hand and leg premium de-tan treatment.",
-          price: "1600",
+          price: "399",
           taxIncluded: true,
-          duration: null,
+          duration: "30 mins",
           button: "Add +",
           service_id: "face_neck_detan_classic",
         },
@@ -32,9 +32,9 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Hand & Leg De-tan",
           description:
             "Effortless elegance begins with clean, silky hands and legs",
-          price: "1600",
+          price: "399",
           taxIncluded: true,
-          duration: null,
+          duration: "30 mins",
           button: "Add +",
           service_id: "hand_leg_detan_classic",
         },
@@ -43,9 +43,9 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Full Body De-Tan ",
           description:
             "Reveal silky, radiant skin all over with our expert full body de-tan",
-          price: "1600",
+          price: "899",
           taxIncluded: true,
-          duration: null,
+          duration: "1 hr 30 mins",
           button: "Add +",
           service_id: "full_body_detan_classic",
         },
@@ -54,9 +54,9 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Face & Neck Bleach",
           description:
             "Step into softness with our expertly done face and neck premium de-tan treatment.",
-          price: "1600",
+          price: "255",
           taxIncluded: true,
-          duration: null,
+          duration: "30 mins",
           button: "Add +",
           service_id: "face_neck_bleach_classic",
         },
@@ -65,9 +65,9 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Hand & Leg Bleach",
           description:
             "Effortless elegance begins with clean, silky hands and legs",
-          price: "1600",
+          price: "255",
           taxIncluded: true,
-          duration: null,
+          duration: "30 mins",
           button: "Add +",
           service_id: "hand_leg_bleach_classic",
         },
@@ -78,14 +78,14 @@ const BleachAndDeTanModal = ({ onClose }) => {
       data: [
         {
           img: fullBodyPolish,
-          cardHeader: "Full Body Polish",
+          cardHeader: "Full Body Polish and Waxing",
           description:
             "Experience the ultimate in comfort and elegance with full body premium de-tan",
-          price: "1600",
+          price: "2800",
           taxIncluded: true,
-          duration: null,
+          duration: "3 hr 15 mins",
           button: "Add +",
-          service_id: "full_body_polish_premium",
+          service_id: "full_body_polish_and_waxing_premium",
         },
       ],
     },
@@ -97,6 +97,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
       gridCard={card}
       onClose={onClose}
       onConfirm={() => alert("Bleach & De-Tan Booking Confirmed!")}
+      source="bleach-detan"
     />
   );
 };

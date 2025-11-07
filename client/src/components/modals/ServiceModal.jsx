@@ -1,25 +1,114 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import FlexCardContainer from "../../components/ui/FlexCardContainer";
 import GridCardContainer from "../ui/GridCardContainer";
 
 const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
   const modalRef = useRef(null);
   const contentRef = useRef(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const scrollPositionRef = useRef(0);
   const tabs = gridCard.map((item) => item?.title);
   const [currentTab, setCurrentTab] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartY = useRef(0);
+
+  // Animation variants
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      transition: { duration: 0.2, ease: "easeIn" },
+    },
+  };
+
+  const modalVariants = {
+    hidden: {
+      y: "100%",
+      scale: 0.9,
+      opacity: 0,
+    },
+    visible: {
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+        duration: 0.4,
+      },
+    },
+    exit: {
+      y: "100%",
+      scale: 0.9,
+      opacity: 0,
+      transition: {
+        type: "spring",
+        damping: 30,
+        stiffness: 300,
+        duration: 0.3,
+      },
+    },
+  };
+
+  const desktopModalVariants = {
+    hidden: {
+      scale: 0.8,
+      opacity: 0,
+    },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 30,
+        stiffness: 400,
+        duration: 0.4,
+      },
+    },
+    exit: {
+      scale: 0.8,
+      opacity: 0,
+      transition: {
+        duration: 0.2,
+        ease: "easeIn",
+      },
+    },
+  };
+
+  const tabContentVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      x: -20,
+      transition: { duration: 0.2, ease: "easeIn" },
+    },
+  };
 
   useEffect(() => {
     // Save the current scroll position
-    const savedScrollPosition = window.pageYOffset;
-    setScrollPosition(savedScrollPosition);
+    scrollPositionRef.current =
+      window.pageYOffset ||
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
 
     // Add styles to prevent background scrolling
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
-    document.body.style.top = `-${savedScrollPosition}px`;
+    document.body.style.top = `-${scrollPositionRef.current}px`;
     document.body.style.width = "100%";
 
     // Add event listener for escape key
@@ -35,27 +124,89 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
     }
 
     return () => {
-      // Cleanup: restore scrolling and scroll position
+      // Get the saved scroll position from ref
+      const savedScroll = scrollPositionRef.current;
+
+      // Remove fixed positioning first
       document.body.style.overflow = "";
       document.body.style.position = "";
       document.body.style.top = "";
       document.body.style.width = "";
-      window.scrollTo(0, scrollPosition);
+
+      // Restore scroll position with multiple techniques for reliability
+      window.scrollTo(0, savedScroll);
+      document.documentElement.scrollTop = savedScroll;
+      document.body.scrollTop = savedScroll;
+
+      // Double RAF for reliability
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, savedScroll);
+          document.documentElement.scrollTop = savedScroll;
+          document.body.scrollTop = savedScroll;
+        });
+      });
+
+      // Fallback timeout
+      setTimeout(() => {
+        window.scrollTo(0, savedScroll);
+        document.documentElement.scrollTop = savedScroll;
+        document.body.scrollTop = savedScroll;
+      }, 10);
 
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [onClose, scrollPosition]);
+  }, [onClose]);
 
-  // Handle wheel events on the modal to ensure scrolling works
+  // Handle drag gestures for mobile
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    dragStartY.current =
+      e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+
+    const currentY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+    const dragDistance = currentY - dragStartY.current;
+
+    // Only allow dragging down to close
+    if (dragDistance > 0) {
+      const modal = modalRef.current;
+      if (modal) {
+        modal.style.transform = `translateY(${dragDistance}px)`;
+        modal.style.opacity = `${1 - dragDistance / 300}`;
+      }
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    if (!isDragging) return;
+
+    setIsDragging(false);
+    const currentY =
+      e.type === "touchend" ? e.changedTouches[0].clientY : e.clientY;
+    const dragDistance = currentY - dragStartY.current;
+
+    if (dragDistance > 100) {
+      onClose();
+    } else {
+      // Reset modal position
+      const modal = modalRef.current;
+      if (modal) {
+        modal.style.transform = "translateY(0)";
+        modal.style.opacity = "1";
+      }
+    }
+  };
+
+  // Enhanced wheel handling with momentum
   const handleWheel = (e) => {
     if (contentRef.current) {
-      // Prevent the event from bubbling to the parent
       e.stopPropagation();
 
-      // Calculate new scroll position
       const newScrollTop = contentRef.current.scrollTop + e.deltaY;
-
-      // Determine if we can scroll further
       const maxScroll =
         contentRef.current.scrollHeight - contentRef.current.clientHeight;
 
@@ -67,74 +218,165 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-opacity-70 "
-      onClick={onClose}
-    >
-      <div
-        ref={modalRef}
-        className="relative w-full max-w-[1104px] h-auto max-h-[90vh] bg-[#FAF2F4] rounded-lg shadow-lg py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-2 sm:mx-4 lg:mx-0 overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-        onWheel={handleWheel}
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="modal-overlay"
+        className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/30 backdrop-blur-sm"
+        variants={overlayVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onClick={onClose}
       >
-        {/* Header - Sticky */}
-        <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-2 sm:pb-3 lg:pb-0">
-          {/* Title Row */}
-          <div className="flex justify-between items-center w-full mb-2 sm:mb-3 lg:mb-4">
-            <h2 className="text-[#CC2B52] text-lg sm:text-xl md:text-2xl lg:text-[28px] leading-tight sm:leading-relaxed lg:leading-[48px] font-semibold">
-              {title}
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-xl sm:text-2xl lg:text-[28px] font-bold hover:text-red-600 transition-colors"
-              aria-label="Close modal"
-            >
-              &times;
-            </button>
+        <motion.div
+          ref={modalRef}
+          className="relative w-full md:w-auto md:max-w-[1104px] h-[65vh] md:h-auto md:max-h-[90vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
+          variants={
+            window.innerWidth < 768 ? modalVariants : desktopModalVariants
+          }
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={(e) => e.stopPropagation()}
+          onWheel={handleWheel}
+          // Drag handlers for mobile
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+          onMouseDown={handleDragStart}
+          onMouseMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
+          {/* Enhanced Drag Handle Indicator - Mobile Only */}
+          <div
+            className="md:hidden absolute top-3 left-1/2 transform -translate-x-1/2 w-16 h-1.5 bg-gray-400/60 rounded-full cursor-grab active:cursor-grabbing"
+            onTouchStart={handleDragStart}
+            onMouseDown={handleDragStart}
+          />
+
+          {/* Header - Sticky with enhanced styling */}
+          <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-2 sm:pb-3 lg:pb-0 mt-4 md:mt-0 border-b border-gray-200/50">
+            {/* Title Row */}
+            <div className="flex justify-between items-center w-full mb-3 sm:mb-4 lg:mb-6">
+              <motion.h2
+                className="text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+              >
+                {title}
+              </motion.h2>
+              <motion.button
+                onClick={onClose}
+                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Close modal"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.15, duration: 0.3 }}
+              >
+                <span className="text-lg sm:text-xl lg:text-2xl font-semibold">
+                  &times;
+                </span>
+              </motion.button>
+            </div>
+
+            {/* Enhanced Tabs Row */}
+            {gridCard.length > 0 && (
+              <motion.div
+                className="tabs flex flex-row items-center justify-start gap-4 sm:gap-6 lg:gap-8 text-[#CC2B52] text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-bold font-inter overflow-x-auto no-scrollbar pb-2"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+              >
+                {tabs.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    onClick={() => setCurrentTab(index)}
+                    className={`relative py-2 sm:py-3 transition-all duration-300 ease-out cursor-pointer flex-shrink-0
+                              ${
+                                currentTab === index
+                                  ? "text-[#CC2B52] font-bold"
+                                  : "text-gray-600 font-medium hover:text-[#CC2B52]"
+                              }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <h3 className="whitespace-nowrap px-2">{item}</h3>
+                    {currentTab === index && (
+                      <motion.div
+                        className="absolute bottom-0 left-0 w-full h-0.5 bg-[#CC2B52]"
+                        layoutId="activeTab"
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
           </div>
 
-          {/* Tabs Row */}
-          {gridCard.length > 0 && (
-            <div className="tabs flex flex-row items-center justify-start gap-6 sm:gap-4 lg:gap-6 text-[#CC2B52] text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-bold font-inter overflow-x-auto no-scrollbar">
-              {tabs.map((item, index) => (
-                <div
-                  key={index}
-                  onClick={() => setCurrentTab(index)}
-                  className={`py-1 sm:py-2 transition-all duration-300 ease-out cursor-pointer flex-shrink-0
-                            ${
-                              currentTab === index
-                                ? "bg-transparent font-bold border-b-[2px] border-[#CC2B52]"
-                                : "font-medium cursor-pointer opacity-[76%]"
-                            }`}
-                >
-                  <h3 className="whitespace-nowrap">{item}</h3>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+          {/* Content Area - Scrollable with enhanced styling */}
+          <motion.div
+            ref={contentRef}
+            tabIndex={0}
+            className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 sm:mt-6 outline-none"
+            style={{ WebkitOverflowScrolling: "touch" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentTab}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.2 }}
+              >
+                {/* FlexCards Section */}
+                {cards.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <FlexCardContainer cards={cards} />
+                  </motion.div>
+                )}
 
-        {/* Content Area - Scrollable */}
-        <div
-          ref={contentRef}
-          tabIndex={0} // Make div focusable for keyboard navigation
-          className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 outline-none"
-          style={{ WebkitOverflowScrolling: "touch" }} // Enable smooth scrolling on iOS
-        >
-          {/* FlexCards Section */}
-          {cards.length > 0 && <FlexCardContainer cards={cards} />}
+                {/* GridCards Section */}
+                {gridCard.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                  >
+                    <GridCardContainer
+                      gridCard={gridCard[currentTab].data}
+                      category={gridCard[currentTab].title}
+                      currentTab={currentTab}
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
 
-          {/* GridCards Section */}
-          {gridCard.length > 0 && (
-            <GridCardContainer
-              gridCard={gridCard[currentTab].data}
-              category={gridCard[currentTab].title}
-              currentTab={currentTab}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+          {/* Subtle gradient fade at bottom for mobile - indicates more content */}
+          <div className="md:hidden absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#FAF2F4] to-transparent pointer-events-none" />
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

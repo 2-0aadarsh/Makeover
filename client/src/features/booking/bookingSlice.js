@@ -64,9 +64,21 @@ export const fetchUserBookings = createAsyncThunk(
   'booking/fetchUserBookings',
   async (params = {}, { rejectWithValue }) => {
     try {
+      console.log("🚀 fetchUserBookings thunk - Starting API call with params:", params);
       const response = await bookingApi.getUserBookings(params);
+      console.log("✅ fetchUserBookings thunk - API response received:", response);
+      console.log("📦 Response structure:", {
+        hasData: !!response?.data,
+        hasBookings: !!response?.data?.bookings,
+        bookingsIsArray: Array.isArray(response?.data?.bookings),
+        bookingsLength: response?.data?.bookings?.length,
+        fullResponse: response
+      });
       return response;
     } catch (error) {
+      console.error("❌ fetchUserBookings thunk - Error caught:", error);
+      console.error("❌ Error message:", error.message);
+      console.error("❌ Error stack:", error.stack);
       return rejectWithValue(error.message);
     }
   }
@@ -136,9 +148,13 @@ export const fetchBookingStats = createAsyncThunk(
   'booking/fetchBookingStats',
   async (_, { rejectWithValue }) => {
     try {
+      console.log('🚀 fetchBookingStats thunk - Starting API call...');
       const response = await bookingApi.getBookingStats();
+      console.log('✅ fetchBookingStats thunk - API response received:', response);
+      console.log('📊 Stats data:', response?.data);
       return response;
     } catch (error) {
+      console.error('❌ fetchBookingStats thunk - Error:', error);
       return rejectWithValue(error.message);
     }
   }
@@ -260,12 +276,21 @@ const bookingSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserBookings.fulfilled, (state, action) => {
+        console.log("🔍 fetchUserBookings.fulfilled - Full action:", action);
+        console.log("🔍 fetchUserBookings.fulfilled - Payload:", action.payload);
+        console.log("🔍 fetchUserBookings.fulfilled - Payload.data:", action.payload?.data);
+        console.log("🔍 fetchUserBookings.fulfilled - Bookings:", action.payload?.data?.bookings || action.payload?.bookings);
+        
         state.loading = false;
         state.bookings = action.payload?.data?.bookings || action.payload?.bookings || [];
         state.pagination = action.payload?.data?.pagination || action.payload?.pagination || state.pagination;
         state.lastFetched = new Date().toISOString();
+        
+        console.log("✅ State updated - bookings count:", state.bookings.length);
       })
       .addCase(fetchUserBookings.rejected, (state, action) => {
+        console.error("❌ fetchUserBookings.rejected - Error:", action.payload);
+        console.error("❌ fetchUserBookings.rejected - Full action:", action);
         state.loading = false;
         state.error = action.payload;
       })
@@ -382,7 +407,27 @@ const bookingSlice = createSlice({
 
       // Fetch booking stats
       .addCase(fetchBookingStats.fulfilled, (state, action) => {
-        state.stats = action.payload?.data || action.payload || state.stats;
+        console.log('🔍 fetchBookingStats.fulfilled - Full action:', action);
+        console.log('🔍 fetchBookingStats.fulfilled - Payload:', action.payload);
+        console.log('🔍 fetchBookingStats.fulfilled - Payload.data:', action.payload?.data);
+        
+        // Handle response structure: { success: true, data: { ...stats } }
+        const statsData = action.payload?.data || action.payload;
+        console.log('🔍 Stats data extracted:', statsData);
+        
+        if (statsData) {
+          state.stats = {
+            totalBookings: statsData.totalBookings ?? 0,
+            totalSpent: statsData.totalSpent ?? 0,
+            completedBookings: statsData.completedBookings ?? 0,
+            cancelledBookings: statsData.cancelledBookings ?? 0,
+            upcomingBookings: statsData.upcomingBookings ?? 0,
+            statusBreakdown: statsData.statusBreakdown || {}
+          };
+          console.log('✅ State updated with stats:', state.stats);
+        } else {
+          console.warn('⚠️ No stats data found in payload');
+        }
       })
       .addCase(fetchBookingStats.rejected, (state, action) => {
         state.error = action.payload;
