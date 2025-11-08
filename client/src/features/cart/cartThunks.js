@@ -24,6 +24,7 @@ import {
   updateItemQuantityInDatabase,
   removeItemFromDatabaseCart
 } from './cartApi';
+import { normalizeServiceId } from './cartApi';
 
 // Save cart data to database
 export const saveCart = createAsyncThunk(
@@ -112,7 +113,7 @@ export const addItemToDBCart = createAsyncThunk(
     try {
       console.log('🛒 Cart Thunk - Adding item to database cart:', {
         serviceName: itemData.cardHeader,
-        serviceId: itemData.service_id,
+        serviceId: normalizeServiceId(itemData),
         price: itemData.price,
         quantity: itemData.quantity || 1
       });
@@ -134,7 +135,7 @@ export const updateItemQuantityInDB = createAsyncThunk(
   async ({ serviceId, quantity }, { rejectWithValue }) => {
     try {
       console.log('🛒 Cart Thunk - Updating item quantity in database cart:', {
-        serviceId,
+        serviceId: normalizeServiceId({ serviceId }),
         quantity
       });
       
@@ -154,7 +155,7 @@ export const removeItemFromDBCart = createAsyncThunk(
   'cart/removeItemFromDBCart',
   async (serviceId, { rejectWithValue }) => {
     try {
-      console.log('🛒 Cart Thunk - Removing item from database cart:', { serviceId });
+      console.log('🛒 Cart Thunk - Removing item from database cart:', { serviceId: normalizeServiceId({ serviceId }) });
       
       const response = await removeItemFromDatabaseCart(serviceId);
       

@@ -14,10 +14,11 @@ const GridCard = ({ gridCardData, category }) => {
         return (
           <div
             key={index}
-            className="w-full h-auto min-h-[120px] sm:min-h-[132px] lg:h-[132px] py-3 sm:py-4 lg:py-4 px-3 sm:px-4 lg:px-6 rounded-xl shadow-md flex gap-2 sm:gap-3 lg:gap-3 bg-white"
+            className="w-full h-[140px] sm:h-[150px] lg:h-[156px] py-4 px-4 sm:px-5 lg:px-6 rounded-xl shadow-md flex items-center bg-white"
           >
-            <div className="card-content w-full h-auto lg:h-[97px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 lg:gap-0">
-              <div className="img-container w-[60px] sm:w-[70px] lg:w-[80px] h-[60px] sm:h-[70px] lg:h-full rounded-xl overflow-hidden flex-shrink-0">
+            <div className="card-content w-full h-full flex flex-row items-center justify-between gap-3 sm:gap-4 lg:gap-4">
+              {/* Image Container - Fixed Size */}
+              <div className="img-container w-[90px] sm:w-[100px] lg:w-[110px] h-[90px] sm:h-[100px] lg:h-[110px] rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
                 <img
                   src={item.img}
                   className="w-full h-full object-cover"
@@ -25,32 +26,45 @@ const GridCard = ({ gridCardData, category }) => {
                 />
               </div>
 
-              <div className="card-descriptions flex flex-col w-full sm:w-[200px] lg:w-[232px] justify-between gap-1 sm:gap-1 lg:gap-1">
-                <div className="card-header text-sm sm:text-[15px] lg:text-[16px] font-semibold tracking-normal leading-tight">
+              {/* Content Container - Flexible */}
+              <div className="card-descriptions flex flex-col flex-1 h-full justify-between py-1 min-w-0">
+                {/* Title */}
+                <div className="card-header text-base sm:text-[17px] lg:text-[18px] font-bold tracking-normal leading-snug text-gray-900 line-clamp-1">
                   {item.cardHeader}
                 </div>
-                <div className="card-description text-xs sm:text-[11px] lg:text-[12px] text-[#3C3C43] leading-relaxed">
+
+                {/* Description */}
+                <div className="card-description text-xs sm:text-[13px] lg:text-[13px] text-[#3C3C43] leading-relaxed line-clamp-2 flex-1">
                   {item.description}
                 </div>
-                <div className="card-pricing text-sm sm:text-[15px] lg:text-[16px] font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-0">
-                  <div className="price flex flex-col sm:flex-row items-start sm:items-center gap-1">
-                    <span>₹ {item.price}</span>
-                    {item.taxIncluded && (
-                      <span className="text-[9px] sm:text-[10px] lg:text-[10px] font-normal">
-                        Including taxes
+
+                {/* Pricing Row */}
+                <div className="card-pricing flex items-center justify-between gap-2 mt-auto">
+                  <div className="price-time flex flex-col gap-1">
+                    <div className="price flex items-baseline gap-1.5">
+                      <span className="text-base sm:text-[17px] lg:text-[18px] font-bold text-gray-900">
+                        ₹ {item.price}
                       </span>
-                    )}
-                  </div>
-                  <div className="time text-xs sm:text-sm lg:text-sm">
-                    {item.duration}
+                      {item.taxIncluded && (
+                        <span className="text-[10px] sm:text-[11px] lg:text-[11px] font-normal text-gray-500">
+                          Including taxes
+                        </span>
+                      )}
+                    </div>
+                    <div className="time text-xs sm:text-[13px] lg:text-[13px] font-medium text-gray-600">
+                      {item.duration}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <ServiceCartButton
-                serviceData={serviceDataWithCategory}
-                className="text-[10px] sm:text-[11px] lg:text-[12px] whitespace-nowrap"
-              />
+              {/* Button Container - Fixed Width */}
+              <div className="button-container flex-shrink-0">
+                <ServiceCartButton
+                  serviceData={serviceDataWithCategory}
+                  className="text-xs sm:text-[13px] lg:text-[13px] whitespace-nowrap"
+                />
+              </div>
             </div>
           </div>
         );

@@ -69,24 +69,16 @@ export const logoutUser = createAsyncThunk(
         total: cartState.summary.total
       });
 
-      // Step 2: Save cart data to database (if cart has items) - BEFORE logout API
-      console.log('🛒 Logout - Checking if cart has items:', cartState.items.length > 0);
-      
-      if (cartState.items.length > 0) {
-        try {
-          console.log('🛒 Logout - Saving cart to database before logout');
-          console.log('🛒 Logout - User authenticated:', getState().auth.isAuthenticated);
-          console.log('🛒 Logout - User ID:', getState().auth.user?.id);
-          await dispatch(saveCart(cartState)).unwrap();
-          console.log('✅ Logout - Cart saved to database successfully');
-        } catch (cartError) {
-          console.error('❌ Logout - Failed to save cart to database:', cartError);
-          // Continue with logout even if cart save fails
-        }
-      } else {
-        console.log('🛒 Logout - Cart is empty, skipping database save');
-        console.log('🛒 Logout - Cart items length:', cartState.items.length);
-        console.log('🛒 Logout - Cart items:', cartState.items);
+      // Step 2: Persist current cart snapshot (even if empty) before clearing auth cookies
+      try {
+        console.log('🛒 Logout - Persisting current cart snapshot to database');
+        console.log('🛒 Logout - User authenticated:', getState().auth.isAuthenticated);
+        console.log('🛒 Logout - User ID:', getState().auth.user?.id);
+        await dispatch(saveCart(cartState)).unwrap();
+        console.log('✅ Logout - Cart snapshot stored successfully');
+      } catch (cartError) {
+        console.error('❌ Logout - Failed to persist cart before logout:', cartError);
+        // Continue with logout even if cart persistence fails
       }
 
       // Step 3: Call logout API - this will clear authentication cookies

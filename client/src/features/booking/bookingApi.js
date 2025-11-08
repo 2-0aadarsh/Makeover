@@ -1,10 +1,9 @@
 import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+import { backendurl } from '../../constants';
 
 // Create axios instance with default config
 const bookingApiInstance = axios.create({
-  baseURL: `${API_BASE_URL}/bookings`,
+  baseURL: `${backendurl}/api/bookings`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

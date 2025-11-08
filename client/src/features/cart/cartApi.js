@@ -1,22 +1,66 @@
 import { backendurl } from "../../constants";
 
+/**
+ * Normalize the serviceId property for backend consumption.
+ * Falls back to `service_id`, `id`, or a generated composite key.
+ */
+const normalizeServiceId = (item) => {
+  if (!item) return "";
+
+  if (typeof item.serviceId === "string" && item.serviceId.trim().length > 0) {
+    return item.serviceId.trim();
+  }
+
+  if (typeof item.service_id === "string" && item.service_id.trim().length > 0) {
+    return item.service_id.trim();
+  }
+
+  if (typeof item.id === "string" && item.id.trim().length > 0) {
+    return item.id.trim();
+  }
+
+  if (item.cardHeader) {
+    return `${item.cardHeader}_${item.price ?? 0}_${item.category ?? "default"}`;
+  }
+
+  return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+};
+
+/**
+ * Convert a frontend cart item into the shape expected by the backend.
+ * Accepts both Redux cart items and raw service data objects.
+ */
+const transformCartItem = (item, overrideQuantity) => {
+  const price = parseFloat(item?.price ?? 0);
+  const quantity = overrideQuantity ?? item?.quantity ?? 1;
+
+  return {
+    serviceId: normalizeServiceId(item),
+    cardHeader: item?.cardHeader ?? item?.name ?? "",
+    description: item?.description ?? "",
+    price,
+    img: item?.img ?? item?.image ?? "",
+    quantity,
+    duration: item?.duration ?? "",
+    taxIncluded: Boolean(item?.taxIncluded),
+    category: item?.category ?? "default",
+    serviceType: item?.serviceType ?? "Standard",
+    subtotal: price * quantity,
+  };
+};
+
+/**
+ * Transform a full cart state into the payload required by the backend.
+ */
+const transformCartPayload = (cartData) => {
+  const items = Array.isArray(cartData?.items) ? cartData.items : [];
+  return items.map((item) => transformCartItem(item));
+};
+
 // Save cart data to database
 export const saveCartToDatabase = async (cartData) => {
   try {
-    // Transform items for backend
-    const transformedItems = cartData.items.map(item => ({
-      serviceId: item.service_id, // Transform service_id to serviceId for backend
-      cardHeader: item.cardHeader,
-      description: item.description,
-      price: item.price,
-      img: item.img,
-      quantity: item.quantity,
-      duration: item.duration,
-      taxIncluded: item.taxIncluded,
-      category: item.category,
-      serviceType: item.serviceType,
-      subtotal: item.subtotal
-    }));
+    const transformedItems = transformCartPayload(cartData);
 
     console.log('🛒 Cart API - Attempting to save cart to database:', {
       backendurl,
@@ -43,8 +87,8 @@ export const saveCartToDatabase = async (cartData) => {
       },
       credentials: 'include', // Important for sending JWT token via cookies
       body: JSON.stringify({
-        items: transformedItems
-      })
+        items: transformedItems,
+      }),
     });
 
     console.log('🛒 Cart API - Response status:', response.status);
@@ -155,13 +199,15 @@ export const clearCartFromDatabase = async () => {
 // Add single item to cart in database
 export const addItemToDatabaseCart = async (itemData) => {
   try {
+    const payload = transformCartItem(itemData);
+
     const response = await fetch(`${backendurl}/api/cart/add-item`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify(itemData)
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
@@ -184,7 +230,8 @@ export const addItemToDatabaseCart = async (itemData) => {
 // Update item quantity in database cart
 export const updateItemQuantityInDatabase = async (serviceId, quantity) => {
   try {
-    const response = await fetch(`${backendurl}/api/cart/item/${serviceId}/quantity`, {
+    const normalizedId = normalizeServiceId({ serviceId });
+    const response = await fetch(`${backendurl}/api/cart/item/${normalizedId}/quantity`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -213,7 +260,8 @@ export const updateItemQuantityInDatabase = async (serviceId, quantity) => {
 // Remove item from database cart
 export const removeItemFromDatabaseCart = async (serviceId) => {
   try {
-    const response = await fetch(`${backendurl}/api/cart/item/${serviceId}`, {
+    const normalizedId = normalizeServiceId({ serviceId });
+    const response = await fetch(`${backendurl}/api/cart/item/${normalizedId}`, {
       method: 'DELETE',
       credentials: 'include',
     });
@@ -233,4 +281,10 @@ export const removeItemFromDatabaseCart = async (serviceId) => {
     console.error('Error removing item from database cart:', error);
     throw error;
   }
+};
+
+export {
+  normalizeServiceId,
+  transformCartItem,
+  transformCartPayload,
 };

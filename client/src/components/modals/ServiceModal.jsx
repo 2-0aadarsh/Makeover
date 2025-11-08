@@ -269,7 +269,7 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
       >
         <motion.div
           ref={modalRef}
-          className="relative w-full md:w-auto md:max-w-[1104px] h-[93vh] md:h-auto md:max-h-[90vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
+          className="relative w-full md:w-auto md:max-w-[1104px] h-[93vh] md:h-[85vh] md:max-h-[85vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
           variants={
             window.innerWidth < 768 ? modalVariants : desktopModalVariants
           }

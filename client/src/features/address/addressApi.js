@@ -1,11 +1,9 @@
 import axios from 'axios';
-
-// Base API URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { backendurl } from '../../constants';
 
 // Create axios instance with default config
 const addressApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/addresses`,
+  baseURL: `${backendurl}/api/addresses`,
   headers: {
     'Content-Type': 'application/json',
   },

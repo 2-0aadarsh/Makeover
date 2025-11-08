@@ -15,20 +15,23 @@ const LocationDisplay = () => {
     }
 
     const options = {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 300000, // 5 minutes
+      enableHighAccuracy: false, // Changed to false for better browser compatibility
+      timeout: 15000, // Increased timeout to 15 seconds for slower connections
+      maximumAge: 0, // Always get fresh position to avoid stale data across breakpoints
     };
+
+    console.log("🔍 LocationDisplay: Requesting geolocation...");
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // Success callback
+        console.log("✅ LocationDisplay: Geolocation success", position.coords);
         const { latitude, longitude } = position.coords;
         reverseGeocode(latitude, longitude);
       },
       (error) => {
         // Error callback
-        console.error("Geolocation error:", error);
+        console.error("❌ LocationDisplay: Geolocation error", error);
         handleGeolocationError(error);
       },
       options
@@ -41,27 +44,48 @@ const LocationDisplay = () => {
 
   const reverseGeocode = async (latitude, longitude) => {
     try {
-      // Using a free reverse geocoding service
+      console.log("🔍 LocationDisplay: Reverse geocoding...", {
+        latitude,
+        longitude,
+      });
+
+      // Using a free reverse geocoding service with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+        { signal: controller.signal }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error("Failed to fetch location data");
       }
 
       const data = await response.json();
+      console.log("✅ LocationDisplay: Geocoding success", data);
 
       if (data.city) {
         setLocation(data.city);
       } else if (data.principalSubdivision) {
         setLocation(data.principalSubdivision);
+      } else if (data.locality) {
+        setLocation(data.locality);
       } else {
         setLocation("Unknown location");
       }
+      setError(null); // Clear any previous errors on success
     } catch (error) {
-      console.error("Reverse geocoding error:", error);
-      setLocation("Location unavailable");
+      console.error("❌ LocationDisplay: Reverse geocoding error:", error);
+      if (error.name === "AbortError") {
+        setLocation("Location timeout");
+        setError("Location timeout");
+      } else {
+        setLocation("Location unavailable");
+        setError("Location unavailable");
+      }
     } finally {
       setIsLoading(false);
     }

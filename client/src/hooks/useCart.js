@@ -20,6 +20,14 @@ import {
   selectItemQuantity,
   selectIsItemInCart
 } from '../features/cart/cartSlice';
+import {
+  addItemToDBCart,
+  clearCartFromDB,
+  getCart,
+  removeItemFromDBCart,
+  updateItemQuantityInDB,
+} from '../features/cart/cartThunks';
+import { transformCartItem, normalizeServiceId } from '../features/cart/cartApi';
 
 export const useCart = () => {
   const dispatch = useDispatch();
@@ -37,28 +45,95 @@ export const useCart = () => {
 
 
   // Actions
-  const addItemToCart = (serviceData) => {
+  const addItemToCart = async (serviceData) => {
     dispatch(addToCart(serviceData));
+
+    try {
+      const payload = transformCartItem(serviceData, 1);
+      await dispatch(addItemToDBCart(payload)).unwrap();
+    } catch (error) {
+      console.error("❌ Failed to sync added item to backend:", error);
+      dispatch(removeFromCart(normalizeServiceId(serviceData)));
+      dispatch(getCart());
+    }
   };
 
-  const removeItemFromCart = (itemId) => {
-    dispatch(removeFromCart(itemId));
+  const removeItemFromCart = async (itemId) => {
+    const serviceId = normalizeServiceId({ serviceId: itemId });
+    dispatch(removeFromCart(serviceId));
+
+    try {
+      await dispatch(removeItemFromDBCart(serviceId)).unwrap();
+    } catch (error) {
+      console.error("❌ Failed to remove item from backend cart:", error);
+      dispatch(getCart());
+    }
   };
 
-  const updateItemQuantity = (itemId, quantity) => {
-    dispatch(updateQuantity({ itemId, quantity }));
+  const updateItemQuantity = async (itemId, quantity) => {
+    const serviceId = normalizeServiceId({ serviceId: itemId });
+
+    const clampedQuantity = Math.max(0, quantity);
+    dispatch(updateQuantity({ itemId: serviceId, quantity: clampedQuantity }));
+
+    try {
+      if (clampedQuantity === 0) {
+        await dispatch(removeItemFromDBCart(serviceId)).unwrap();
+      } else {
+        await dispatch(updateItemQuantityInDB({ serviceId, quantity: clampedQuantity })).unwrap();
+      }
+    } catch (error) {
+      console.error("❌ Failed to update item quantity in backend cart:", error);
+      dispatch(getCart());
+    }
   };
 
-  const incrementQuantity = (itemId) => {
-    dispatch(increaseQuantity(itemId));
+  const incrementQuantity = async (itemId) => {
+    const serviceId = normalizeServiceId({ serviceId: itemId });
+    const currentItem = items.find((item) => normalizeServiceId(item) === serviceId);
+    const nextQuantity = (currentItem?.quantity ?? 0) + 1;
+
+    dispatch(increaseQuantity(serviceId));
+
+    try {
+      await dispatch(updateItemQuantityInDB({ serviceId, quantity: nextQuantity })).unwrap();
+    } catch (error) {
+      console.error("❌ Failed to increment item quantity in backend cart:", error);
+      dispatch(decreaseQuantity(serviceId));
+      dispatch(getCart());
+    }
   };
 
-  const decrementQuantity = (itemId) => {
-    dispatch(decreaseQuantity(itemId));
+  const decrementQuantity = async (itemId) => {
+    const serviceId = normalizeServiceId({ serviceId: itemId });
+    const currentItem = items.find((item) => normalizeServiceId(item) === serviceId);
+    const nextQuantity = Math.max(0, (currentItem?.quantity ?? 0) - 1);
+
+    dispatch(decreaseQuantity(serviceId));
+
+    try {
+      if (nextQuantity === 0) {
+        await dispatch(removeItemFromDBCart(serviceId)).unwrap();
+      } else {
+        await dispatch(updateItemQuantityInDB({ serviceId, quantity: nextQuantity })).unwrap();
+      }
+    } catch (error) {
+      console.error("❌ Failed to decrement item quantity in backend cart:", error);
+      // Revert optimistic update
+      dispatch(increaseQuantity(serviceId));
+      dispatch(getCart());
+    }
   };
 
-  const clearAllCart = () => {
+  const clearAllCart = async () => {
     dispatch(clearCart());
+
+    try {
+      await dispatch(clearCartFromDB()).unwrap();
+    } catch (error) {
+      console.error("❌ Failed to clear backend cart:", error);
+      dispatch(getCart());
+    }
   };
 
   const toggleCartModal = () => {
