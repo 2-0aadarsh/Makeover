@@ -115,7 +115,8 @@ export const cancelBooking = createAsyncThunk(
       const response = await bookingApi.cancelBooking(bookingId, cancellationReason);
       return { bookingId, ...response };
     } catch (error) {
-      return rejectWithValue(error.message);
+      const errorPayload = error.response?.data || { message: error.message };
+      return rejectWithValue(errorPayload);
     }
   }
 );

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Booking from '../models/booking.model.js';
 import { generatePaymentReference } from '../utils/payment.utils.js';
+import { sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser } from './email.service.js';
 
 class BookingService {
   // Create a new booking
@@ -191,9 +192,9 @@ class BookingService {
   }
 
   // Cancel a booking
-  async cancelBooking(bookingId, cancellationReason, cancelledBy = 'customer') {
+  async cancelBooking(bookingId, cancellationReason, cancelledBy = { id: null, role: 'customer' }) {
     try {
-      const booking = await Booking.findById(bookingId);
+      const booking = await Booking.findById(bookingId).populate('userId', 'name email phone');
       
       if (!booking) {
         return {
@@ -203,21 +204,94 @@ class BookingService {
         };
       }
       
+      // Check if booking can be cancelled (validates 24-hour rule)
       if (!booking.canBeCancelled) {
+        const now = new Date();
+        const bookingDateTime = new Date(booking.bookingDetails.date);
+        const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
+        
         return {
           success: false,
-          message: 'This booking cannot be cancelled',
-          error: 'CANNOT_CANCEL'
+          message: hoursUntilBooking > 0 
+            ? 'Cannot cancel booking within 24 hours of service time. Please contact support for urgent cancellations.'
+            : 'Cannot cancel a booking that has already passed or is completed.',
+          error: 'CANNOT_CANCEL',
+          canContact: true,
+          supportEmail: process.env.ADMIN_EMAIL
         };
       }
       
-      await booking.cancelBooking(cancellationReason, cancelledBy);
+      const cancelledById = cancelledBy?.id || null;
+      const requestedRole = cancelledBy?.role;
+
+      let cancelledByRole = 'customer';
+      if (requestedRole && ['customer', 'admin', 'system'].includes(requestedRole)) {
+        cancelledByRole = requestedRole;
+      } else if (requestedRole === 'user') {
+        cancelledByRole = 'customer';
+      } else if (
+        cancelledById &&
+        booking.userId &&
+        booking.userId._id &&
+        booking.userId._id.toString() !== cancelledById.toString()
+      ) {
+        cancelledByRole = 'admin';
+      }
+
+      // Cancel the booking using model method
+      await booking.cancelBooking(cancellationReason, cancelledByRole);
+      
+      // Format booking date for email
+      const bookingDate = new Date(booking.bookingDetails.date).toLocaleDateString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      // Format cancellation date for email
+      const cancelledAt = new Date(booking.cancellationDetails.cancelledAt).toLocaleString('en-IN', {
+        dateStyle: 'full',
+        timeStyle: 'short'
+      });
+      
+      // Prepare cancellation email data
+      const cancellationData = {
+        orderNumber: booking.orderNumber,
+        customerName: booking.userId?.name || 'N/A',
+        customerEmail: booking.userId?.email || 'N/A',
+        customerPhone: booking.bookingDetails?.address?.phone || booking.userId?.phone || 'N/A',
+        services: booking.services,
+        bookingDate: bookingDate,
+        bookingSlot: booking.bookingDetails.slot,
+        cancelledAt: cancelledAt,
+        cancellationReason: cancellationReason || 'No reason provided',
+        refundEligible: booking.cancellationDetails.refundEligible,
+        refundAmount: booking.cancellationDetails.refundEligible ? booking.pricing.totalAmount : 0,
+        totalAmount: booking.pricing.totalAmount,
+        cancelledByRole
+      };
+      
+      // Send cancellation emails (non-blocking - don't wait for email to complete)
+      setImmediate(async () => {
+        try {
+          await Promise.all([
+            sendCancellationNotificationToAdmin(cancellationData),
+            sendCancellationConfirmationToUser(cancellationData)
+          ]);
+          console.log('✅ Cancellation emails sent successfully for order:', booking.orderNumber);
+        } catch (emailError) {
+          console.error('❌ Failed to send cancellation emails:', emailError);
+          // Don't throw - we don't want to fail the cancellation if email fails
+        }
+      });
       
       return {
         success: true,
         data: booking,
         message: 'Booking cancelled successfully',
-        refundEligible: booking.cancellationDetails.refundEligible
+        refundEligible: booking.cancellationDetails.refundEligible,
+        refundAmount: booking.cancellationDetails.refundEligible ? booking.pricing.totalAmount : 0
       };
     } catch (error) {
       console.error('Error cancelling booking:', error);

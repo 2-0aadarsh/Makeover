@@ -321,19 +321,66 @@ const BookingPage = () => {
                 return "Payment Pending";
               };
 
+              const isCancelled = booking.status === "cancelled";
+              const isCompleted = booking.status === "completed";
+              const isNoShow = booking.status === "no_show";
+
               return (
                 <div
                   key={booking._id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-hidden"
+                  className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-hidden ${
+                    isCancelled ? "opacity-75 border-2 border-red-200" : ""
+                  }`}
                   onClick={() => handleViewBookingDetails(booking)}
                 >
-                  <div className="flex">
-                    {/* Left Section - Pink Background with Logo */}
-                    <div className="w-24 bg-gradient-to-br from-pink-400 to-pink-500 flex flex-col items-center justify-center p-4">
+                  <div className="flex relative">
+                    {/* Status badges */}
+                    {isCancelled && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-300">
+                          Cancelled
+                        </span>
+                      </div>
+                    )}
+                    {isCompleted && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300">
+                          Completed
+                        </span>
+                      </div>
+                    )}
+                    {isNoShow && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-300">
+                          No Show
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Left Section */}
+                    <div
+                      className={`w-24 ${
+                        isCancelled
+                          ? "bg-gradient-to-br from-gray-300 to-gray-400"
+                          : "bg-gradient-to-br from-pink-400 to-pink-500"
+                      } flex flex-col items-center justify-center p-4`}
+                    >
                       <div className="text-center">
                         <div className="text-white font-bold text-xs leading-tight">
-                          <div className="text-pink-100">wemakeover</div>
-                          <div className="text-pink-200">BOOKING</div>
+                          <div
+                            className={
+                              isCancelled ? "text-gray-100" : "text-pink-100"
+                            }
+                          >
+                            wemakeover
+                          </div>
+                          <div
+                            className={
+                              isCancelled ? "text-gray-200" : "text-pink-200"
+                            }
+                          >
+                            BOOKING
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -342,7 +389,13 @@ const BookingPage = () => {
                     <div className="flex-1 p-4">
                       {/* Service Details */}
                       <div className="mb-3">
-                        <h3 className="text-sm font-medium text-gray-900 leading-tight">
+                        <h3
+                          className={`text-sm font-medium leading-tight ${
+                            isCancelled
+                              ? "text-gray-500 line-through"
+                              : "text-gray-900"
+                          }`}
+                        >
                           {getServiceNames(booking.services)}
                         </h3>
                       </div>
@@ -394,27 +447,58 @@ const BookingPage = () => {
                       {/* Payment Status */}
                       <div className="mb-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">
-                            Payment:
-                          </span>
-                          <span
-                            className={`text-xs font-medium ${
-                              booking.paymentStatus === "paid" ||
-                              booking.paymentStatus === "completed"
-                                ? "text-green-600"
-                                : booking.paymentMethod === "cod" ||
-                                  booking.paymentMethod === "cash" ||
-                                  booking.metadata?.paymentMethod === "cod"
-                                ? "text-orange-600"
-                                : "text-yellow-600"
-                            }`}
-                          >
-                            {getPaymentMethodDisplay(
-                              booking.paymentStatus,
-                              booking.paymentMethod ||
-                                booking.metadata?.paymentMethod
-                            )}
-                          </span>
+                          {isCancelled ? (
+                            <>
+                              <span className="text-xs text-gray-500">
+                                Status:
+                              </span>
+                              <span className="text-xs font-semibold text-red-600">
+                                Cancelled
+                              </span>
+                            </>
+                          ) : isCompleted ? (
+                            <>
+                              <span className="text-xs text-gray-500">
+                                Status:
+                              </span>
+                              <span className="text-xs font-semibold text-green-600">
+                                Completed
+                              </span>
+                            </>
+                          ) : isNoShow ? (
+                            <>
+                              <span className="text-xs text-gray-500">
+                                Status:
+                              </span>
+                              <span className="text-xs font-semibold text-orange-600">
+                                No Show
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-xs text-gray-500">
+                                Payment:
+                              </span>
+                              <span
+                                className={`text-xs font-medium ${
+                                  booking.paymentStatus === "paid" ||
+                                  booking.paymentStatus === "completed"
+                                    ? "text-green-600"
+                                    : booking.paymentMethod === "cod" ||
+                                      booking.paymentMethod === "cash" ||
+                                      booking.metadata?.paymentMethod === "cod"
+                                    ? "text-orange-600"
+                                    : "text-yellow-600"
+                                }`}
+                              >
+                                {getPaymentMethodDisplay(
+                                  booking.paymentStatus,
+                                  booking.paymentMethod ||
+                                    booking.metadata?.paymentMethod
+                                )}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
 

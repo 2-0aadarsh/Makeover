@@ -83,8 +83,8 @@ const Header = () => {
 
       {/* Right side actions for large screens */}
       <div className="hidden lg:flex items-center gap-6">
-        {/* Cart Button - Only for authenticated users */}
-        {isAuthenticated && <CartButton />}
+        {/* Cart Button - Always visible */}
+        <CartButton />
 
         {/* Location Display + Profile/Login Button as single unit */}
         <div className="flex items-center gap-4">
@@ -102,8 +102,8 @@ const Header = () => {
         {/* Location Display */}
         <LocationDisplay />
 
-        {/* Cart Button - Only for authenticated users */}
-        {isAuthenticated && <CartButton />}
+        {/* Cart Button - Always visible */}
+        <CartButton />
 
         {/* Profile Button */}
         {isAuthenticated ? (
@@ -118,8 +118,8 @@ const Header = () => {
         {/* Location Display */}
         <LocationDisplay />
 
-        {/* Cart Button - Only for authenticated users */}
-        {isAuthenticated && <CartButton />}
+        {/* Cart Button - Always visible */}
+        <CartButton />
 
         {/* Profile Button */}
         {isAuthenticated ? (

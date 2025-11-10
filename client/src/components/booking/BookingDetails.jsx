@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import CancelBookingModal from "../modals/CancelBookingModal.jsx";
 
 /**
  * BookingDetails Component
@@ -15,6 +17,9 @@ const BookingDetails = ({
   onCompletePayment,
 }) => {
   const navigate = useNavigate();
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState(null);
 
   // Format currency to INR
   const formatCurrency = (amount) => {
@@ -108,10 +113,44 @@ const BookingDetails = ({
     navigate("/myBookings");
   };
 
-  // Handle cancel booking
+  // Handle opening cancel modal
   const handleCancel = () => {
-    if (onCancel) {
-      onCancel(booking);
+    setCancelError(null);
+    setIsCancelModalOpen(true);
+  };
+
+  // Handle confirming cancellation
+  const handleConfirmCancel = async (cancellationReason) => {
+    setIsCancelling(true);
+    try {
+      if (onCancel) {
+        const result = await onCancel({ ...booking, cancellationReason });
+        if (result?.success) {
+          setIsCancelModalOpen(false);
+          setCancelError(null);
+        } else {
+          setCancelError(
+            result?.message ||
+              "We couldn’t cancel this booking. Please try again or contact support."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      setCancelError(
+        error?.message ||
+          "We couldn’t cancel this booking. Please try again or contact support."
+      );
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  // Handle closing cancel modal
+  const handleCloseCancelModal = () => {
+    if (!isCancelling) {
+      setCancelError(null);
+      setIsCancelModalOpen(false);
     }
   };
 
@@ -347,31 +386,61 @@ const BookingDetails = ({
                   </div>
                 </div>
 
-                {/* Action Buttons - Keeping original pink colors */}
+                {/* Action Buttons - Conditionally rendered based on booking status */}
                 <div className="space-y-3">
-                  <button
-                    onClick={handleCancel}
-                    className="w-full py-2 px-4 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-50 transition-colors"
-                  >
-                    Cancel Booking
-                  </button>
+                  {/* Show action buttons only for active bookings */}
+                  {booking.status !== "cancelled" &&
+                    booking.status !== "completed" &&
+                    booking.status !== "no_show" && (
+                      <>
+                        {/* Cancel Button - Only show if booking can be cancelled */}
+                        {booking.canBeCancelled !== false && (
+                          <button
+                            onClick={handleCancel}
+                            className="w-full py-2 px-4 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-50 transition-colors"
+                          >
+                            Cancel Booking
+                          </button>
+                        )}
 
-                  <button
-                    onClick={handleReschedule}
-                    className="w-full py-2 px-4 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-50 transition-colors"
-                  >
-                    Reschedule Booking
-                  </button>
+                        {/* Reschedule Button - Only show if booking can be rescheduled */}
+                        {booking.canBeRescheduled !== false && (
+                          <button
+                            onClick={handleReschedule}
+                            className="w-full py-2 px-4 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-50 transition-colors"
+                          >
+                            Reschedule Booking
+                          </button>
+                        )}
 
-                  {(booking.paymentStatus === "pending" ||
-                    booking.metadata?.paymentMethod === "cod" ||
-                    booking.paymentMethod === "cod") && (
-                    <button
-                      onClick={handleCompletePayment}
-                      className="w-full py-2 px-4 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
-                    >
-                      Complete Payment
-                    </button>
+                        {/* Complete Payment Button - Only for pending payments */}
+                        {(booking.paymentStatus === "pending" ||
+                          booking.metadata?.paymentMethod === "cod" ||
+                          booking.paymentMethod === "cod") && (
+                          <button
+                            onClick={handleCompletePayment}
+                            className="w-full py-2 px-4 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
+                          >
+                            Complete Payment
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                  {/* Show message for cancelled/completed bookings */}
+                  {(booking.status === "cancelled" ||
+                    booking.status === "completed" ||
+                    booking.status === "no_show") && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <p className="text-sm text-gray-600 text-center">
+                        {booking.status === "cancelled" &&
+                          "This booking has been cancelled. No further actions are available."}
+                        {booking.status === "completed" &&
+                          "This booking has been completed. Thank you for choosing our services!"}
+                        {booking.status === "no_show" &&
+                          "This booking was marked as no-show."}
+                      </p>
+                    </div>
                   )}
                 </div>
 
@@ -392,6 +461,16 @@ const BookingDetails = ({
           </div>
         </div>
       </div>
+
+      {/* Cancel Booking Modal */}
+      <CancelBookingModal
+        isOpen={isCancelModalOpen}
+        onClose={handleCloseCancelModal}
+        onConfirm={handleConfirmCancel}
+        booking={booking}
+        isLoading={isCancelling}
+        errorMessage={cancelError}
+      />
     </div>
   );
 };
@@ -424,6 +503,8 @@ BookingDetails.propTypes = {
       slot: PropTypes.string,
       address: PropTypes.object,
     }),
+    canBeCancelled: PropTypes.bool,
+    canBeRescheduled: PropTypes.bool,
   }).isRequired,
   onCancel: PropTypes.func,
   onReschedule: PropTypes.func,

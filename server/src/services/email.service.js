@@ -1,7 +1,7 @@
 import "dotenv/config"
 
 import transporter from '../configs/nodemailer.config.js';
-import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate } from '../uitils/emails/emailTemplate.js';
+import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate } from '../uitils/emails/emailTemplate.js';
 
 const sendEmailVerification = async (to, subject, htmlContent) => {
   try {
@@ -264,4 +264,78 @@ const sendEnquiryConfirmationToUser = async (enquiryData) => {
   }
 };
 
-export { sendEmailVerification, sendForgetPassword, sendContactUsMail, sendBookingNotificationToAdmin, sendWelcomeNewsletterEmail, sendEnquiryNotificationToAdmin, sendEnquiryConfirmationToUser };
+/**
+ * Send booking cancellation notification email to admin
+ * @param {Object} cancellationData - Cancellation details including booking info
+ * @returns {Promise} - Email send result
+ */
+const sendCancellationNotificationToAdmin = async (cancellationData) => {
+  try {
+    console.log('📧 Preparing to send cancellation notification email to admin...');
+    
+    // Generate HTML template
+    const emailHtml = bookingCancellationAdminEmailTemplate(cancellationData);
+    
+    // Get admin email from environment variable
+    const adminEmail = process.env.ADMIN_EMAIL;
+    
+    // Mail options
+    const mailOptions = {
+      from: '"Wemakeover Bookings" <no-reply@chittchat.com>',
+      to: adminEmail,
+      subject: `❌ Booking Cancelled - Order #${cancellationData.orderNumber}`,
+      replyTo: cancellationData.customerEmail, // allows admin to reply directly to customer
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending cancellation notification email to:', adminEmail);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Cancellation notification email sent successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending cancellation notification email:', error);
+    // Don't throw error - we don't want to break cancellation flow if email fails
+    return null;
+  }
+};
+
+/**
+ * Send booking cancellation confirmation email to user
+ * @param {Object} cancellationData - Cancellation details including booking info
+ * @returns {Promise} - Email send result
+ */
+const sendCancellationConfirmationToUser = async (cancellationData) => {
+  try {
+    console.log('📧 Preparing to send cancellation confirmation email to user:', cancellationData.customerEmail);
+    
+    // Generate HTML template
+    const emailHtml = bookingCancellationUserEmailTemplate(cancellationData);
+    
+    // Mail options
+    const mailOptions = {
+      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      to: cancellationData.customerEmail,
+      subject: `✅ Booking Cancelled - Order #${cancellationData.orderNumber}`,
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending cancellation confirmation email to:', cancellationData.customerEmail);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Cancellation confirmation email sent successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending cancellation confirmation email:', error);
+    // Don't throw error - we don't want to break cancellation flow if email fails
+    return null;
+  }
+};
+
+export { sendEmailVerification, sendForgetPassword, sendContactUsMail, sendBookingNotificationToAdmin, sendWelcomeNewsletterEmail, sendEnquiryNotificationToAdmin, sendEnquiryConfirmationToUser, sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser };

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import BookYourSlot from "./BookYourSlot";
 import { usePayment } from "../../../hooks/usePayment";
 import { formatAmount } from "../../../utils/paymentUtils";
 import "../../../test-debug.js"; // Test import
+import AuthPromptModal from "../../modals/AuthPromptModal";
 
 /**
  * Checkout Component
@@ -24,6 +26,8 @@ const Checkout = ({
 }) => {
   // Access authenticated user from Redux auth state
   const user = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const navigate = useNavigate();
 
   // Extract user's phone number - handle case where user might not be logged in
   const userPhone = user?.phoneNumber || null;
@@ -47,6 +51,19 @@ const Checkout = ({
 
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [formValid, setFormValid] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+
+  const handleCloseAuthPrompt = () => {
+    setShowAuthPrompt(false);
+  };
+
+  const handleLoginRedirect = () => {
+    navigate("/auth/login");
+  };
+
+  const handleSignupRedirect = () => {
+    navigate("/auth/signup");
+  };
 
   // Book Your Slot state - Initialize with today's date if no date provided
   const getDefaultDate = () => {
@@ -219,6 +236,14 @@ const Checkout = ({
       hasAddress: !!bookingDetails.address,
       timestamp: new Date().toISOString(),
     });
+
+    if (!isAuthenticated) {
+      console.warn(
+        "⚠️ [PAYMENT GUARD] User is not authenticated. Prompting sign-in before payment."
+      );
+      setShowAuthPrompt(true);
+      return;
+    }
 
     if (!formValid) {
       console.error("❌ [PAYMENT DEBUG] Form is not valid, payment blocked");
@@ -585,7 +610,8 @@ const Checkout = ({
 
   // Render modal version with header and close button if isModal is true
   const content = (
-    <div className={`${isModal ? "p-6 bg-white rounded-lg" : ""}`}>
+    <>
+      <div className={`${isModal ? "p-6 bg-white rounded-lg" : ""}`}>
       {isModal && (
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-semibold">Checkout</h2>
@@ -735,6 +761,14 @@ const Checkout = ({
               timestamp: new Date().toISOString(),
             });
 
+            if (!isAuthenticated) {
+              console.warn(
+                "⚠️ [BUTTON DEBUG] User not authenticated. Showing auth prompt instead of proceeding."
+              );
+              setShowAuthPrompt(true);
+              return;
+            }
+
             if (!formValid) {
               console.error(
                 "❌ [BUTTON DEBUG] Button click blocked - Form is not valid"
@@ -784,7 +818,18 @@ const Checkout = ({
           )}
         </button>
       </div>
-    </div>
+      </div>
+
+      <AuthPromptModal
+        isOpen={showAuthPrompt}
+        onClose={handleCloseAuthPrompt}
+        onLogin={handleLoginRedirect}
+        onSignup={handleSignupRedirect}
+        message="Before proceeding with payment, please sign in. It only takes a moment, and your cart stays safe."
+        loginLabel="Sign In to Continue"
+        signupLabel="Create Account"
+      />
+    </>
   );
 
   // If it's a modal, wrap in a modal container

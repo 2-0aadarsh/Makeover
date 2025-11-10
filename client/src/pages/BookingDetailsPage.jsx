@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchBookingById,
   cancelBooking,
-  rescheduleBooking,
   updatePaymentStatus,
   selectCurrentBooking,
   selectBookingLoading,
   selectBookingError,
-  clearErrors
-} from '../features/booking/bookingSlice.js';
-import BookingDetails from '../components/booking/BookingDetails.jsx';
-import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
-import ErrorMessage from '../components/common/ErrorMessage.jsx';
-import EmptyState from '../components/common/EmptyState.jsx';
+  clearErrors,
+} from "../features/booking/bookingSlice.js";
+import BookingDetails from "../components/booking/BookingDetails.jsx";
+import LoadingSpinner from "../components/common/LoadingSpinner.jsx";
+import ErrorMessage from "../components/common/ErrorMessage.jsx";
+import EmptyState from "../components/common/EmptyState.jsx";
+import SuccessModal from "../components/modals/SuccessModal.jsx";
 
 /**
  * BookingDetailsPage Component
- * 
+ *
  * Displays detailed view of a specific booking
  * Handles booking actions like cancel, reschedule, and payment
  */
@@ -32,8 +32,14 @@ const BookingDetailsPage = () => {
   const loading = useSelector(selectBookingLoading);
   const error = useSelector(selectBookingError);
 
-  // Local state
-  const [actionLoading, setActionLoading] = useState(false);
+  // Local state for tracking actions
+  // eslint-disable-next-line no-unused-vars
+  const [isActionLoading, setIsActionLoading] = useState(false);
+
+  // Success modal state
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [successDetails, setSuccessDetails] = useState(null);
 
   // Fetch booking details on component mount
   useEffect(() => {
@@ -49,50 +55,103 @@ const BookingDetailsPage = () => {
 
   // Handle cancel booking
   const handleCancelBooking = async (bookingData) => {
-    setActionLoading(true);
+    setIsActionLoading(true);
     try {
-      const result = await dispatch(cancelBooking({
-        bookingId: bookingData._id,
-        reason: 'User requested cancellation'
-      }));
-      
-      if (result.payload) {
-        alert('Booking cancelled successfully');
-        navigate('/my-bookings');
+      console.log("🔄 Cancelling booking with data:", bookingData);
+
+      const result = await dispatch(
+        cancelBooking({
+          bookingId: bookingData._id,
+          cancellationReason:
+            bookingData.cancellationReason || "User requested cancellation",
+        })
+      );
+
+      console.log("✅ Cancel booking result:", result);
+
+      if (
+        result.meta.requestStatus === "fulfilled" &&
+        result.payload?.success
+      ) {
+        // Success - show custom success modal
+        const refundInfo = result.payload.refundEligible
+          ? `Refund of ₹${result.payload.refundAmount} will be processed within 5-7 business days.`
+          : null;
+
+        setSuccessMessage("Booking cancelled successfully!");
+        setSuccessDetails(
+          refundInfo
+            ? `${refundInfo} You will receive a confirmation email shortly.`
+            : "You will receive a confirmation email shortly."
+        );
+        setIsSuccessModalOpen(true);
+
+        return { success: true, data: result.payload };
       }
+
+      if (result.meta.requestStatus === "rejected") {
+        const errorData = result.payload || result.error;
+        const message =
+          errorData?.message ||
+          (Array.isArray(errorData?.errors)
+            ? errorData.errors.join(", ")
+            : "Failed to cancel booking");
+
+        const detailedMessage = errorData?.supportEmail
+          ? `${message} Please contact ${errorData.supportEmail} for assistance.`
+          : message;
+
+        return { success: false, message: detailedMessage };
+      }
+
+      const fallbackMessage =
+        result.payload?.message ||
+        result.error?.message ||
+        "Failed to cancel booking";
+      return { success: false, message: fallbackMessage };
     } catch (error) {
-      console.error('Error cancelling booking:', error);
-      alert('Failed to cancel booking. Please try again.');
+      console.error("❌ Error cancelling booking:", error);
+      return {
+        success: false,
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          "An error occurred while cancelling the booking. Please try again.",
+      };
     } finally {
-      setActionLoading(false);
+      setIsActionLoading(false);
     }
   };
 
   // Handle reschedule booking
-  const handleRescheduleBooking = async (bookingData) => {
+  const handleRescheduleBooking = async () => {
     // For now, just show an alert - in a real app, this would open a reschedule modal
-    alert('Reschedule functionality will be implemented soon. Please contact support for immediate rescheduling.');
+    alert(
+      "Reschedule functionality will be implemented soon. Please contact support for immediate rescheduling."
+    );
   };
 
   // Handle complete payment
   const handleCompletePayment = async (bookingData) => {
-    setActionLoading(true);
+    setIsActionLoading(true);
     try {
-      const result = await dispatch(updatePaymentStatus({
-        bookingId: bookingData._id,
-        paymentStatus: 'completed'
-      }));
-      
+      const result = await dispatch(
+        updatePaymentStatus({
+          bookingId: bookingData._id,
+          paymentStatus: "completed",
+        })
+      );
+
       if (result.payload) {
-        alert('Payment status updated successfully');
+        alert("Payment status updated successfully");
         // Refresh booking data
         dispatch(fetchBookingById(id));
       }
     } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Failed to update payment status. Please try again.');
+      console.error("Error updating payment status:", error);
+      alert("Failed to update payment status. Please try again.");
     } finally {
-      setActionLoading(false);
+      setIsActionLoading(false);
     }
   };
 
@@ -101,6 +160,14 @@ const BookingDetailsPage = () => {
     if (id) {
       dispatch(fetchBookingById(id));
     }
+  };
+
+  // Handle success modal close and navigation
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    setSuccessMessage("");
+    setSuccessDetails(null);
+    navigate("/my-bookings");
   };
 
   // Loading state
@@ -136,7 +203,7 @@ const BookingDetailsPage = () => {
             title="Booking Not Found"
             description="The booking you're looking for doesn't exist or may have been removed."
             actionText="Back to Bookings"
-            onAction={() => navigate('/my-bookings')}
+            onAction={() => navigate("/my-bookings")}
           />
         </div>
       </div>
@@ -145,12 +212,25 @@ const BookingDetailsPage = () => {
 
   // Success state - show booking details
   return (
-    <BookingDetails
-      booking={booking}
-      onCancel={handleCancelBooking}
-      onReschedule={handleRescheduleBooking}
-      onCompletePayment={handleCompletePayment}
-    />
+    <>
+      <BookingDetails
+        booking={booking}
+        onCancel={handleCancelBooking}
+        onReschedule={handleRescheduleBooking}
+        onCompletePayment={handleCompletePayment}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={handleSuccessModalClose}
+        title="Cancellation Successful"
+        message={successMessage}
+        details={successDetails}
+        buttonText="View My Bookings"
+        onButtonClick={handleSuccessModalClose}
+      />
+    </>
   );
 };
 

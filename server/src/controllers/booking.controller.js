@@ -160,7 +160,10 @@ export const cancelBooking = async (req, res) => {
   try {
     const bookingId = req.params.id;
     const { cancellationReason } = req.body;
-    const cancelledBy = req.user.id;
+    const cancelledBy = {
+      id: req.user.id,
+      role: req.user.role || 'customer'
+    };
 
     // Validate booking ID
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
@@ -169,7 +172,7 @@ export const cancelBooking = async (req, res) => {
         message: 'Invalid booking ID'
       });
     }
-
+    
     const result = await BookingService.cancelBooking(bookingId, cancellationReason, cancelledBy);
 
     if (!result.success) {

@@ -325,7 +325,7 @@ bookingSchema.virtual('canBeCancelled').get(function() {
   const bookingDateTime = new Date(this.bookingDetails.date);
   const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
   
-  return hoursUntilBooking > 2; // Can cancel if more than 2 hours before booking
+  return hoursUntilBooking > 24; // Can cancel if more than 24 hours before booking
 });
 
 // Virtual for canBeRescheduled

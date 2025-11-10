@@ -31,6 +31,7 @@ import { transformCartItem, normalizeServiceId } from '../features/cart/cartApi'
 
 export const useCart = () => {
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   
   // Selectors
   const items = useSelector(selectCartItems);
@@ -48,6 +49,10 @@ export const useCart = () => {
   const addItemToCart = async (serviceData) => {
     dispatch(addToCart(serviceData));
 
+    if (!isAuthenticated) {
+      return;
+    }
+
     try {
       const payload = transformCartItem(serviceData, 1);
       await dispatch(addItemToDBCart(payload)).unwrap();
@@ -62,6 +67,10 @@ export const useCart = () => {
     const serviceId = normalizeServiceId({ serviceId: itemId });
     dispatch(removeFromCart(serviceId));
 
+    if (!isAuthenticated) {
+      return;
+    }
+
     try {
       await dispatch(removeItemFromDBCart(serviceId)).unwrap();
     } catch (error) {
@@ -75,6 +84,10 @@ export const useCart = () => {
 
     const clampedQuantity = Math.max(0, quantity);
     dispatch(updateQuantity({ itemId: serviceId, quantity: clampedQuantity }));
+
+    if (!isAuthenticated) {
+      return;
+    }
 
     try {
       if (clampedQuantity === 0) {
@@ -95,6 +108,10 @@ export const useCart = () => {
 
     dispatch(increaseQuantity(serviceId));
 
+    if (!isAuthenticated) {
+      return;
+    }
+
     try {
       await dispatch(updateItemQuantityInDB({ serviceId, quantity: nextQuantity })).unwrap();
     } catch (error) {
@@ -110,6 +127,10 @@ export const useCart = () => {
     const nextQuantity = Math.max(0, (currentItem?.quantity ?? 0) - 1);
 
     dispatch(decreaseQuantity(serviceId));
+
+    if (!isAuthenticated) {
+      return;
+    }
 
     try {
       if (nextQuantity === 0) {
@@ -127,6 +148,10 @@ export const useCart = () => {
 
   const clearAllCart = async () => {
     dispatch(clearCart());
+
+    if (!isAuthenticated) {
+      return;
+    }
 
     try {
       await dispatch(clearCartFromDB()).unwrap();
