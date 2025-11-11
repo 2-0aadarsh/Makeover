@@ -199,30 +199,112 @@ export const cancelBooking = async (req, res) => {
 export const rescheduleBooking = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    const { newDate, newSlot } = req.body;
-    const rescheduledBy = req.user.id;
+    const { newDate, newSlot, newPaymentMethod, reason } = req.body;
+    const userId = req.user.id;
+
+    console.log('🔄 Reschedule booking request:', {
+      bookingId,
+      newDate,
+      newSlot,
+      newPaymentMethod,
+      reason: reason ? 'provided' : 'not provided',
+      userId
+    });
 
     // Validate booking ID
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid booking ID'
+        message: 'Invalid booking ID',
+        error: 'INVALID_ID'
       });
     }
 
-    const result = await BookingService.rescheduleBooking(bookingId, newDate, newSlot, rescheduledBy);
+    // Validate required fields
+    if (!newDate || !newSlot) {
+      return res.status(400).json({
+        success: false,
+        message: 'New date and time slot are required',
+        error: 'MISSING_FIELDS'
+      });
+    }
 
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(newDate)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format. Expected YYYY-MM-DD',
+        error: 'INVALID_DATE_FORMAT'
+      });
+    }
+
+    // Validate time slot format (HH:MM AM/PM)
+    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/;
+    if (!timeRegex.test(newSlot)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid time slot format. Expected HH:MM AM/PM',
+        error: 'INVALID_TIME_FORMAT'
+      });
+    }
+
+    // Validate payment method if provided
+    if (newPaymentMethod && !['online', 'cod'].includes(newPaymentMethod)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment method. Must be "online" or "cod"',
+        error: 'INVALID_PAYMENT_METHOD'
+      });
+    }
+
+    // Call service method
+    const result = await BookingService.rescheduleBooking(
+      bookingId,
+      newDate,
+      newSlot,
+      newPaymentMethod,
+      reason,
+      userId
+    );
+
+    // Handle service errors
     if (!result.success) {
-      const statusCode = result.error === 'NOT_FOUND' ? 404 : 400;
+      // Map error codes to HTTP status codes
+      const statusCodeMap = {
+        'NOT_FOUND': 404,
+        'CANNOT_RESCHEDULE': 403,
+        'MAX_RESCHEDULES_REACHED': 403,
+        'TOO_CLOSE_TO_BOOKING': 403,
+        'INVALID_DATE': 400,
+        'SLOT_UNAVAILABLE': 409
+      };
+      
+      const statusCode = statusCodeMap[result.error] || 400;
+      
+      console.log('❌ Reschedule failed:', {
+        bookingId,
+        error: result.error,
+        message: result.message
+      });
+      
       return res.status(statusCode).json(result);
     }
 
+    console.log('✅ Booking rescheduled successfully:', {
+      bookingId,
+      orderNumber: result.data.orderNumber,
+      rescheduleCount: result.rescheduleCount,
+      remainingReschedules: result.remainingReschedules
+    });
+
+    // Return success response
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error in rescheduleBooking controller:', error);
+    console.error('❌ Error in rescheduleBooking controller:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: 'Internal server error while rescheduling booking',
       error: error.message
     });
   }
@@ -259,6 +341,100 @@ export const updatePaymentStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Complete booking payment
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+export const completeBookingPayment = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const { paymentMethod, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+
+    console.log('💳 Complete payment request received:', {
+      bookingId,
+      paymentMethod,
+      hasRazorpayData: !!(razorpayOrderId && razorpayPaymentId && razorpaySignature)
+    });
+
+    // Validate booking ID
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid booking ID',
+        error: 'INVALID_ID'
+      });
+    }
+
+    // Validate payment method
+    if (!paymentMethod || !['online', 'cod'].includes(paymentMethod)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment method. Must be "online" or "cod"',
+        error: 'INVALID_PAYMENT_METHOD'
+      });
+    }
+
+    // For online payments, validate Razorpay data
+    if (paymentMethod === 'online') {
+      if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+        return res.status(400).json({
+          success: false,
+          message: 'Razorpay payment details are required for online payments',
+          error: 'MISSING_RAZORPAY_DATA'
+        });
+      }
+    }
+
+    // Prepare Razorpay data if online payment
+    const razorpayData = paymentMethod === 'online' ? {
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature
+    } : null;
+
+    // Call service to complete payment
+    const result = await BookingService.completeBookingPayment(bookingId, paymentMethod, razorpayData);
+
+    // Handle service errors
+    if (!result.success) {
+      // Map error codes to HTTP status codes
+      const statusCodeMap = {
+        'NOT_FOUND': 404,
+        'ALREADY_PAID': 409,
+        'INVALID_PAYMENT_DATA': 400
+      };
+      
+      const statusCode = statusCodeMap[result.error] || 400;
+      
+      console.log('❌ Payment completion failed:', {
+        bookingId,
+        error: result.error,
+        message: result.message
+      });
+      
+      return res.status(statusCode).json(result);
+    }
+
+    console.log('✅ Payment completed successfully:', {
+      bookingId,
+      orderNumber: result.data.orderNumber,
+      paymentMethod,
+      paymentStatus: result.data.paymentStatus
+    });
+
+    // Return success response
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('❌ Error in completeBookingPayment controller:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error while completing payment',
       error: error.message
     });
   }

@@ -1,7 +1,7 @@
 import "dotenv/config"
 
 import transporter from '../configs/nodemailer.config.js';
-import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate } from '../uitils/emails/emailTemplate.js';
+import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate, bookingRescheduleAdminEmailTemplate, bookingRescheduleUserEmailTemplate, paymentConfirmationAdminEmailTemplate, paymentConfirmationUserEmailTemplate } from '../uitils/emails/emailTemplate.js';
 
 const sendEmailVerification = async (to, subject, htmlContent) => {
   try {
@@ -338,4 +338,140 @@ const sendCancellationConfirmationToUser = async (cancellationData) => {
   }
 };
 
-export { sendEmailVerification, sendForgetPassword, sendContactUsMail, sendBookingNotificationToAdmin, sendWelcomeNewsletterEmail, sendEnquiryNotificationToAdmin, sendEnquiryConfirmationToUser, sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser };
+/**
+ * Send booking reschedule notification email to admin
+ * @param {Object} rescheduleData - Reschedule details including booking info
+ * @returns {Promise} - Email send result
+ */
+const sendRescheduleNotificationToAdmin = async (rescheduleData) => {
+  try {
+    console.log('📧 Preparing to send reschedule notification email to admin...');
+    
+    // Generate HTML template
+    const emailHtml = bookingRescheduleAdminEmailTemplate(rescheduleData);
+    
+    // Get admin email from environment variable
+    const adminEmail = process.env.ADMIN_EMAIL;
+    
+    // Mail options
+    const mailOptions = {
+      from: '"Wemakeover Bookings" <no-reply@chittchat.com>',
+      to: adminEmail,
+      subject: `🔄 Booking Rescheduled - Order #${rescheduleData.orderNumber}`,
+      replyTo: rescheduleData.customerEmail, // allows admin to reply directly to customer
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending reschedule notification email to:', adminEmail);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Reschedule notification email sent successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending reschedule notification email:', error);
+    // Don't throw error - we don't want to break reschedule flow if email fails
+    return null;
+  }
+};
+
+/**
+ * Send booking reschedule confirmation email to user
+ * @param {Object} rescheduleData - Reschedule details including booking info
+ * @returns {Promise} - Email send result
+ */
+const sendRescheduleConfirmationToUser = async (rescheduleData) => {
+  try {
+    console.log('📧 Preparing to send reschedule confirmation email to user:', rescheduleData.customerEmail);
+    
+    // Generate HTML template
+    const emailHtml = bookingRescheduleUserEmailTemplate(rescheduleData);
+    
+    // Mail options
+    const mailOptions = {
+      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      to: rescheduleData.customerEmail,
+      subject: `✅ Booking Rescheduled - Order #${rescheduleData.orderNumber}`,
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending reschedule confirmation email to:', rescheduleData.customerEmail);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Reschedule confirmation email sent successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending reschedule confirmation email:', error);
+    // Don't throw error - we don't want to break reschedule flow if email fails
+    return null;
+  }
+};
+
+// Send payment confirmation notification to admin
+const sendPaymentConfirmationToAdmin = async (paymentData) => {
+  try {
+    console.log('📧 Preparing to send payment confirmation email to admin');
+    
+    // Generate HTML template
+    const emailHtml = paymentConfirmationAdminEmailTemplate(paymentData);
+    
+    // Mail options
+    const mailOptions = {
+      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      to: process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in',
+      subject: `💰 Payment Received - Order #${paymentData.orderNumber}`,
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending payment confirmation email to admin:', process.env.ADMIN_EMAIL);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Payment confirmation email sent to admin successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending payment confirmation email to admin:', error);
+    // Don't throw error - we don't want to break payment flow if email fails
+    return null;
+  }
+};
+
+// Send payment confirmation to user
+const sendPaymentConfirmationToUser = async (paymentData) => {
+  try {
+    console.log('📧 Preparing to send payment confirmation email to user:', paymentData.customerEmail);
+    
+    // Generate HTML template
+    const emailHtml = paymentConfirmationUserEmailTemplate(paymentData);
+    
+    // Mail options
+    const mailOptions = {
+      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      to: paymentData.customerEmail,
+      subject: `✅ Payment Confirmation - Order #${paymentData.orderNumber}`,
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending payment confirmation email to:', paymentData.customerEmail);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Payment confirmation email sent successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending payment confirmation email:', error);
+    // Don't throw error - we don't want to break payment flow if email fails
+    return null;
+  }
+};
+
+export { sendEmailVerification, sendForgetPassword, sendContactUsMail, sendBookingNotificationToAdmin, sendWelcomeNewsletterEmail, sendEnquiryNotificationToAdmin, sendEnquiryConfirmationToUser, sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser, sendRescheduleNotificationToAdmin, sendRescheduleConfirmationToUser, sendPaymentConfirmationToAdmin, sendPaymentConfirmationToUser };

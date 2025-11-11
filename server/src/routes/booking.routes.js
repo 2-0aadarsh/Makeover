@@ -7,6 +7,7 @@ import {
   cancelBooking,
   rescheduleBooking,
   updatePaymentStatus,
+  completeBookingPayment,
   getBookingStats,
   getUpcomingBookings,
   searchBookings,
@@ -124,15 +125,23 @@ router.put('/:id/cancel',
 );
 
 /**
- * @route   PUT /api/bookings/:id/reschedule
+ * @route   PATCH /api/bookings/:id/reschedule
  * @desc    Reschedule a booking
  * @access  Private (user can only reschedule their own bookings)
- * @body    newDate, newSlot
+ * @body    newDate, newSlot, newPaymentMethod (optional), reason (optional)
+ * @validation
+ *   - newDate: Required, YYYY-MM-DD format
+ *   - newSlot: Required, HH:MM AM/PM format
+ *   - newPaymentMethod: Optional, "online" or "cod"
+ *   - reason: Optional, string (max 500 chars)
+ * @rules
+ *   - Booking must be >48 hours away
+ *   - Maximum 3 reschedules allowed
+ *   - New date must be >48 hours from now
+ *   - Time slot must be available
  */
-router.put('/:id/reschedule',
+router.patch('/:id/reschedule',
   checkBookingOwnership,
-  checkBookingModifiable,
-  checkSlotAvailability,
   sanitizeBookingData,
   rescheduleBooking
 );
@@ -146,6 +155,29 @@ router.put('/:id/reschedule',
 router.put('/:id/payment-status',
   checkBookingOwnership,
   updatePaymentStatus
+);
+
+/**
+ * @route   POST /api/bookings/:id/complete-payment
+ * @desc    Complete payment for a booking
+ * @access  Private (user can only complete payment for their own bookings)
+ * @body    paymentMethod, razorpayOrderId (optional), razorpayPaymentId (optional), razorpaySignature (optional)
+ * @validation
+ *   - paymentMethod: Required, "online" or "cod"
+ *   - For online: razorpayOrderId, razorpayPaymentId, razorpaySignature are required
+ *   - For COD: only paymentMethod is required
+ * @rules
+ *   - Booking must exist
+ *   - Payment must not already be completed
+ *   - For online: Razorpay signature will be verified
+ * @response
+ *   - Success: Updated booking with payment status
+ *   - Sends confirmation emails for online payments
+ */
+router.post('/:id/complete-payment',
+  checkBookingOwnership,
+  sanitizeBookingData,
+  completeBookingPayment
 );
 
 // Admin-only routes (you can add admin middleware here)

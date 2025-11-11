@@ -5,6 +5,20 @@ import { UserIcon } from "./UserIcon";
 
 const ProfileButton = ({ username }) => {
   const [open, setOpen] = useState(false);
+
+  const displayName = (() => {
+    if (!username) return "";
+
+    const trimmed = username.trim();
+    if (!trimmed) return "";
+
+    const [firstToken] = trimmed.split(/\s+/);
+    if (!firstToken) return "";
+
+    const lowerCased = firstToken.toLowerCase();
+    return lowerCased.charAt(0).toUpperCase() + lowerCased.slice(1);
+  })();
+
   return (
     <div className="relative">
       {/* Large Screen - Full button with text */}
@@ -17,7 +31,7 @@ const ProfileButton = ({ username }) => {
       >
         <UserIcon />
         <h3 className="font-semibold font-inter text-xs xl:text-sm whitespace-nowrap">
-          {username}
+          {displayName || "Profile"}
         </h3>
       </button>
 
@@ -28,7 +42,7 @@ const ProfileButton = ({ username }) => {
           setOpen(true);
         }}
         className="lg:hidden flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full border-2 border-[#CC2B52] bg-white hover:bg-gray-50 transition-colors"
-        aria-label="Profile"
+        aria-label={displayName ? `Profile menu for ${displayName}` : "Profile"}
       >
         <UserIcon />
       </button>

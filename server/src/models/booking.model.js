@@ -245,6 +245,11 @@ const bookingSchema = new mongoose.Schema({
       enum: ['customer', 'admin'],
       default: 'customer'
     },
+    rescheduleReason: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Reschedule reason cannot exceed 500 characters']
+    },
     rescheduleCount: {
       type: Number,
       default: 0,
@@ -330,19 +335,22 @@ bookingSchema.virtual('canBeCancelled').get(function() {
 
 // Virtual for canBeRescheduled
 bookingSchema.virtual('canBeRescheduled').get(function() {
+  // Check if status is active (not cancelled, completed, or no_show)
   if (['cancelled', 'completed', 'no_show'].includes(this.status)) {
     return false;
   }
   
+  // Check if reschedule limit (3) has been reached
   if (this.reschedulingDetails.rescheduleCount >= 3) {
     return false;
   }
   
+  // Check if booking is more than 48 hours away
   const now = new Date();
   const bookingDateTime = new Date(this.bookingDetails.date);
   const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
   
-  return hoursUntilBooking > 24; // Can reschedule if more than 24 hours before booking
+  return hoursUntilBooking > 48; // Can reschedule if more than 48 hours before booking
 });
 
 // Pre-save middleware to generate order number
@@ -407,18 +415,31 @@ bookingSchema.methods.cancelBooking = function(reason, cancelledBy = 'customer')
   return this.save();
 };
 
-bookingSchema.methods.rescheduleBooking = function(newDate, newSlot, rescheduledBy = 'customer') {
+bookingSchema.methods.rescheduleBooking = function(newDate, newSlot, newPaymentMethod, reason, rescheduledBy = 'customer') {
   if (!this.canBeRescheduled) {
     throw new Error('This booking cannot be rescheduled');
   }
   
-  this.reschedulingDetails.originalDate = this.bookingDetails.date;
-  this.reschedulingDetails.originalSlot = this.bookingDetails.slot;
+  // Store original booking details (only on first reschedule)
+  if (!this.reschedulingDetails.originalDate) {
+    this.reschedulingDetails.originalDate = this.bookingDetails.date;
+    this.reschedulingDetails.originalSlot = this.bookingDetails.slot;
+  }
+  
+  // Update booking details with new date and slot
   this.bookingDetails.date = newDate;
   this.bookingDetails.slot = newSlot;
+  
+  // Update payment method if provided and different
+  if (newPaymentMethod && this.paymentDetails.paymentMethod !== newPaymentMethod) {
+    this.paymentDetails.paymentMethod = newPaymentMethod;
+  }
+  
+  // Update rescheduling details
   this.reschedulingDetails.rescheduledAt = new Date();
   this.reschedulingDetails.rescheduledBy = rescheduledBy;
-  this.reschedulingDetails.rescheduleCount += 1;
+  this.reschedulingDetails.rescheduleReason = reason || '';
+  this.reschedulingDetails.rescheduleCount = (this.reschedulingDetails.rescheduleCount || 0) + 1;
   
   return this.save();
 };

@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import Booking from '../models/booking.model.js';
+import Payment from '../models/payment.model.js';
 import { generatePaymentReference } from '../utils/payment.utils.js';
-import { sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser } from './email.service.js';
+import { sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser, sendRescheduleNotificationToAdmin, sendRescheduleConfirmationToUser, sendPaymentConfirmationToAdmin, sendPaymentConfirmationToUser } from './email.service.js';
 
 class BookingService {
   // Create a new booking
@@ -304,9 +305,10 @@ class BookingService {
   }
 
   // Reschedule a booking
-  async rescheduleBooking(bookingId, newDate, newSlot, rescheduledBy = 'customer') {
+  async rescheduleBooking(bookingId, newDate, newSlot, newPaymentMethod, reason, userId) {
     try {
-      const booking = await Booking.findById(bookingId);
+      // 1. Fetch booking with user details
+      const booking = await Booking.findById(bookingId).populate('userId', 'name email phone');
       
       if (!booking) {
         return {
@@ -316,28 +318,168 @@ class BookingService {
         };
       }
       
-      // Check slot availability
+      // 2. Check if booking can be rescheduled (validates 48-hour rule, status, and count)
+      if (!booking.canBeRescheduled) {
+        const now = new Date();
+        const bookingDateTime = new Date(booking.bookingDetails.date);
+        const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
+        
+        // Check specific reason for inability to reschedule
+        if (['cancelled', 'completed', 'no_show'].includes(booking.status)) {
+          return {
+            success: false,
+            message: `Cannot reschedule a ${booking.status} booking.`,
+            error: 'CANNOT_RESCHEDULE',
+            canContact: true,
+            supportEmail: process.env.ADMIN_EMAIL
+          };
+        }
+        
+        if (booking.reschedulingDetails.rescheduleCount >= 3) {
+          return {
+            success: false,
+            message: 'Maximum reschedule limit (3) reached. Please contact support for assistance.',
+            error: 'MAX_RESCHEDULES_REACHED',
+            canContact: true,
+            supportEmail: process.env.ADMIN_EMAIL
+          };
+        }
+        
+        if (hoursUntilBooking <= 48) {
+          return {
+            success: false,
+            message: 'Cannot reschedule booking within 48 hours of service time. Please contact support for urgent changes.',
+            error: 'TOO_CLOSE_TO_BOOKING',
+            canContact: true,
+            supportEmail: process.env.ADMIN_EMAIL
+          };
+        }
+        
+        // Generic fallback
+        return {
+          success: false,
+          message: 'This booking cannot be rescheduled at this time.',
+          error: 'CANNOT_RESCHEDULE',
+          canContact: true,
+          supportEmail: process.env.ADMIN_EMAIL
+        };
+      }
+      
+      // 3. Validate new date is not in the past
+      const newBookingDate = new Date(newDate);
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Set to start of day for comparison
+      
+      if (newBookingDate < now) {
+        return {
+          success: false,
+          message: 'Cannot reschedule to a past date. Please select a future date.',
+          error: 'INVALID_DATE'
+        };
+      }
+      
+      // 4. Check if new date is at least tomorrow (48-hour rule)
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 2); // +2 days for 48 hours
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      if (newBookingDate < tomorrow) {
+        return {
+          success: false,
+          message: 'New booking date must be at least 48 hours from now.',
+          error: 'INVALID_DATE'
+        };
+      }
+      
+      // 5. Check slot availability (optional - can be enhanced later)
       const conflictingBookings = await Booking.find({
         _id: { $ne: bookingId },
-        'bookingDetails.date': new Date(newDate),
+        'bookingDetails.date': newDate,
         'bookingDetails.slot': newSlot,
-        status: { $in: ['confirmed', 'pending'] }
+        status: { $in: ['confirmed', 'pending', 'in_progress'] }
       });
       
       if (conflictingBookings.length > 0) {
         return {
           success: false,
-          message: 'This time slot is already booked',
+          message: 'This time slot is already booked. Please select a different slot.',
           error: 'SLOT_UNAVAILABLE'
         };
       }
       
-      await booking.rescheduleBooking(newDate, newSlot, rescheduledBy);
+      // 6. Determine who is rescheduling
+      let rescheduledBy = 'customer';
+      if (userId && booking.userId && booking.userId._id && booking.userId._id.toString() !== userId.toString()) {
+        rescheduledBy = 'admin';
+      }
       
+      // 7. Store original details before rescheduling
+      const originalDate = booking.bookingDetails.date;
+      const originalSlot = booking.bookingDetails.slot;
+      
+      // 8. Call booking model method to reschedule
+      await booking.rescheduleBooking(newDate, newSlot, newPaymentMethod, reason, rescheduledBy);
+      
+      // 9. Format dates for email
+      const formattedOriginalDate = new Date(originalDate).toLocaleDateString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const formattedNewDate = new Date(newDate).toLocaleDateString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const rescheduledAt = new Date(booking.reschedulingDetails.rescheduledAt).toLocaleString('en-IN', {
+        dateStyle: 'full',
+        timeStyle: 'short'
+      });
+      
+      // 10. Prepare reschedule email data
+      const rescheduleData = {
+        orderNumber: booking.orderNumber,
+        customerName: booking.userId?.name || 'N/A',
+        customerEmail: booking.userId?.email || 'N/A',
+        customerPhone: booking.bookingDetails?.address?.phone || booking.userId?.phone || 'N/A',
+        services: booking.services,
+        originalDate: originalDate,
+        originalSlot: originalSlot,
+        newDate: newDate,
+        newSlot: newSlot,
+        rescheduledAt: rescheduledAt,
+        rescheduleReason: reason || '',
+        rescheduleCount: booking.reschedulingDetails.rescheduleCount,
+        paymentMethod: booking.paymentDetails.paymentMethod,
+        totalAmount: booking.pricing.totalAmount,
+        address: booking.bookingDetails.address
+      };
+      
+      // 11. Send reschedule emails (non-blocking - don't wait for email to complete)
+      setImmediate(async () => {
+        try {
+          await Promise.all([
+            sendRescheduleNotificationToAdmin(rescheduleData),
+            sendRescheduleConfirmationToUser(rescheduleData)
+          ]);
+          console.log('✅ Reschedule emails sent successfully for order:', booking.orderNumber);
+        } catch (emailError) {
+          console.error('❌ Failed to send reschedule emails:', emailError);
+          // Don't throw - we don't want to fail the reschedule if email fails
+        }
+      });
+      
+      // 12. Return success with updated booking
       return {
         success: true,
         data: booking,
-        message: 'Booking rescheduled successfully'
+        message: 'Booking rescheduled successfully',
+        rescheduleCount: booking.reschedulingDetails.rescheduleCount,
+        remainingReschedules: 3 - booking.reschedulingDetails.rescheduleCount
       };
     } catch (error) {
       console.error('Error rescheduling booking:', error);
@@ -633,6 +775,134 @@ class BookingService {
       return {
         success: false,
         message: 'Failed to fetch booking analytics',
+        error: error.message
+      };
+    }
+  }
+
+  // Complete booking payment
+  async completeBookingPayment(bookingId, paymentMethod, razorpayData = null) {
+    try {
+      console.log('💳 Starting payment completion for booking:', bookingId);
+      console.log('💳 Payment method:', paymentMethod);
+      console.log('💳 Razorpay data:', razorpayData ? 'provided' : 'not provided');
+
+      const booking = await Booking.findById(bookingId).populate('userId', 'name email phone');
+      
+      if (!booking) {
+        return {
+          success: false,
+          message: 'Booking not found',
+          error: 'NOT_FOUND'
+        };
+      }
+      
+      console.log('💳 Booking found:', {
+        orderNumber: booking.orderNumber,
+        currentPaymentStatus: booking.paymentStatus,
+        currentPaymentMethod: booking.paymentDetails.paymentMethod
+      });
+
+      // Validate payment status
+      if (booking.paymentStatus === 'completed') {
+        return {
+          success: false,
+          message: 'Payment already completed for this booking',
+          error: 'ALREADY_PAID'
+        };
+      }
+      
+      // If online payment, verify and update with Razorpay details
+      if (paymentMethod === 'online' && razorpayData) {
+        console.log('💳 Processing online payment with Razorpay data');
+        
+        // Update booking with Razorpay details using the model method
+        await booking.completePayment({
+          razorpayOrderId: razorpayData.razorpayOrderId,
+          razorpayPaymentId: razorpayData.razorpayPaymentId,
+          razorpaySignature: razorpayData.razorpaySignature,
+          paymentMethod: 'online'
+        });
+        
+        console.log('✅ Booking payment status updated to completed');
+        
+        // OPTIONAL: Update Payment model for Razorpay tracking
+        try {
+          const paymentRecord = await Payment.findOne({ razorpayOrderId: razorpayData.razorpayOrderId });
+          if (paymentRecord) {
+            await paymentRecord.updatePaymentStatus('paid', {
+              payment_id: razorpayData.razorpayPaymentId,
+              signature: razorpayData.razorpaySignature,
+              method: 'online'
+            });
+            console.log('✅ Payment model updated for tracking');
+          }
+        } catch (paymentError) {
+          console.error('⚠️ Failed to update Payment model (non-critical):', paymentError);
+          // Don't fail the booking payment if Payment model update fails
+        }
+        
+        // Prepare payment confirmation email data
+        const paymentData = {
+          orderNumber: booking.orderNumber,
+          customerName: booking.userId.name,
+          customerEmail: booking.userId.email,
+          customerPhone: booking.bookingDetails.address.phone || booking.userId.phone,
+          services: booking.services,
+          totalAmount: booking.pricing.totalAmount,
+          paymentMethod: 'online',
+          transactionId: razorpayData.razorpayPaymentId,
+          paidAt: new Date(),
+          bookingDate: booking.bookingDetails.date,
+          bookingSlot: booking.bookingDetails.slot,
+          address: booking.bookingDetails.address
+        };
+        
+        // Send payment confirmation emails (non-blocking)
+        setImmediate(async () => {
+          try {
+            await Promise.all([
+              sendPaymentConfirmationToAdmin(paymentData),
+              sendPaymentConfirmationToUser(paymentData)
+            ]);
+            console.log('✅ Payment confirmation emails sent for order:', booking.orderNumber);
+          } catch (emailError) {
+            console.error('❌ Failed to send payment confirmation emails:', emailError);
+            // Don't throw - we don't want to fail the payment if email fails
+          }
+        });
+      } 
+      // If COD, just update payment method (payment status stays pending)
+      else if (paymentMethod === 'cod') {
+        console.log('💳 Updating payment method to COD');
+        
+        booking.paymentDetails.paymentMethod = 'cod';
+        await booking.save();
+        
+        console.log('✅ Payment method updated to COD');
+        // No emails sent for COD as payment is not completed yet
+      }
+      // Invalid payment method or missing Razorpay data for online
+      else {
+        return {
+          success: false,
+          message: 'Invalid payment data. For online payments, Razorpay details are required.',
+          error: 'INVALID_PAYMENT_DATA'
+        };
+      }
+      
+      return {
+        success: true,
+        data: booking,
+        message: paymentMethod === 'online' 
+          ? 'Payment completed successfully' 
+          : 'Payment method updated successfully'
+      };
+    } catch (error) {
+      console.error('❌ Error completing booking payment:', error);
+      return {
+        success: false,
+        message: 'Failed to complete payment',
         error: error.message
       };
     }

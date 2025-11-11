@@ -2101,4 +2101,1433 @@ const bookingCancellationUserEmailTemplate = (cancellationData) => {
   `;
 };
 
-export { emailTemplate, passwordResetEmailTemplate, contactUsEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate };
+// Booking Reschedule Admin Email Template
+const bookingRescheduleAdminEmailTemplate = (rescheduleData) => {
+  const {
+    orderNumber,
+    customerName,
+    customerEmail,
+    customerPhone,
+    services,
+    originalDate,
+    originalSlot,
+    newDate,
+    newSlot,
+    rescheduledAt,
+    rescheduleReason,
+    rescheduleCount,
+    paymentMethod,
+    totalAmount
+  } = rescheduleData;
+
+  // Format services list HTML
+  const servicesListHTML = services.map(service => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; min-width: 0;">
+        <strong>${service.name}</strong>
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+        ${service.quantity}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">
+        ₹${(service.price * service.quantity).toFixed(2)}
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Rescheduled</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #ffffff;
+        text-align: center;
+        padding: 30px 20px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .header p {
+        margin: 0;
+        font-size: 16px;
+        opacity: 0.95;
+      }
+      .content {
+        padding: 30px;
+        color: #1f2937;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .alert-badge {
+        display: inline-block;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 20px;
+        border: 2px solid #fcd34d;
+      }
+      .section {
+        margin-bottom: 30px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #f59e0b;
+      }
+      .info-grid {
+        display: table;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      .info-row {
+        display: table-row;
+      }
+      .info-item {
+        display: table-cell;
+        background: #f9fafb;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        width: 50%;
+        vertical-align: top;
+      }
+      .info-label {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .info-value {
+        font-size: 15px;
+        color: #111827;
+        font-weight: 500;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        min-width: 0;
+      }
+      .change-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+      .change-comparison {
+        display: table;
+        width: 100%;
+        margin-top: 15px;
+      }
+      .change-item {
+        display: table-cell;
+        width: 50%;
+        padding: 15px;
+        text-align: center;
+        vertical-align: top;
+      }
+      .change-item.old {
+        background: #fee2e2;
+        border-radius: 8px 0 0 8px;
+      }
+      .change-item.new {
+        background: #d1fae5;
+        border-radius: 0 8px 8px 0;
+      }
+      .change-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .change-item.old .change-label {
+        color: #991b1b;
+      }
+      .change-item.new .change-label {
+        color: #065f46;
+      }
+      .change-value {
+        font-size: 16px;
+        font-weight: 700;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .change-item.old .change-value {
+        color: #dc2626;
+        text-decoration: line-through;
+      }
+      .change-item.new .change-value {
+        color: #059669;
+      }
+      .reason-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+      .reason-box strong {
+        color: #92400e;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .services-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .services-table thead {
+        background: #f3f4f6;
+      }
+      .services-table th {
+        padding: 12px;
+        text-align: left;
+        font-size: 13px;
+        color: #374151;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .reschedule-count-box {
+        background: #eff6ff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        border: 2px solid #3b82f6;
+      }
+      .reschedule-count-box p {
+        margin: 5px 0;
+        color: #1e40af;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .footer {
+        background: #f9fafb;
+        padding: 20px;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          margin: 10px;
+          border-radius: 8px;
+        }
+        .content {
+          padding: 20px 15px;
+        }
+        .header h1 {
+          font-size: 22px;
+        }
+        .info-grid {
+          display: block;
+        }
+        .info-item {
+          display: block;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+        .change-comparison {
+          display: block;
+        }
+        .change-item {
+          display: block;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+        .change-item.old {
+          border-radius: 8px;
+        }
+        .change-item.new {
+          border-radius: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🔄 Booking Rescheduled</h1>
+        <p>A customer has rescheduled their booking</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Order Number Badge -->
+        <div class="alert-badge">
+          Order #${orderNumber} - RESCHEDULED
+        </div>
+
+        <!-- Customer Information -->
+        <div class="section">
+          <div class="section-title">Customer Information</div>
+          <div class="info-grid">
+            <div class="info-row">
+              <div class="info-item">
+                <div class="info-label">Customer Name</div>
+                <div class="info-value">${customerName}</div>
+              </div>
+              <div class="info-item" style="padding-left: 10px;">
+                <div class="info-label">Phone Number</div>
+                <div class="info-value">${customerPhone}</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-grid">
+            <div class="info-row">
+              <div class="info-item">
+                <div class="info-label">Email Address</div>
+                <div class="info-value">${customerEmail}</div>
+              </div>
+              <div class="info-item" style="padding-left: 10px;">
+                <div class="info-label">Payment Method</div>
+                <div class="info-value">${paymentMethod === 'cod' ? 'Pay After Service' : 'Online Payment'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule Changes -->
+        <div class="section">
+          <div class="section-title">Schedule Changes</div>
+          <div class="change-box">
+            <div class="change-comparison">
+              <div class="change-item old">
+                <div class="change-label">❌ Original Schedule</div>
+                <div class="change-value">${new Date(originalDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div class="change-value">${originalSlot}</div>
+              </div>
+              <div class="change-item new">
+                <div class="change-label">✅ New Schedule</div>
+                <div class="change-value">${new Date(newDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div class="change-value">${newSlot}</div>
+              </div>
+            </div>
+          </div>
+
+          ${rescheduleReason ? `
+          <div class="reason-box">
+            <strong>Reschedule Reason:</strong>
+            <p style="margin: 0; color: #78350f; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; white-space: pre-wrap;">${rescheduleReason}</p>
+          </div>
+          ` : ''}
+        </div>
+
+        <!-- Services Booked -->
+        <div class="section">
+          <div class="section-title">Services Booked</div>
+          <table class="services-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th style="text-align: center;">Quantity</th>
+                <th style="text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${servicesListHTML}
+            </tbody>
+            <tfoot>
+              <tr style="background: #f9fafb; font-weight: bold;">
+                <td colspan="2" style="padding: 15px; text-align: right;">Total Amount:</td>
+                <td style="padding: 15px; text-align: right; color: #059669; font-size: 18px;">₹${totalAmount.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Reschedule Count -->
+        <div class="reschedule-count-box">
+          <p>📊 Reschedule Count: ${rescheduleCount} of 3 allowed</p>
+          <p style="font-size: 12px; color: #3b82f6; font-weight: normal;">Rescheduled on: ${new Date(rescheduledAt).toLocaleString('en-IN')}</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p style="margin: 0 0 10px 0; font-weight: 600;">WeMakeover - Beauty Services</p>
+        <p style="margin: 0;">Contact: ${process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in'} | ${process.env.ADMIN_PHONE_NUMBER || '+91 98765 43210'}</p>
+        <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">
+          This is an automated notification. Please review the rescheduled booking in your admin dashboard.
+        </p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+// Booking Reschedule User Email Template
+const bookingRescheduleUserEmailTemplate = (rescheduleData) => {
+  const {
+    orderNumber,
+    customerName,
+    services,
+    originalDate,
+    originalSlot,
+    newDate,
+    newSlot,
+    rescheduledAt,
+    rescheduleReason,
+    rescheduleCount,
+    paymentMethod,
+    totalAmount,
+    address
+  } = rescheduleData;
+
+  // Format services list HTML
+  const servicesListHTML = services.map(service => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; min-width: 0;">
+        <strong>${service.name}</strong>
+        <br />
+        <span style="font-size: 12px; color: #6b7280;">${service.description || ''}</span>
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+        ${service.quantity}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">
+        ₹${(service.price * service.quantity).toFixed(2)}
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Rescheduled Successfully</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        text-align: center;
+        padding: 30px 20px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .header p {
+        margin: 0;
+        font-size: 16px;
+        opacity: 0.95;
+      }
+      .content {
+        padding: 30px;
+        color: #1f2937;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .success-badge {
+        display: inline-block;
+        background: #d1fae5;
+        color: #065f46;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 20px;
+        border: 2px solid #6ee7b7;
+      }
+      .greeting {
+        font-size: 18px;
+        color: #111827;
+        margin-bottom: 20px;
+      }
+      .section {
+        margin-bottom: 30px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #10b981;
+      }
+      .highlight-box {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border-left: 4px solid #10b981;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+      .change-comparison {
+        display: table;
+        width: 100%;
+        margin-top: 15px;
+      }
+      .change-item {
+        display: table-cell;
+        width: 50%;
+        padding: 15px;
+        text-align: center;
+        vertical-align: top;
+      }
+      .change-item.old {
+        background: #fee2e2;
+        border-radius: 8px 0 0 8px;
+      }
+      .change-item.new {
+        background: #d1fae5;
+        border-radius: 0 8px 8px 0;
+      }
+      .change-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .change-item.old .change-label {
+        color: #991b1b;
+      }
+      .change-item.new .change-label {
+        color: #065f46;
+      }
+      .change-value {
+        font-size: 16px;
+        font-weight: 700;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .change-item.old .change-value {
+        color: #dc2626;
+        text-decoration: line-through;
+      }
+      .change-item.new .change-value {
+        color: #059669;
+      }
+      .info-card {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      .info-row:last-child {
+        margin-bottom: 0;
+      }
+      .info-label {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 600;
+      }
+      .info-value {
+        font-size: 14px;
+        color: #111827;
+        font-weight: 500;
+        text-align: right;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        max-width: 60%;
+      }
+      .services-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .services-table thead {
+        background: #f3f4f6;
+      }
+      .services-table th {
+        padding: 12px;
+        text-align: left;
+        font-size: 13px;
+        color: #374151;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .cta-button {
+        display: inline-block;
+        background: #10b981;
+        color: #ffffff;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 20px;
+        text-align: center;
+      }
+      .footer {
+        background: #f9fafb;
+        padding: 20px;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+      }
+      .footer a {
+        color: #10b981;
+        text-decoration: none;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          margin: 10px;
+          border-radius: 8px;
+        }
+        .content {
+          padding: 20px 15px;
+        }
+        .header h1 {
+          font-size: 22px;
+        }
+        .change-comparison {
+          display: block;
+        }
+        .change-item {
+          display: block;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+        .change-item.old {
+          border-radius: 8px;
+        }
+        .change-item.new {
+          border-radius: 8px;
+        }
+        .info-row {
+          flex-direction: column;
+        }
+        .info-value {
+          text-align: left;
+          max-width: 100%;
+          margin-top: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>✅ Booking Rescheduled!</h1>
+        <p>Your booking has been successfully rescheduled</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Success Badge -->
+        <div class="success-badge">
+          ✓ Order #${orderNumber} - Updated
+        </div>
+
+        <!-- Greeting -->
+        <div class="greeting">
+          <p>Hi <strong>${customerName}</strong>,</p>
+          <p>Your booking has been successfully rescheduled. Here are your updated booking details:</p>
+        </div>
+
+        <!-- Schedule Changes -->
+        <div class="section">
+          <div class="section-title">📅 Updated Schedule</div>
+          <div class="highlight-box">
+            <div class="change-comparison">
+              <div class="change-item old">
+                <div class="change-label">❌ Previous</div>
+                <div class="change-value">${new Date(originalDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div class="change-value">${originalSlot}</div>
+              </div>
+              <div class="change-item new">
+                <div class="change-label">✅ New</div>
+                <div class="change-value">${new Date(newDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div class="change-value">${newSlot}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="section">
+          <div class="section-title">📋 Booking Information</div>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="info-label">Order Number:</span>
+              <span class="info-value">${orderNumber}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Payment Method:</span>
+              <span class="info-value">${paymentMethod === 'cod' ? 'Pay After Service' : 'Online Payment'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Service Location:</span>
+              <span class="info-value">${address ? `${address.city}, ${address.state}` : 'Home Service'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Reschedule Count:</span>
+              <span class="info-value">${rescheduleCount} of 3 allowed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="section">
+          <div class="section-title">💅 Your Services</div>
+          <table class="services-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th style="text-align: center;">Qty</th>
+                <th style="text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${servicesListHTML}
+            </tbody>
+            <tfoot>
+              <tr style="background: #f9fafb; font-weight: bold;">
+                <td colspan="2" style="padding: 15px; text-align: right;">Total Amount:</td>
+                <td style="padding: 15px; text-align: right; color: #059669; font-size: 18px;">₹${totalAmount.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Important Note -->
+        <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 20px;">
+          <p style="margin: 0 0 10px 0; color: #1e40af; font-weight: 600;">📌 Important:</p>
+          <ul style="margin: 0; padding-left: 20px; color: #1e3a8a;">
+            <li>You can reschedule up to 3 times (${3 - rescheduleCount} remaining)</li>
+            <li>Rescheduling must be done at least 48 hours before the service</li>
+            <li>Our beautician will arrive at your location at the scheduled time</li>
+          </ul>
+        </div>
+
+        <!-- CTA Button -->
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="${process.env.FRONTEND_URL || 'https://wemakeover.co.in'}/my-bookings/${orderNumber}" class="cta-button">
+            View Booking Details
+          </a>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p style="margin: 0 0 10px 0; font-weight: 600;">WeMakeover - Beauty Services at Your Doorstep</p>
+        <p style="margin: 0;">Need help? Contact us at <a href="mailto:${process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in'}">${process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in'}</a></p>
+        <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">
+          You're receiving this email because you rescheduled a booking with WeMakeover.
+        </p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+// Payment Confirmation Email Template for Admin
+const paymentConfirmationAdminEmailTemplate = (paymentData) => {
+  const {
+    orderNumber,
+    customerName,
+    customerEmail,
+    customerPhone,
+    services,
+    totalAmount,
+    paymentMethod,
+    transactionId,
+    paidAt,
+    bookingDate,
+    bookingSlot,
+    address
+  } = paymentData;
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-IN', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const formattedPaidAt = new Date(paidAt).toLocaleString('en-IN', {
+    dateStyle: 'full',
+    timeStyle: 'short'
+  });
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Received - ${orderNumber}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f3f4f6;
+        line-height: 1.6;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .header p {
+        margin: 0;
+        font-size: 16px;
+        opacity: 0.95;
+      }
+      .content {
+        padding: 30px 20px;
+      }
+      .payment-badge {
+        background-color: #d1fae5;
+        color: #065f46;
+        padding: 8px 16px;
+        border-radius: 20px;
+        display: inline-block;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .info-section {
+        background-color: #f9fafb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .info-section h3 {
+        margin: 0 0 15px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        border-bottom: 2px solid #10b981;
+        padding-bottom: 8px;
+      }
+      .info-row {
+        display: table;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .info-label {
+        display: table-cell;
+        width: 40%;
+        color: #6b7280;
+        font-size: 14px;
+        padding: 4px 0;
+      }
+      .info-value {
+        display: table-cell;
+        width: 60%;
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 4px 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .service-item {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .service-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+      .service-details {
+        font-size: 13px;
+        color: #6b7280;
+      }
+      .total-amount {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 20px 0;
+      }
+      .total-amount-label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        opacity: 0.9;
+      }
+      .total-amount-value {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+      }
+      .footer {
+        background-color: #f9fafb;
+        padding: 20px;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+      }
+      @media only screen and (max-width: 600px) {
+        .email-container {
+          margin: 10px;
+          border-radius: 8px;
+        }
+        .header h1 {
+          font-size: 24px;
+        }
+        .content {
+          padding: 20px 15px;
+        }
+        .info-label, .info-value {
+          display: block;
+          width: 100%;
+        }
+        .info-label {
+          margin-bottom: 2px;
+        }
+        .info-value {
+          margin-bottom: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>💰 Payment Received</h1>
+        <p>Order #${orderNumber}</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <div class="payment-badge">✓ Payment Completed</div>
+
+        <!-- Payment Details -->
+        <div class="info-section">
+          <h3>Payment Details</h3>
+          <div class="info-row">
+            <div class="info-label">Amount Received:</div>
+            <div class="info-value">${formatCurrency(totalAmount)}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Payment Method:</div>
+            <div class="info-value">${paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}</div>
+          </div>
+          ${transactionId ? `
+          <div class="info-row">
+            <div class="info-label">Transaction ID:</div>
+            <div class="info-value">${transactionId}</div>
+          </div>
+          ` : ''}
+          <div class="info-row">
+            <div class="info-label">Paid At:</div>
+            <div class="info-value">${formattedPaidAt}</div>
+          </div>
+        </div>
+
+        <!-- Customer Details -->
+        <div class="info-section">
+          <h3>Customer Details</h3>
+          <div class="info-row">
+            <div class="info-label">Name:</div>
+            <div class="info-value">${customerName}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Email:</div>
+            <div class="info-value">${customerEmail}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Phone:</div>
+            <div class="info-value">${customerPhone}</div>
+          </div>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="info-section">
+          <h3>Booking Details</h3>
+          <div class="info-row">
+            <div class="info-label">Service Date:</div>
+            <div class="info-value">${formattedDate}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Time Slot:</div>
+            <div class="info-value">${bookingSlot}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Address:</div>
+            <div class="info-value">${address.completeAddress || address.streetAreaName}, ${address.city}, ${address.state} - ${address.pincode}</div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="info-section">
+          <h3>Services</h3>
+          ${services.map(service => `
+            <div class="service-item">
+              <div class="service-name">${service.name}</div>
+              <div class="service-details">Quantity: ${service.quantity} | Price: ${formatCurrency(service.price * service.quantity)}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Total Amount -->
+        <div class="total-amount">
+          <div class="total-amount-label">Total Amount Received</div>
+          <div class="total-amount-value">${formatCurrency(totalAmount)}</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p style="margin: 0 0 10px 0; font-weight: 600;">WeMakeover - Admin Notification</p>
+        <p style="margin: 0;">This is an automated notification for payment received.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+// Payment Confirmation Email Template for User
+const paymentConfirmationUserEmailTemplate = (paymentData) => {
+  const {
+    orderNumber,
+    customerName,
+    services,
+    totalAmount,
+    paymentMethod,
+    transactionId,
+    paidAt,
+    bookingDate,
+    bookingSlot,
+    address
+  } = paymentData;
+
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-IN', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const formattedPaidAt = new Date(paidAt).toLocaleString('en-IN', {
+    dateStyle: 'full',
+    timeStyle: 'short'
+  });
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation - ${orderNumber}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f3f4f6;
+        line-height: 1.6;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .header p {
+        margin: 0;
+        font-size: 16px;
+        opacity: 0.95;
+      }
+      .content {
+        padding: 30px 20px;
+      }
+      .success-badge {
+        background-color: #d1fae5;
+        color: #065f46;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+      .info-section {
+        background-color: #f9fafb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .info-section h3 {
+        margin: 0 0 15px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        border-bottom: 2px solid #10b981;
+        padding-bottom: 8px;
+      }
+      .info-row {
+        display: table;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .info-label {
+        display: table-cell;
+        width: 40%;
+        color: #6b7280;
+        font-size: 14px;
+        padding: 4px 0;
+      }
+      .info-value {
+        display: table-cell;
+        width: 60%;
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 4px 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .service-item {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .service-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+      .service-details {
+        font-size: 13px;
+        color: #6b7280;
+      }
+      .receipt-box {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .receipt-title {
+        font-size: 14px;
+        margin-bottom: 10px;
+        opacity: 0.9;
+        text-align: center;
+      }
+      .receipt-amount {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 10px 0;
+        text-align: center;
+      }
+      .receipt-status {
+        text-align: center;
+        font-size: 14px;
+        opacity: 0.95;
+      }
+      .next-steps {
+        background-color: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .next-steps h4 {
+        margin: 0 0 10px 0;
+        color: #1e40af;
+        font-size: 16px;
+      }
+      .next-steps ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #1f2937;
+      }
+      .next-steps li {
+        margin-bottom: 5px;
+      }
+      .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-weight: 600;
+        margin: 10px 0;
+        text-align: center;
+      }
+      .footer {
+        background-color: #f9fafb;
+        padding: 20px;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+      }
+      @media only screen and (max-width: 600px) {
+        .email-container {
+          margin: 10px;
+          border-radius: 8px;
+        }
+        .header h1 {
+          font-size: 24px;
+        }
+        .content {
+          padding: 20px 15px;
+        }
+        .receipt-amount {
+          font-size: 28px;
+        }
+        .info-label, .info-value {
+          display: block;
+          width: 100%;
+        }
+        .info-label {
+          margin-bottom: 2px;
+        }
+        .info-value {
+          margin-bottom: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>✅ Payment Received!</h1>
+        <p>Thank you for your payment</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p style="margin: 0 0 20px 0; font-size: 16px; color: #1f2937;">
+          Dear <strong>${customerName}</strong>,
+        </p>
+
+        <div class="success-badge">
+          ✓ Your payment has been successfully processed
+        </div>
+
+        <!-- Payment Receipt -->
+        <div class="receipt-box">
+          <div class="receipt-title">Payment Receipt</div>
+          <div class="receipt-amount">${formatCurrency(totalAmount)}</div>
+          <div class="receipt-status">Order #${orderNumber} | ${formattedPaidAt}</div>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="info-section">
+          <h3>📋 Payment Details</h3>
+          <div class="info-row">
+            <div class="info-label">Amount Paid:</div>
+            <div class="info-value">${formatCurrency(totalAmount)}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Payment Method:</div>
+            <div class="info-value">${paymentMethod === 'online' ? 'Online Payment (UPI/Card)' : 'Cash on Delivery'}</div>
+          </div>
+          ${transactionId ? `
+          <div class="info-row">
+            <div class="info-label">Transaction ID:</div>
+            <div class="info-value">${transactionId}</div>
+          </div>
+          ` : ''}
+          <div class="info-row">
+            <div class="info-label">Payment Date:</div>
+            <div class="info-value">${formattedPaidAt}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Status:</div>
+            <div class="info-value" style="color: #10b981;">Completed ✓</div>
+          </div>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="info-section">
+          <h3>📅 Booking Details</h3>
+          <div class="info-row">
+            <div class="info-label">Service Date:</div>
+            <div class="info-value">${formattedDate}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Time Slot:</div>
+            <div class="info-value">${bookingSlot}</div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="info-section">
+          <h3>💅 Services Booked</h3>
+          ${services.map(service => `
+            <div class="service-item">
+              <div class="service-name">${service.name}</div>
+              <div class="service-details">Quantity: ${service.quantity} | Price: ${formatCurrency(service.price * service.quantity)}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Service Address -->
+        <div class="info-section">
+          <h3>📍 Service Address</h3>
+          <p style="margin: 0; color: #1f2937; font-size: 14px;">
+            ${address.completeAddress || address.streetAreaName}<br>
+            ${address.city}, ${address.state} - ${address.pincode}<br>
+            Phone: ${address.phone}
+          </p>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="next-steps">
+          <h4>✨ What's Next?</h4>
+          <ul>
+            <li>Your booking is confirmed</li>
+            <li>Our beautician will arrive at your location on time</li>
+            <li>Please keep your phone accessible for any updates</li>
+            <li>Have your booking ID ready: <strong>${orderNumber}</strong></li>
+          </ul>
+        </div>
+
+        <!-- CTA Button -->
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.FRONTEND_URL || 'https://wemakeover.co.in'}/my-bookings/${orderNumber}" class="cta-button">
+            View Booking Details
+          </a>
+        </div>
+
+        <p style="margin: 20px 0 0 0; font-size: 14px; color: #6b7280;">
+          Need help? Contact us at <a href="mailto:${process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in'}" style="color: #10b981; text-decoration: none;">${process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in'}</a>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p style="margin: 0 0 10px 0; font-weight: 600;">WeMakeover - Beauty Services at Your Doorstep</p>
+        <p style="margin: 0;">Thank you for choosing WeMakeover!</p>
+        <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">
+          You're receiving this email because you made a payment for a booking with WeMakeover.
+        </p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+};
+
+export { emailTemplate, passwordResetEmailTemplate, contactUsEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate, bookingRescheduleAdminEmailTemplate, bookingRescheduleUserEmailTemplate, paymentConfirmationAdminEmailTemplate, paymentConfirmationUserEmailTemplate };

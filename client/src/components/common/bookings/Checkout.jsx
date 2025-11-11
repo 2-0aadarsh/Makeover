@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import BookYourSlot from "./BookYourSlot";
+import PaymentMethodSelector from "../PaymentMethodSelector";
 import { usePayment } from "../../../hooks/usePayment";
 import { formatAmount } from "../../../utils/paymentUtils";
 import "../../../test-debug.js"; // Test import
@@ -645,43 +646,13 @@ const Checkout = ({
             Payment Method:
           </p>
 
-          {/* Online Payment Option */}
-          <div className="mb-4">
-            <button
-              onClick={() => handlePaymentMethodChange("online")}
-              className={`w-full p-4 rounded-lg border-2 transition-all duration-200 ${
-                paymentMethod === "online"
-                  ? "border-[#CC2B52] bg-[#CC2B52] text-white"
-                  : "border-gray-200 bg-white text-gray-700 hover:border-[#CC2B52] hover:bg-[#CC2B52] hover:text-white"
-              }`}
-            >
-              <div className="flex flex-col items-center space-y-2">
-                <span className="text-lg font-semibold">Pay Online</span>
-                <span className="text-sm opacity-90">
-                  UPI, Cards, Wallets & More
-                </span>
-              </div>
-            </button>
-          </div>
-
-          {/* Cash on Delivery Option */}
-          <div className="mb-4">
-            <button
-              onClick={() => handlePaymentMethodChange("cod")}
-              className={`w-full p-4 rounded-lg border-2 transition-all duration-200 ${
-                paymentMethod === "cod"
-                  ? "border-[#CC2B52] bg-[#CC2B52] text-white"
-                  : "border-gray-200 bg-white text-gray-700 hover:border-[#CC2B52] hover:bg-[#CC2B52] hover:text-white"
-              }`}
-            >
-              <div className="flex flex-col items-center space-y-2">
-                <span className="text-lg font-semibold">Pay After Service</span>
-                <span className="text-sm opacity-90">
-                  Pay cash to beautician
-                </span>
-              </div>
-            </button>
-          </div>
+          <PaymentMethodSelector
+            selectedMethod={paymentMethod}
+            onMethodChange={handlePaymentMethodChange}
+            showOnline={true}
+            showCOD={true}
+            disabled={isLoading || paymentLoading}
+          />
         </div>
 
         {/* Payment Information */}

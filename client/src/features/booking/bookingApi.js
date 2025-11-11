@@ -58,17 +58,29 @@ export const bookingApi = {
   },
 
   // Reschedule a booking
-  rescheduleBooking: (bookingId, newDate, newSlot) => {
-    return bookingApiInstance.put(`/${bookingId}/reschedule`, {
-      action: 'reschedule',
-      newDate,
-      newSlot
+  rescheduleBooking: (bookingId, rescheduleData) => {
+    console.log('📡 API: Reschedule booking request:', {
+      bookingId,
+      rescheduleData
     });
+    
+    return bookingApiInstance.patch(`/${bookingId}/reschedule`, rescheduleData);
   },
 
   // Update payment status
   updatePaymentStatus: (bookingId, paymentDetails) => {
     return bookingApiInstance.put(`/${bookingId}/payment-status`, paymentDetails);
+  },
+
+  // Complete booking payment
+  completeBookingPayment: (bookingId, paymentData) => {
+    console.log('📡 API: Complete booking payment request:', {
+      bookingId,
+      paymentMethod: paymentData.paymentMethod,
+      hasRazorpayData: !!(paymentData.razorpayOrderId && paymentData.razorpayPaymentId && paymentData.razorpaySignature)
+    });
+    
+    return bookingApiInstance.post(`/${bookingId}/complete-payment`, paymentData);
   },
 
   // Get booking statistics

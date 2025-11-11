@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchBookingById,
   cancelBooking,
-  updatePaymentStatus,
+  rescheduleBooking,
+  completeBookingPayment,
   selectCurrentBooking,
   selectBookingLoading,
   selectBookingError,
@@ -124,32 +125,145 @@ const BookingDetailsPage = () => {
   };
 
   // Handle reschedule booking
-  const handleRescheduleBooking = async () => {
-    // For now, just show an alert - in a real app, this would open a reschedule modal
-    alert(
-      "Reschedule functionality will be implemented soon. Please contact support for immediate rescheduling."
-    );
-  };
-
-  // Handle complete payment
-  const handleCompletePayment = async (bookingData) => {
+  const handleRescheduleBooking = async (rescheduleData) => {
     setIsActionLoading(true);
     try {
+      console.log("🔄 Rescheduling booking with data:", rescheduleData);
+
       const result = await dispatch(
-        updatePaymentStatus({
-          bookingId: bookingData._id,
-          paymentStatus: "completed",
+        rescheduleBooking({
+          bookingId: rescheduleData.bookingId,
+          newDate: rescheduleData.newDate,
+          newSlot: rescheduleData.newSlot,
+          newPaymentMethod: rescheduleData.newPaymentMethod,
+          reason: rescheduleData.reason,
         })
       );
 
-      if (result.payload) {
-        alert("Payment status updated successfully");
+      console.log("✅ Reschedule booking result:", result);
+
+      if (
+        result.meta.requestStatus === "fulfilled" &&
+        result.payload?.success
+      ) {
+        // Success - show custom success modal
+        const rescheduleInfo = `Your booking has been rescheduled to ${rescheduleData.newDate} at ${rescheduleData.newSlot}.`;
+        const remainingInfo = result.payload.remainingReschedules
+          ? `You have ${result.payload.remainingReschedules} reschedule${
+              result.payload.remainingReschedules > 1 ? "s" : ""
+            } remaining.`
+          : "This was your last reschedule.";
+
+        setSuccessMessage("Booking rescheduled successfully!");
+        setSuccessDetails(
+          `${rescheduleInfo} ${remainingInfo} You will receive a confirmation email shortly.`
+        );
+        setIsSuccessModalOpen(true);
+
         // Refresh booking data
         dispatch(fetchBookingById(id));
+
+        return { success: true, data: result.payload };
+      }
+
+      if (result.meta.requestStatus === "rejected") {
+        const errorData = result.payload || result.error;
+        const message =
+          errorData?.message ||
+          (Array.isArray(errorData?.errors)
+            ? errorData.errors.join(", ")
+            : "Failed to reschedule booking");
+
+        const detailedMessage = errorData?.supportEmail
+          ? `${message} Please contact ${errorData.supportEmail} for assistance.`
+          : message;
+
+        return { success: false, message: detailedMessage };
+      }
+
+      const fallbackMessage =
+        result.payload?.message ||
+        result.error?.message ||
+        "Failed to reschedule booking";
+      return { success: false, message: fallbackMessage };
+    } catch (error) {
+      console.error("❌ Error rescheduling booking:", error);
+      return {
+        success: false,
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          "An error occurred while rescheduling the booking. Please try again.",
+      };
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // Handle complete payment
+  const handleCompletePayment = async (
+    bookingId,
+    paymentMethod,
+    razorpayData = null
+  ) => {
+    setIsActionLoading(true);
+    try {
+      console.log("💳 Completing payment for booking:", {
+        bookingId,
+        paymentMethod,
+        hasRazorpayData: !!razorpayData,
+      });
+
+      const result = await dispatch(
+        completeBookingPayment({
+          bookingId,
+          paymentMethod,
+          razorpayOrderId: razorpayData?.razorpayOrderId,
+          razorpayPaymentId: razorpayData?.razorpayPaymentId,
+          razorpaySignature: razorpayData?.razorpaySignature,
+        })
+      );
+
+      console.log("✅ Complete payment result:", result);
+
+      if (
+        result.meta.requestStatus === "fulfilled" &&
+        result.payload?.success
+      ) {
+        // Success - show custom success modal
+        const paymentInfo =
+          paymentMethod === "online"
+            ? `Payment of ₹${
+                result.payload.data?.pricing?.totalAmount || 0
+              } completed successfully via online payment.`
+            : `Payment method updated to Pay After Service.`;
+
+        setSuccessMessage("Payment Completed!");
+        setSuccessDetails(
+          `${paymentInfo} You will receive a confirmation email shortly.`
+        );
+        setIsSuccessModalOpen(true);
+
+        // Refresh booking data
+        dispatch(fetchBookingById(id));
+
+        return { success: true, data: result.payload };
+      }
+
+      if (result.meta.requestStatus === "rejected") {
+        const errorData = result.payload || result.error;
+        const message =
+          errorData?.message ||
+          (Array.isArray(errorData?.errors)
+            ? errorData.errors.join(", ")
+            : "Failed to complete payment");
+
+        console.error("❌ Payment completion failed:", message);
+        throw new Error(message);
       }
     } catch (error) {
-      console.error("Error updating payment status:", error);
-      alert("Failed to update payment status. Please try again.");
+      console.error("❌ Error completing payment:", error);
+      throw error; // Re-throw to be handled by BookingDetails
     } finally {
       setIsActionLoading(false);
     }
@@ -224,7 +338,13 @@ const BookingDetailsPage = () => {
       <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={handleSuccessModalClose}
-        title="Cancellation Successful"
+        title={
+          successMessage.includes("rescheduled")
+            ? "Reschedule Successful"
+            : successMessage.includes("Payment")
+            ? "Payment Successful"
+            : "Cancellation Successful"
+        }
         message={successMessage}
         details={successDetails}
         buttonText="View My Bookings"

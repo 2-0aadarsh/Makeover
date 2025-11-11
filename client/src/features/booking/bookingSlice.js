@@ -14,6 +14,7 @@ const initialState = {
   updating: false,
   cancelling: false,
   rescheduling: false,
+  completingPayment: false,
   
   // Error states
   error: null,
@@ -21,6 +22,7 @@ const initialState = {
   updateError: null,
   cancelError: null,
   rescheduleError: null,
+  paymentError: null,
   
   // Pagination and filters
   pagination: {
@@ -123,12 +125,54 @@ export const cancelBooking = createAsyncThunk(
 
 export const rescheduleBooking = createAsyncThunk(
   'booking/rescheduleBooking',
-  async ({ bookingId, newDate, newSlot }, { rejectWithValue }) => {
+  async ({ bookingId, newDate, newSlot, newPaymentMethod, reason }, { rejectWithValue }) => {
     try {
-      const response = await bookingApi.rescheduleBooking(bookingId, newDate, newSlot);
+      console.log('🔄 Redux Thunk: Reschedule booking initiated:', {
+        bookingId,
+        newDate,
+        newSlot,
+        newPaymentMethod: newPaymentMethod || 'not provided',
+        reason: reason || 'not provided'
+      });
+      
+      // Prepare reschedule data
+      const rescheduleData = {
+        newDate,
+        newSlot
+      };
+      
+      // Add optional fields if provided
+      if (newPaymentMethod) {
+        rescheduleData.newPaymentMethod = newPaymentMethod;
+      }
+      
+      if (reason) {
+        rescheduleData.reason = reason;
+      }
+      
+      console.log('📦 Reschedule data prepared:', rescheduleData);
+      
+      const response = await bookingApi.rescheduleBooking(bookingId, rescheduleData);
+      
+      console.log('✅ Redux Thunk: Reschedule successful:', {
+        bookingId,
+        rescheduleCount: response.rescheduleCount,
+        remainingReschedules: response.remainingReschedules
+      });
+      
       return { bookingId, ...response };
     } catch (error) {
-      return rejectWithValue(error.message);
+      console.error('❌ Redux Thunk: Reschedule failed:', error);
+      
+      // Extract full error payload from backend
+      const errorPayload = error.response?.data || { 
+        message: error.message,
+        error: 'UNKNOWN_ERROR'
+      };
+      
+      console.error('❌ Error payload:', errorPayload);
+      
+      return rejectWithValue(errorPayload);
     }
   }
 );
@@ -141,6 +185,59 @@ export const updatePaymentStatus = createAsyncThunk(
       return { bookingId, ...response };
     } catch (error) {
       return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const completeBookingPayment = createAsyncThunk(
+  'booking/completeBookingPayment',
+  async ({ bookingId, paymentMethod, razorpayOrderId, razorpayPaymentId, razorpaySignature }, { rejectWithValue }) => {
+    try {
+      console.log('💳 Redux Thunk: Complete booking payment initiated:', {
+        bookingId,
+        paymentMethod,
+        hasRazorpayData: !!(razorpayOrderId && razorpayPaymentId && razorpaySignature)
+      });
+      
+      // Prepare payment data
+      const paymentData = {
+        paymentMethod
+      };
+      
+      // Add Razorpay data if provided (for online payments)
+      if (paymentMethod === 'online' && razorpayOrderId && razorpayPaymentId && razorpaySignature) {
+        paymentData.razorpayOrderId = razorpayOrderId;
+        paymentData.razorpayPaymentId = razorpayPaymentId;
+        paymentData.razorpaySignature = razorpaySignature;
+      }
+      
+      console.log('📦 Payment data prepared:', {
+        ...paymentData,
+        razorpaySignature: paymentData.razorpaySignature ? '[REDACTED]' : undefined
+      });
+      
+      const response = await bookingApi.completeBookingPayment(bookingId, paymentData);
+      
+      console.log('✅ Redux Thunk: Payment completion successful:', {
+        bookingId,
+        orderNumber: response.data?.orderNumber,
+        paymentStatus: response.data?.paymentStatus,
+        paymentMethod: response.data?.paymentDetails?.paymentMethod
+      });
+      
+      return { bookingId, ...response };
+    } catch (error) {
+      console.error('❌ Redux Thunk: Payment completion failed:', error);
+      
+      // Extract full error payload from backend
+      const errorPayload = error.response?.data || { 
+        message: error.message,
+        error: 'UNKNOWN_ERROR'
+      };
+      
+      console.error('❌ Error payload:', errorPayload);
+      
+      return rejectWithValue(errorPayload);
     }
   }
 );
@@ -404,6 +501,41 @@ const bookingSlice = createSlice({
       .addCase(updatePaymentStatus.rejected, (state, action) => {
         state.updating = false;
         state.updateError = action.payload;
+      })
+
+      // Complete booking payment
+      .addCase(completeBookingPayment.pending, (state) => {
+        state.completingPayment = true;
+        state.paymentError = null;
+      })
+      .addCase(completeBookingPayment.fulfilled, (state, action) => {
+        state.completingPayment = false;
+        const { bookingId, data } = action.payload;
+        
+        console.log('✅ Payment completion fulfilled - updating state:', {
+          bookingId,
+          paymentStatus: data?.paymentStatus,
+          paymentMethod: data?.paymentDetails?.paymentMethod
+        });
+        
+        // Update booking in list
+        const index = state.bookings.findIndex(booking => booking._id === bookingId);
+        if (index !== -1) {
+          state.bookings[index] = data;
+        }
+        
+        // Update current booking if it's the same
+        if (state.currentBooking && state.currentBooking._id === bookingId) {
+          state.currentBooking = data;
+        }
+        
+        state.lastUpdated = new Date().toISOString();
+      })
+      .addCase(completeBookingPayment.rejected, (state, action) => {
+        state.completingPayment = false;
+        state.paymentError = action.payload;
+        
+        console.error('❌ Payment completion rejected - error stored:', action.payload);
       })
 
       // Fetch booking stats
