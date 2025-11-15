@@ -9,6 +9,7 @@ import CartReducer from "../features/cart/cartSlice";
 import PaymentReducer from "../features/payment/paymentSlice";
 import AddressReducer from "../features/address/addressSlice";
 import BookingReducer from "../features/booking/bookingSlice";
+import ServiceabilityReducer from "../features/serviceability/serviceabilitySlice";
 
 // Redux Persist Configuration
 const persistConfig = {
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   payment: PaymentReducer,
   address: AddressReducer,
   booking: BookingReducer,
+  serviceability: ServiceabilityReducer,
 });
 
 // Persisted reducer

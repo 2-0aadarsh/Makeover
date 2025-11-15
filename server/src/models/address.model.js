@@ -63,6 +63,14 @@ const addressSchema = new mongoose.Schema({
     maxlength: [50, 'Country name cannot exceed 50 characters']
   },
   
+  // Phone number (required for each address)
+  phone: {
+    type: String,
+    required: [true, 'Phone number is required'],
+    trim: true,
+    match: [/^[6-9]\d{9}$/, 'Please provide a valid 10-digit Indian mobile number']
+  },
+  
   // Default address flag (only one per user)
   isDefault: {
     type: Boolean,
@@ -276,7 +284,8 @@ addressSchema.virtual('fullAddress').get(function() {
     this.city,
     this.state,
     this.pincode,
-    this.country
+    this.country,
+    this.phone ? `Phone: ${this.phone}` : null
   ].filter(Boolean);
   
   return parts.join(', ');

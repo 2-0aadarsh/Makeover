@@ -17,6 +17,7 @@ import {
   paymentRateLimit,
   validateAmountConsistency
 } from '../middlewares/payment.middleware.js';
+import { validateServiceableCity } from '../middleware/validateServiceableCity.js';
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use(authenticateToken);
  */
 router.post('/create-order',
   sanitizePaymentData,
+  validateServiceableCity, // ✅ City validation added
   validatePaymentOrder,
   validateAmountConsistency,
   paymentRateLimit,
@@ -54,6 +56,7 @@ router.post('/verify',
  */
 router.post('/create-cod',
   sanitizePaymentData,
+  validateServiceableCity, // ✅ City validation added
   validatePaymentOrder,
   validateAmountConsistency,
   createCODOrder

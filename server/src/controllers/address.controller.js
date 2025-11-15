@@ -13,6 +13,7 @@ export const createAddress = async (req, res) => {
       city,
       state,
       country,
+      phone,
       addressType,
       isDefault
     } = req.body;
@@ -35,6 +36,14 @@ export const createAddress = async (req, res) => {
     // 3. No default address exists (hasDefaultAddress === null)
     const shouldBeDefault = existingAddressCount === 0 || isDefault === true || !hasDefaultAddress;
 
+    // Validate phone number format (additional server-side validation)
+    if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid 10-digit Indian mobile number starting with 6-9'
+      });
+    }
+
     // Create new address
     const newAddress = new Address({
       user: userId,
@@ -46,6 +55,7 @@ export const createAddress = async (req, res) => {
       city,
       state,
       country,
+      phone,
       addressType,
       isDefault: shouldBeDefault
     });
@@ -58,6 +68,8 @@ export const createAddress = async (req, res) => {
       hasExistingDefault: !!hasDefaultAddress,
       isDefault: shouldBeDefault,
       userSpecifiedDefault: isDefault,
+      hasPhone: !!phone,
+      phoneNumber: phone ? `${phone.slice(0, 2)}****${phone.slice(-2)}` : 'N/A', // Masked for logs
       autoDefaultReason: existingAddressCount === 0 ? 'first_address' : 
                         !hasDefaultAddress ? 'no_default_exists' : 
                         isDefault === true ? 'user_specified' : 'none'
@@ -188,6 +200,14 @@ export const updateAddress = async (req, res) => {
     const addressId = req.params.id;
     const userId = req.user.id;
     const updateData = req.body;
+
+    // Validate phone number if provided
+    if (updateData.phone && !/^[6-9]\d{9}$/.test(updateData.phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid 10-digit Indian mobile number starting with 6-9'
+      });
+    }
 
     // Remove fields that shouldn't be updated directly
     delete updateData.user;

@@ -19,6 +19,7 @@ import slotAutomationRouter from './routes/slotAutomation.routes.js';
 import paymentRouter from './routes/payment.routes.js';
 import newsletterRouter from './routes/newsletter.routes.js';
 import enquiryRouter from './routes/enquiry.routes.js';
+import serviceableCityAdminRouter from './routes/admin/serviceableCity.admin.routes.js';
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use('/api/slot-automation', slotAutomationRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/enquiry', enquiryRouter);
+app.use('/api/admin/serviceable-cities', serviceableCityAdminRouter);
 
 app.disable('x-powered-by');
 
@@ -70,9 +72,9 @@ app.get('/', (req, res) => {
 });
 
 // Export for Vercel instead of listen
-export default app;
+// export default app;
 
 // for developemental
-// app.listen(3000, () => {
-//   console.log('Server is running on port 3000');
-//  });
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+ });

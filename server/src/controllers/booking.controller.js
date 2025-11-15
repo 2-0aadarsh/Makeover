@@ -448,7 +448,6 @@ export const completeBookingPayment = async (req, res) => {
 export const getBookingStats = async (req, res) => {
   try {
     const userId = req.user.id;
-
     const result = await BookingService.getBookingStats(userId);
 
     if (!result.success) {

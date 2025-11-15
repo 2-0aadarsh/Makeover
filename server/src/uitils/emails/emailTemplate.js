@@ -2861,7 +2861,7 @@ const bookingRescheduleUserEmailTemplate = (rescheduleData) => {
           <p style="margin: 0 0 10px 0; color: #1e40af; font-weight: 600;">📌 Important:</p>
           <ul style="margin: 0; padding-left: 20px; color: #1e3a8a;">
             <li>You can reschedule up to 3 times (${3 - rescheduleCount} remaining)</li>
-            <li>Rescheduling must be done at least 48 hours before the service</li>
+            <li>Rescheduling must be done at least 4 hours before the service</li>
             <li>Our beautician will arrive at your location at the scheduled time</li>
           </ul>
         </div>

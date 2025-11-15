@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
 
@@ -9,9 +9,26 @@ import Checkout from "./Checkout";
  * Displays a success message after order completion with order details
  * Follows the Figma design for the success screen
  */
-const OrderSuccess = ({ orderData, onGoHome }) => {
+const OrderSuccess = ({ orderData: propOrderData, onGoHome }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Get orderData from navigation state or props (for backward compatibility)
+  const orderData = location.state?.orderData || propOrderData;
+
+  // If no order data is available, redirect to home
+  if (!orderData) {
+    console.warn(
+      "⚠️ OrderSuccess: No order data found. Redirecting to home..."
+    );
+    if (onGoHome) {
+      onGoHome();
+    } else {
+      navigate("/", { replace: true });
+    }
+    return null;
+  }
 
   // Format price to INR currency format
   const formatPrice = (price) => {
@@ -49,7 +66,11 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
 
   const handleContinueBrowsing = () => {
     // Navigate back to home page
-    onGoHome();
+    if (onGoHome) {
+      onGoHome();
+    } else {
+      navigate("/", { replace: true });
+    }
   };
 
   const handlePayNow = () => {
@@ -72,16 +93,16 @@ const OrderSuccess = ({ orderData, onGoHome }) => {
   return (
     <div className="min-h-screen bg-white flex justify-center items-center pt-16 pb-8">
       {/* Main Content */}
-      <div className="w-full max-w-[603px] mx-auto flex flex-col items-center py-8 sm:py-12 px-4 sm:px-6 border border-dashed border-blue-300 rounded-lg">
+      <div className="w-full max-w-[610px] mx-auto flex flex-col items-center py-8 sm:py-12 px-4 sm:px-6 border border-dashed border-blue-300 rounded-lg">
         {/* Header */}
-        <h1 className="font-['DM_Sans'] font-semibold text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-[100%] tracking-[0.01em] text-black mb-6 sm:mb-8 text-center">
+        <h1 className="font-['DM_Sans'] font-semibold text-xl sm:text-xl md:text-2xl lg:text-[30px] leading-[100%] tracking-[0.01em] text-black mb-6 sm:mb-8 text-center">
           Thanks For Booking With Makeover 👋
         </h1>
 
         {/* Animation/Image */}
-        <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-[150px] lg:h-[150px] flex items-center justify-center mb-6 sm:mb-8">
+        <div className="w-28 h-24 sm:w-36 sm:h-32 md:w-40 md:h-40 lg:w-[160px] lg:h-[150px] flex items-center justify-center mb-6 sm:mb-8">
           <img
-            src="/src/assets/modals/profile/polarBear.gif"
+            src="/src/assets/order/orderSuccess.svg"
             alt="Success Animation"
             className="w-full h-full object-contain rounded-full"
             onError={(e) => {
@@ -180,7 +201,7 @@ OrderSuccess.propTypes = {
         quantity: PropTypes.number.isRequired,
       })
     ),
-  }).isRequired,
+  }),
   onGoHome: PropTypes.func,
 };
 

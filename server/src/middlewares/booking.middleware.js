@@ -228,7 +228,7 @@ export const checkBookingModifiable = (req, res, next) => {
       if (booking.reschedulingDetails.rescheduleCount >= 3) {
         message += ' Maximum reschedule limit (3) has been reached.';
       } else {
-        message += ' Rescheduling must be done at least 24 hours before the booking time.';
+        message += ' Rescheduling must be done at least 4 hours before the booking time.';
       }
       
       return res.status(400).json({

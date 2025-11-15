@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Booking from '../models/booking.model.js';
 import Payment from '../models/payment.model.js';
 import { generatePaymentReference } from '../utils/payment.utils.js';
+import { combineDateAndSlot } from '../utils/bookingTime.utils.js';
 import { sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser, sendRescheduleNotificationToAdmin, sendRescheduleConfirmationToUser, sendPaymentConfirmationToAdmin, sendPaymentConfirmationToUser } from './email.service.js';
 
 class BookingService {
@@ -208,13 +209,18 @@ class BookingService {
       // Check if booking can be cancelled (validates 24-hour rule)
       if (!booking.canBeCancelled) {
         const now = new Date();
-        const bookingDateTime = new Date(booking.bookingDetails.date);
-        const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
+        const bookingDateTime = combineDateAndSlot(
+          booking.bookingDetails?.date,
+          booking.bookingDetails?.slot
+        );
+        const hoursUntilBooking = bookingDateTime
+          ? (bookingDateTime - now) / (1000 * 60 * 60)
+          : 0;
         
         return {
           success: false,
           message: hoursUntilBooking > 0 
-            ? 'Cannot cancel booking within 24 hours of service time. Please contact support for urgent cancellations.'
+            ? 'Cannot cancel booking within 2 hours of service time. Please contact support for urgent cancellations.'
             : 'Cannot cancel a booking that has already passed or is completed.',
           error: 'CANNOT_CANCEL',
           canContact: true,
@@ -318,11 +324,16 @@ class BookingService {
         };
       }
       
-      // 2. Check if booking can be rescheduled (validates 48-hour rule, status, and count)
+      // 2. Check if booking can be rescheduled (validates 4-hour rule, status, and count)
       if (!booking.canBeRescheduled) {
         const now = new Date();
-        const bookingDateTime = new Date(booking.bookingDetails.date);
-        const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
+        const bookingDateTime = combineDateAndSlot(
+          booking.bookingDetails?.date,
+          booking.bookingDetails?.slot
+        );
+        const hoursUntilBooking = bookingDateTime
+          ? (bookingDateTime - now) / (1000 * 60 * 60)
+          : 0;
         
         // Check specific reason for inability to reschedule
         if (['cancelled', 'completed', 'no_show'].includes(booking.status)) {
@@ -345,10 +356,10 @@ class BookingService {
           };
         }
         
-        if (hoursUntilBooking <= 48) {
+        if (hoursUntilBooking <= 4) {
           return {
             success: false,
-            message: 'Cannot reschedule booking within 48 hours of service time. Please contact support for urgent changes.',
+            message: 'Cannot reschedule booking within 4 hours of service time. Please contact support for urgent changes.',
             error: 'TOO_CLOSE_TO_BOOKING',
             canContact: true,
             supportEmail: process.env.ADMIN_EMAIL
@@ -366,11 +377,10 @@ class BookingService {
       }
       
       // 3. Validate new date is not in the past
-      const newBookingDate = new Date(newDate);
+      const newBookingDateTime = combineDateAndSlot(newDate, newSlot);
       const now = new Date();
-      now.setHours(0, 0, 0, 0); // Set to start of day for comparison
       
-      if (newBookingDate < now) {
+      if (!newBookingDateTime || newBookingDateTime < now) {
         return {
           success: false,
           message: 'Cannot reschedule to a past date. Please select a future date.',
@@ -378,15 +388,14 @@ class BookingService {
         };
       }
       
-      // 4. Check if new date is at least tomorrow (48-hour rule)
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 2); // +2 days for 48 hours
-      tomorrow.setHours(0, 0, 0, 0);
+      // 4. Check if new booking datetime is at least 4 hours from now
+      const minRescheduleDateTime = new Date();
+      minRescheduleDateTime.setHours(minRescheduleDateTime.getHours() + 4);
       
-      if (newBookingDate < tomorrow) {
+      if (newBookingDateTime < minRescheduleDateTime) {
         return {
           success: false,
-          message: 'New booking date must be at least 48 hours from now.',
+          message: 'New booking time must be at least 4 hours from now.',
           error: 'INVALID_DATE'
         };
       }
@@ -524,25 +533,24 @@ class BookingService {
   // Get booking statistics for a user
   async getBookingStats(userId) {
     try {
-      // Convert userId to ObjectId if it's a string
-      const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
-        ? new mongoose.Types.ObjectId(userId) 
-        : userId;
-      
-      console.log('📊 getBookingStats - userId:', userId, 'type:', typeof userId);
-      console.log('📊 getBookingStats - userObjectId:', userObjectId);
-      
-      // First, check if there are any bookings at all (try both string and ObjectId)
-      const bookingCountString = await Booking.countDocuments({ userId: userId });
-      const bookingCountObjectId = await Booking.countDocuments({ userId: userObjectId });
-      console.log('📊 Bookings found with string userId:', bookingCountString);
-      console.log('📊 Bookings found with ObjectId userId:', bookingCountObjectId);
-      
-      // Use the one that finds bookings, or ObjectId as default
-      const effectiveUserId = bookingCountString > 0 ? userId : userObjectId;
-      
+      if (!userId) {
+        throw new Error('User ID is required to fetch booking stats');
+      }
+
+      // Always normalize to ObjectId for aggregation so Mongo matches correctly
+      const normalizedUserId =
+        typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId)
+          ? new mongoose.Types.ObjectId(userId)
+          : userId instanceof mongoose.Types.ObjectId
+          ? userId
+          : null;
+
+      const matchStage = normalizedUserId
+        ? { userId: normalizedUserId }
+        : { userId };
+
       const stats = await Booking.aggregate([
-        { $match: { userId: effectiveUserId } },
+        { $match: matchStage },
         {
           $group: {
             _id: null,
@@ -562,14 +570,18 @@ class BookingService {
                       { $gte: ['$bookingDetails.date', new Date()] },
                       { $in: ['$status', ['confirmed', 'pending']] }
                     ]
-              }, 1, 0]
+                  },
+                  1,
+                  0
+                ]
+              }
             }
           }
         }
-      }]);
+      ]);
 
       const statusCounts = await Booking.aggregate([
-        { $match: { userId: effectiveUserId } },
+        { $match: matchStage },
         {
           $group: {
             _id: '$status',
@@ -578,7 +590,6 @@ class BookingService {
         }
       ]);
 
-      // Handle case when user has no bookings (stats[0] will be undefined)
       const defaultStats = {
         totalBookings: 0,
         totalSpent: 0,
@@ -589,15 +600,13 @@ class BookingService {
 
       const finalStats = {
         ...defaultStats,
-        ...(stats[0] || {}), // Use stats[0] if it exists, otherwise use empty object
+        ...(stats[0] || {}),
         statusBreakdown: statusCounts.reduce((acc, item) => {
           acc[item._id] = item.count;
           return acc;
         }, {})
       };
-      
-      console.log('📊 Final stats to return:', finalStats);
-      
+
       return {
         success: true,
         data: finalStats,

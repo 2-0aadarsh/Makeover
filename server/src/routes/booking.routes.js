@@ -26,8 +26,47 @@ import {
   validatePagination,
   validateBookingFilters
 } from '../middlewares/booking.middleware.js';
+import {
+  getServiceableCities,
+  checkCityServiceability,
+  checkLocationServiceability
+} from '../controllers/serviceableCity.controller.js';
 
 const router = express.Router();
+
+// ============================================
+// PUBLIC ROUTES (No Authentication Required)
+// ============================================
+
+/**
+ * @route   GET /api/bookings/serviceable-cities
+ * @desc    Get list of all serviceable cities
+ * @access  Public
+ * @response Array of active serviceable cities
+ */
+router.get('/serviceable-cities', getServiceableCities);
+
+/**
+ * @route   POST /api/bookings/check-serviceability
+ * @desc    Check if a specific city is serviceable
+ * @access  Public
+ * @body    city (required)
+ * @response Serviceability status and details
+ */
+router.post('/check-serviceability', checkCityServiceability);
+
+/**
+ * @route   POST /api/bookings/check-location-serviceability
+ * @desc    Check if both city and pincode are serviceable
+ * @access  Public
+ * @body    city (required), pincode (required)
+ * @response Location serviceability status with detailed feedback
+ */
+router.post('/check-location-serviceability', checkLocationServiceability);
+
+// ============================================
+// AUTHENTICATED ROUTES (require login)
+// ============================================
 
 // Apply authentication to all booking routes
 router.use(authenticateToken);
@@ -135,9 +174,9 @@ router.put('/:id/cancel',
  *   - newPaymentMethod: Optional, "online" or "cod"
  *   - reason: Optional, string (max 500 chars)
  * @rules
- *   - Booking must be >48 hours away
+ *   - Booking must be >4 hours away
  *   - Maximum 3 reschedules allowed
- *   - New date must be >48 hours from now
+ *   - New date must be >4 hours from now
  *   - Time slot must be available
  */
 router.patch('/:id/reschedule',

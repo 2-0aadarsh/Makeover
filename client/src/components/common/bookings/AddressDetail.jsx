@@ -35,6 +35,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
     state: "Bihar",
     country: "India",
     pincode: "",
+    phone: "",
     addressType: "home",
     isDefault: false,
   });
@@ -58,7 +59,17 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
   // Helper function to format address string
   const formatAddressString = (address) => {
     if (!address) return "";
-    return `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})`;
+    const phoneFormatted = address.phone
+      ? ` | Phone: ${formatPhoneNumber(address.phone)}`
+      : "";
+    return `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})${phoneFormatted}`;
+  };
+
+  // Helper function to format phone number for display
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return "";
+    // Format: +91 98765 43210
+    return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
   };
 
   // Sort addresses so default is always first
@@ -68,6 +79,12 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
     return 0;
   });
 
+  // Validation helper for phone number
+  const isValidPhoneNumber = (phone) => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  };
+
   // Check if form is valid
   const isFormValid = () => {
     return (
@@ -76,7 +93,9 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
       formData.address.trim() !== "" &&
       formData.city.trim() !== "" &&
       formData.state.trim() !== "" &&
-      formData.pincode.trim() !== ""
+      formData.pincode.trim() !== "" &&
+      formData.phone.trim() !== "" &&
+      isValidPhoneNumber(formData.phone)
     );
   };
 
@@ -149,7 +168,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
           completeAddress: formData.address,
           landmark: formData.landmark,
           country: formData.country,
-          phone: formData.phone || "+91-0000000000", // Include phone number
+          phone: formData.phone, // Include phone number
         };
 
         if (onAddressUpdate) {
@@ -169,6 +188,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
           state: "Bihar",
           country: "India",
           pincode: "",
+          phone: "",
           addressType: "home",
           isDefault: false,
         });
@@ -201,7 +221,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
           completeAddress: selectedAddr.completeAddress,
           landmark: selectedAddr.landmark,
           country: selectedAddr.country,
-          phone: selectedAddr.phone || "+91-0000000000", // Include phone number
+          phone: selectedAddr.phone, // Include phone number
         };
 
         onAddressUpdate(fullAddress, addressObject);
@@ -255,6 +275,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
         state: addressObj.state || "Bihar",
         country: addressObj.country || "India",
         pincode: addressObj.pincode || "",
+        phone: addressObj.phone || "",
         addressType: addressObj.addressType || "home",
         isDefault: addressObj.isDefault || false,
       });
@@ -348,6 +369,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
                     state: "Bihar",
                     country: "India",
                     pincode: "",
+                    phone: "",
                     addressType: "home",
                     isDefault: false,
                   });
@@ -505,6 +527,68 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
                       <option value="other">Other</option>
                     </select>
                   </div>
+                </div>
+
+                {/* Phone Number Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500 text-sm">+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      placeholder="9876543210"
+                      value={formData.phone}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ""); // Only allow digits
+                        if (value.length <= 10) {
+                          handleInputChange("phone", value);
+                        }
+                      }}
+                      maxLength={10}
+                      className={`w-full pl-12 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent ${
+                        formData.phone.length === 10 &&
+                        isValidPhoneNumber(formData.phone)
+                          ? "border-[#CC2B52] bg-green-50"
+                          : formData.phone.length > 0 &&
+                            !isValidPhoneNumber(formData.phone)
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300"
+                      }`}
+                    />
+                  </div>
+                  {formData.phone.length > 0 &&
+                    !isValidPhoneNumber(formData.phone) && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {formData.phone.length < 10
+                          ? `Please enter ${
+                              10 - formData.phone.length
+                            } more digit${
+                              10 - formData.phone.length > 1 ? "s" : ""
+                            }`
+                          : "Phone number must start with 6, 7, 8, or 9"}
+                      </p>
+                    )}
+                  {formData.phone.length === 10 &&
+                    isValidPhoneNumber(formData.phone) && (
+                      <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Valid phone number
+                      </p>
+                    )}
                 </div>
 
                 {/* Default Address Checkbox */}
@@ -692,4 +776,4 @@ AddressDetail.propTypes = {
   onAddressUpdate: PropTypes.func,
 };
 
-export default AddressDetail
+export default AddressDetail;

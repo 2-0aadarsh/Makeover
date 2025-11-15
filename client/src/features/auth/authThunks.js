@@ -70,13 +70,13 @@ export const logoutUser = createAsyncThunk(
       });
 
       // Step 2: Persist current cart snapshot (even if empty) before clearing auth cookies
-      try {
+        try {
         console.log('🛒 Logout - Persisting current cart snapshot to database');
-        console.log('🛒 Logout - User authenticated:', getState().auth.isAuthenticated);
-        console.log('🛒 Logout - User ID:', getState().auth.user?.id);
-        await dispatch(saveCart(cartState)).unwrap();
+          console.log('🛒 Logout - User authenticated:', getState().auth.isAuthenticated);
+          console.log('🛒 Logout - User ID:', getState().auth.user?.id);
+          await dispatch(saveCart(cartState)).unwrap();
         console.log('✅ Logout - Cart snapshot stored successfully');
-      } catch (cartError) {
+        } catch (cartError) {
         console.error('❌ Logout - Failed to persist cart before logout:', cartError);
         // Continue with logout even if cart persistence fails
       }

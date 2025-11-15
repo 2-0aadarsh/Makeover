@@ -36,11 +36,17 @@ export const createAddress = createAsyncThunk(
       console.log('Creating address with data:', addressData);
       
       // Validate required fields (matching server requirements)
-      const requiredFields = ['address', 'city', 'state', 'pincode'];
+      const requiredFields = ['address', 'city', 'state', 'pincode', 'phone'];
       const missingFields = requiredFields.filter(field => !addressData[field]);
       
       if (missingFields.length > 0) {
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+
+      // Validate phone number format (Indian mobile number)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(addressData.phone)) {
+        throw new Error('Please provide a valid 10-digit Indian mobile number starting with 6-9');
       }
 
       // Validate pincode format (matching server regex)
@@ -59,6 +65,7 @@ export const createAddress = createAsyncThunk(
         city: addressData.city || '',
         state: addressData.state || 'Bihar',
         country: addressData.country || 'India',
+        phone: addressData.phone, // Phone number is required
         addressType: addressData.addressType || 'home',
         isDefault: addressData.isDefault || false
       };
@@ -83,11 +90,17 @@ export const updateAddress = createAsyncThunk(
       console.log('Updating address:', id, data);
       
       // Validate required fields (matching server requirements)
-      const requiredFields = ['address', 'city', 'state', 'pincode'];
+      const requiredFields = ['address', 'city', 'state', 'pincode', 'phone'];
       const missingFields = requiredFields.filter(field => !data[field]);
       
       if (missingFields.length > 0) {
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+
+      // Validate phone number format (Indian mobile number)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(data.phone)) {
+        throw new Error('Please provide a valid 10-digit Indian mobile number starting with 6-9');
       }
 
       // Validate pincode format (matching server regex)
@@ -106,6 +119,7 @@ export const updateAddress = createAsyncThunk(
         city: data.city || '',
         state: data.state || 'Bihar',
         country: data.country || 'India',
+        phone: data.phone, // Phone number is required
         addressType: data.addressType || 'home',
         isDefault: data.isDefault || false
       };

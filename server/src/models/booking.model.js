@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { sendBookingNotificationToAdmin } from '../services/email.service.js';
+import { combineDateAndSlot } from '../utils/bookingTime.utils.js';
 
 const serviceSchema = new mongoose.Schema({
   name: {
@@ -327,10 +328,16 @@ bookingSchema.virtual('canBeCancelled').get(function() {
   }
   
   const now = new Date();
-  const bookingDateTime = new Date(this.bookingDetails.date);
+  const bookingDateTime = combineDateAndSlot(
+    this.bookingDetails?.date,
+    this.bookingDetails?.slot
+  );
+  if (!bookingDateTime) {
+    return false;
+  }
   const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
   
-  return hoursUntilBooking > 24; // Can cancel if more than 24 hours before booking
+  return hoursUntilBooking > 2; // Can cancel if more than 2 hours before booking
 });
 
 // Virtual for canBeRescheduled
@@ -347,10 +354,16 @@ bookingSchema.virtual('canBeRescheduled').get(function() {
   
   // Check if booking is more than 48 hours away
   const now = new Date();
-  const bookingDateTime = new Date(this.bookingDetails.date);
+  const bookingDateTime = combineDateAndSlot(
+    this.bookingDetails?.date,
+    this.bookingDetails?.slot
+  );
+  if (!bookingDateTime) {
+    return false;
+  }
   const hoursUntilBooking = (bookingDateTime - now) / (1000 * 60 * 60);
   
-  return hoursUntilBooking > 48; // Can reschedule if more than 48 hours before booking
+  return hoursUntilBooking > 4; // Can reschedule if more than 4 hours before booking
 });
 
 // Pre-save middleware to generate order number

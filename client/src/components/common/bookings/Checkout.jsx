@@ -1,13 +1,24 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import BookYourSlot from "./BookYourSlot";
 import PaymentMethodSelector from "../PaymentMethodSelector";
 import { usePayment } from "../../../hooks/usePayment";
+import { useCart } from "../../../hooks/useCart";
 import { formatAmount } from "../../../utils/paymentUtils";
 import "../../../test-debug.js"; // Test import
 import AuthPromptModal from "../../modals/AuthPromptModal";
+import CityServiceabilityModal from "../../modals/CityServiceabilityModal";
+import {
+  checkLocationServiceability,
+  fetchServiceableCities,
+} from "../../../features/serviceability/serviceabilityThunks";
+import {
+  selectServiceableCities,
+  selectCityNames,
+  clearValidation,
+} from "../../../features/serviceability/serviceabilitySlice";
 
 /**
  * Checkout Component
@@ -29,6 +40,12 @@ const Checkout = ({
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { clearAllCart } = useCart(); // Get cart clearing function
+
+  // City serviceability state
+  const serviceableCitiesData = useSelector(selectServiceableCities);
+  const serviceableCityNames = useSelector(selectCityNames);
 
   // Extract user's phone number - handle case where user might not be logged in
   const userPhone = user?.phoneNumber || null;
@@ -53,9 +70,19 @@ const Checkout = ({
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [formValid, setFormValid] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [requestedCity, setRequestedCity] = useState("");
+  const [requestedPincode, setRequestedPincode] = useState("");
+  const [validationType, setValidationType] = useState("city"); // "city" or "pincode"
+  const [serviceablePincodes, setServiceablePincodes] = useState([]);
 
   const handleCloseAuthPrompt = () => {
     setShowAuthPrompt(false);
+  };
+
+  const handleCloseCityModal = () => {
+    setShowCityModal(false);
+    dispatch(clearValidation());
   };
 
   const handleLoginRedirect = () => {
@@ -65,6 +92,13 @@ const Checkout = ({
   const handleSignupRedirect = () => {
     navigate("/auth/signup");
   };
+
+  // Ensure serviceable city list is loaded so modal can display chips
+  useEffect(() => {
+    if (!serviceableCitiesData || serviceableCitiesData.length === 0) {
+      dispatch(fetchServiceableCities());
+    }
+  }, [dispatch, serviceableCitiesData]);
 
   // Book Your Slot state - Initialize with today's date if no date provided
   const getDefaultDate = () => {
@@ -259,6 +293,68 @@ const Checkout = ({
     }
 
     console.log("✅ [PAYMENT DEBUG] Form is valid, proceeding with payment...");
+
+    // ✅ LOCATION VALIDATION - Check if booking city AND pincode are serviceable
+    try {
+      // Extract city and pincode from bookingDetails
+      const city = bookingDetails?.address?.city;
+      const pincode = bookingDetails?.address?.pincode;
+
+      console.log(
+        "🔍 [LOCATION VALIDATION] Checking location serviceability:",
+        { city, pincode }
+      );
+
+      if (!city) {
+        console.error(
+          "❌ [LOCATION VALIDATION] No city provided in booking details"
+        );
+        alert("Please select an address with a valid city.");
+        return;
+      }
+
+      if (!pincode) {
+        console.error(
+          "❌ [LOCATION VALIDATION] No pincode provided in booking details"
+        );
+        alert("Please select an address with a valid pincode.");
+        return;
+      }
+
+      // Check both city and pincode serviceability
+      const validationResult = await dispatch(
+        checkLocationServiceability({ city, pincode })
+      ).unwrap();
+
+      console.log("🔍 [LOCATION VALIDATION] Result:", validationResult);
+
+      if (!validationResult.isServiceable) {
+        console.warn(
+          `⚠️ [LOCATION VALIDATION] Location not serviceable - City: "${city}", Pincode: "${pincode}", Reason: ${validationResult.code}`
+        );
+        setRequestedCity(city);
+        setRequestedPincode(pincode);
+
+        // Determine validation type based on error code
+        if (validationResult.code === "PINCODE_NOT_SERVICEABLE") {
+          setValidationType("pincode");
+          setServiceablePincodes(validationResult.serviceablePincodes || []);
+        } else {
+          setValidationType("city");
+          setServiceablePincodes([]);
+        }
+
+        setShowCityModal(true);
+        return;
+      }
+
+      console.log(
+        `✅ [LOCATION VALIDATION] Location is serviceable - City: "${city}", Pincode: "${pincode}"`
+      );
+    } catch (error) {
+      console.error("❌ [LOCATION VALIDATION] Error checking location:", error);
+      // Continue with payment if validation fails (fail open)
+    }
 
     try {
       // Validate booking date and time slot
@@ -570,6 +666,57 @@ const Checkout = ({
         }
       );
 
+      // Helper function to convert slot to 24-hour format
+      const convertSlotTo24Hour = (slot) => {
+        if (!slot) {
+          return "";
+        }
+        const trimmedSlot = slot.trim();
+        if (
+          !trimmedSlot.toUpperCase().includes("AM") &&
+          !trimmedSlot.toUpperCase().includes("PM")
+        ) {
+          return trimmedSlot;
+        }
+        const [timePart, periodRaw] = trimmedSlot.split(" ");
+        const [hoursStr, minutesStr] = timePart.split(":");
+        const hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10) || 0;
+        const period = periodRaw.toUpperCase();
+        let hour24 = hours;
+        if (period === "PM" && hours !== 12) {
+          hour24 = hours + 12;
+        } else if (period === "AM" && hours === 12) {
+          hour24 = 0;
+        }
+        const formattedHour = hour24.toString().padStart(2, "0");
+        const formattedMinutes = minutes.toString().padStart(2, "0");
+        return `${formattedHour}:${formattedMinutes}`;
+      };
+
+      // Helper function to build completion payload for OrderSuccess
+      const buildCompletionPayload = (method, backendPayload) => {
+        return {
+          services: servicesWithRequiredFields,
+          subtotal: calculatedSubtotal,
+          taxAmount: calculatedTaxAmount,
+          totalAmount: calculatedTotalAmount,
+          paymentMethod: method === "online" ? "online" : "cash",
+          appointmentDate: formattedBookingDetails.date,
+          appointmentTime: convertSlotTo24Hour(selectedSlot),
+          appointmentSlot: selectedSlot,
+          bookingDetails: formattedBookingDetails,
+          backendData: backendPayload,
+          orderId:
+            backendPayload?.orderId ||
+            backendPayload?.bookingId ||
+            backendPayload?.paymentId ||
+            null,
+          orderNumber: backendPayload?.orderNumber || null,
+          paymentId: backendPayload?.paymentId || null,
+        };
+      };
+
       if (paymentMethod === "online") {
         console.log("🔍 Processing online payment through Razorpay...");
         console.log(
@@ -587,10 +734,31 @@ const Checkout = ({
         const result = await completePaymentFlow(orderData);
         console.log("🔍 Payment flow result:", result);
 
-        // Only call onPaymentComplete if payment was successful
-        // The promise resolves only after verification succeeds
-        if (result && result.payload && onPaymentComplete) {
-          onPaymentComplete(result.payload);
+        // Only proceed if payment was successful
+        if (result && result.payload) {
+          const backendPayload = result.payload?.data || result.payload;
+          const completionPayload = buildCompletionPayload(
+            "online",
+            backendPayload
+          );
+
+          // Call onPaymentComplete callback if provided (for backward compatibility)
+          if (onPaymentComplete) {
+            onPaymentComplete(completionPayload);
+          }
+
+          // Clear cart after successful payment
+          console.log("🛒 Clearing cart after successful payment...");
+          clearAllCart();
+
+          // Navigate to OrderSuccess page with order data
+          console.log(
+            "✅ Payment successful! Navigating to OrderSuccess page..."
+          );
+          navigate("/order-success", {
+            state: { orderData: completionPayload },
+            replace: true, // Replace current history entry
+          });
         }
       } else {
         console.log("🔍 Processing COD order...");
@@ -598,9 +766,31 @@ const Checkout = ({
         const result = await completeCODFlow(orderData);
         console.log("🔍 COD flow result:", result);
 
-        // Call the onPaymentComplete callback for COD
-        if (result && result.payload && onPaymentComplete) {
-          onPaymentComplete(result.payload.data || result.payload);
+        // Only proceed if order was created successfully
+        if (result && result.payload) {
+          const backendPayload = result.payload?.data || result.payload;
+          const completionPayload = buildCompletionPayload(
+            "cod",
+            backendPayload
+          );
+
+          // Call onPaymentComplete callback if provided (for backward compatibility)
+          if (onPaymentComplete) {
+            onPaymentComplete(completionPayload);
+          }
+
+          // Clear cart after successful order creation
+          console.log("🛒 Clearing cart after successful COD order...");
+          clearAllCart();
+
+          // Navigate to OrderSuccess page with order data
+          console.log(
+            "✅ COD order created! Navigating to OrderSuccess page..."
+          );
+          navigate("/order-success", {
+            state: { orderData: completionPayload },
+            replace: true, // Replace current history entry
+          });
         }
       }
     } catch (error) {
@@ -613,182 +803,185 @@ const Checkout = ({
   const content = (
     <>
       <div className={`${isModal ? "p-6 bg-white rounded-lg" : ""}`}>
-      {isModal && (
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold">Checkout</h2>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-xl"
-            >
-              ×
-            </button>
-          )}
-        </div>
-      )}
+        {isModal && (
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-semibold">Checkout</h2>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        )}
 
-      <div className="space-y-4">
-        {/* Book Your Slot Section */}
-        {showBookSlot && (
+        <div className="space-y-4">
+          {/* Book Your Slot Section */}
+          {showBookSlot && (
+            <div className="mb-6">
+              <BookYourSlot
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+                selectedSlot={selectedSlot}
+                onSlotSelect={handleSlotSelect}
+              />
+            </div>
+          )}
+
+          {/* Payment Method Selection */}
           <div className="mb-6">
-            <BookYourSlot
-              selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-              selectedSlot={selectedSlot}
-              onSlotSelect={handleSlotSelect}
+            <p className="text-sm font-medium text-gray-700 mb-4">
+              Payment Method:
+            </p>
+
+            <PaymentMethodSelector
+              selectedMethod={paymentMethod}
+              onMethodChange={handlePaymentMethodChange}
+              showOnline={true}
+              showCOD={true}
+              disabled={isLoading || paymentLoading}
             />
           </div>
-        )}
 
-        {/* Payment Method Selection */}
-        <div className="mb-6">
-          <p className="text-sm font-medium text-gray-700 mb-4">
-            Payment Method:
-          </p>
-
-          <PaymentMethodSelector
-            selectedMethod={paymentMethod}
-            onMethodChange={handlePaymentMethodChange}
-            showOnline={true}
-            showCOD={true}
-            disabled={isLoading || paymentLoading}
-          />
-        </div>
-
-        {/* Payment Information */}
-        <div className="mb-6">
-          {paymentMethod === "online" && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">💳</span>
+          {/* Payment Information */}
+          <div className="mb-6">
+            {paymentMethod === "online" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">💳</span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-blue-800">
+                    Secure Online Payment
+                  </h3>
                 </div>
-                <h3 className="text-sm font-semibold text-blue-800">
-                  Secure Online Payment
-                </h3>
+                <p className="text-sm text-blue-700 mb-2">
+                  Pay securely with UPI, Credit/Debit Cards, Net Banking,
+                  Wallets, and more.
+                </p>
+                <p className="text-xs text-blue-600">
+                  Your payment information is encrypted and secure.
+                </p>
               </div>
-              <p className="text-sm text-blue-700 mb-2">
-                Pay securely with UPI, Credit/Debit Cards, Net Banking, Wallets,
-                and more.
-              </p>
-              <p className="text-xs text-blue-600">
-                Your payment information is encrypted and secure.
-              </p>
-            </div>
-          )}
+            )}
 
-          {paymentMethod === "cod" && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">💰</span>
+            {paymentMethod === "cod" && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">💰</span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-green-800">
+                    Pay After Service
+                  </h3>
                 </div>
-                <h3 className="text-sm font-semibold text-green-800">
-                  Pay After Service
-                </h3>
+                <p className="text-sm text-green-700 mb-2">
+                  Pay cash directly to our beautician after service completion.
+                </p>
+                <p className="text-xs text-green-600">
+                  No advance payment required. Book now, pay later!
+                </p>
               </div>
-              <p className="text-sm text-green-700 mb-2">
-                Pay cash directly to our beautician after service completion.
-              </p>
-              <p className="text-xs text-green-600">
-                No advance payment required. Book now, pay later!
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Error Display */}
-        {hasError && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-red-500">⚠️</span>
-              <p className="text-sm text-red-700">{errorMessage}</p>
-            </div>
+            )}
           </div>
-        )}
 
-        {/* Payment Button */}
-        <button
-          onClick={(e) => {
-            console.log("🔍 [BUTTON DEBUG] Pay Now Button clicked! Event:", e);
-            console.log(
-              "🔍 [BUTTON DEBUG] Button disabled state:",
-              !formValid || isLoading || paymentLoading
-            );
-            console.log(
-              "🔍 [BUTTON DEBUG] Form valid:",
-              formValid,
-              "Loading:",
-              isLoading,
-              "Payment Loading:",
-              paymentLoading
-            );
-            console.log("🔍 [BUTTON DEBUG] Current state at button click:", {
-              selectedDate,
-              selectedSlot,
-              paymentMethod,
-              formValid,
-              showBookSlot,
-              timestamp: new Date().toISOString(),
-            });
+          {/* Error Display */}
+          {hasError && (
+            <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-red-500">⚠️</span>
+                <p className="text-sm text-red-700">{errorMessage}</p>
+              </div>
+            </div>
+          )}
 
-            if (!isAuthenticated) {
-              console.warn(
-                "⚠️ [BUTTON DEBUG] User not authenticated. Showing auth prompt instead of proceeding."
+          {/* Payment Button */}
+          <button
+            onClick={(e) => {
+              console.log(
+                "🔍 [BUTTON DEBUG] Pay Now Button clicked! Event:",
+                e
               );
-              setShowAuthPrompt(true);
-              return;
-            }
-
-            if (!formValid) {
-              console.error(
-                "❌ [BUTTON DEBUG] Button click blocked - Form is not valid"
+              console.log(
+                "🔍 [BUTTON DEBUG] Button disabled state:",
+                !formValid || isLoading || paymentLoading
               );
-              return;
-            }
-
-            console.log(
-              "✅ [BUTTON DEBUG] Button click proceeding to handlePaymentSubmit"
-            );
-            handlePaymentSubmit();
-          }}
-          disabled={(() => {
-            const isDisabled = !formValid || isLoading || paymentLoading;
-            console.log("🔍 [SENIOR DEBUG] Button disabled calculation:", {
-              formValid,
-              isLoading,
-              paymentLoading,
-              isDisabled,
-              timestamp: new Date().toISOString(),
-              stateSnapshot: {
+              console.log(
+                "🔍 [BUTTON DEBUG] Form valid:",
+                formValid,
+                "Loading:",
+                isLoading,
+                "Payment Loading:",
+                paymentLoading
+              );
+              console.log("🔍 [BUTTON DEBUG] Current state at button click:", {
                 selectedDate,
                 selectedSlot,
-                showBookSlot,
                 paymentMethod,
-              },
-            });
-            return isDisabled;
-          })()}
-          className={`w-full py-3 px-6 rounded-lg transition-colors text-white text-base font-semibold ${
-            formValid && !isLoading && !paymentLoading
-              ? "bg-[#CC2B52] hover:bg-[#CC2B52]/90 shadow-md hover:shadow-lg"
-              : "bg-[#CC2B52BF] cursor-not-allowed"
-          }`}
-        >
-          {isLoading || paymentLoading ? (
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Processing...</span>
-            </div>
-          ) : paymentMethod === "online" ? (
-            `Pay ${formatAmount(totalAmount)}`
-          ) : paymentMethod === "cod" ? (
-            "Book Now"
-          ) : (
-            "Select Payment Method"
-          )}
-        </button>
-      </div>
+                formValid,
+                showBookSlot,
+                timestamp: new Date().toISOString(),
+              });
+
+              if (!isAuthenticated) {
+                console.warn(
+                  "⚠️ [BUTTON DEBUG] User not authenticated. Showing auth prompt instead of proceeding."
+                );
+                setShowAuthPrompt(true);
+                return;
+              }
+
+              if (!formValid) {
+                console.error(
+                  "❌ [BUTTON DEBUG] Button click blocked - Form is not valid"
+                );
+                return;
+              }
+
+              console.log(
+                "✅ [BUTTON DEBUG] Button click proceeding to handlePaymentSubmit"
+              );
+              handlePaymentSubmit();
+            }}
+            disabled={(() => {
+              const isDisabled = !formValid || isLoading || paymentLoading;
+              console.log("🔍 [SENIOR DEBUG] Button disabled calculation:", {
+                formValid,
+                isLoading,
+                paymentLoading,
+                isDisabled,
+                timestamp: new Date().toISOString(),
+                stateSnapshot: {
+                  selectedDate,
+                  selectedSlot,
+                  showBookSlot,
+                  paymentMethod,
+                },
+              });
+              return isDisabled;
+            })()}
+            className={`w-full py-3 px-6 rounded-lg transition-colors text-white text-base font-semibold ${
+              formValid && !isLoading && !paymentLoading
+                ? "bg-[#CC2B52] hover:bg-[#CC2B52]/90 shadow-md hover:shadow-lg"
+                : "bg-[#CC2B52BF] cursor-not-allowed"
+            }`}
+          >
+            {isLoading || paymentLoading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Processing...</span>
+              </div>
+            ) : paymentMethod === "online" ? (
+              `Pay ${formatAmount(totalAmount)}`
+            ) : paymentMethod === "cod" ? (
+              "Book Now"
+            ) : (
+              "Select Payment Method"
+            )}
+          </button>
+        </div>
       </div>
 
       <AuthPromptModal
@@ -799,6 +992,31 @@ const Checkout = ({
         message="Before proceeding with payment, please sign in. It only takes a moment, and your cart stays safe."
         loginLabel="Sign In to Continue"
         signupLabel="Create Account"
+      />
+
+      <CityServiceabilityModal
+        isOpen={showCityModal}
+        onClose={handleCloseCityModal}
+        requestedCity={requestedCity}
+        requestedPincode={requestedPincode}
+        validationType={validationType}
+        serviceableCities={serviceableCityNames}
+        serviceablePincodes={serviceablePincodes}
+        serviceableCitiesDisplay={serviceableCityNames.join(" and ")}
+        onChangeAddress={() => {
+          handleCloseCityModal();
+          // Scroll to address section or trigger address modal
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onJoinWaitlist={() => {
+          handleCloseCityModal();
+          // TODO: Implement waitlist functionality
+          console.log(
+            "User wants to join waitlist for:",
+            requestedCity,
+            requestedPincode
+          );
+        }}
       />
     </>
   );

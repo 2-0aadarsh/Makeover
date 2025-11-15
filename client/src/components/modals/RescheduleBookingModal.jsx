@@ -287,7 +287,7 @@ const RescheduleBookingModal = ({
               <div className="ml-3">
                 <p className="text-sm text-blue-800 font-medium">Reschedule Policy</p>
                 <ul className="text-sm text-blue-700 mt-1 space-y-1">
-                  <li>• New date must be at least 48 hours from now</li>
+                  <li>• New date must be at least 4 hours from now</li>
                   <li>• Maximum 3 reschedules allowed per booking</li>
                   <li>• No additional charges for rescheduling</li>
                 </ul>
