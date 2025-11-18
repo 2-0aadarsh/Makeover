@@ -58,10 +58,10 @@ const GridCard = ({ gridCardData, category }) => {
               </div>
 
               {/* Button Container - Fixed consistent width */}
-              <div className="button-container flex-shrink-0 w-[60px] sm:w-[70px] lg:w-[80px] flex items-center justify-center">
+              <div className="button-container flex-shrink-0 w-[90px] sm:w-[110px] lg:w-[120px] flex items-center justify-center">
                 <ServiceCartButton
                   serviceData={serviceDataWithCategory}
-                  className="min-w-[44px] sm:min-w-[50px] lg:min-w-[56px] text-xs sm:text-[13px] lg:text-[14px] whitespace-nowrap"
+                  className="min-w-[70px] sm:min-w-[90px] lg:min-w-[100px] text-xs sm:text-[13px] lg:text-[14px] whitespace-nowrap"
                 />
               </div>
             </div>

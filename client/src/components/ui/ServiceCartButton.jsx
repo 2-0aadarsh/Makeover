@@ -48,7 +48,7 @@ const ServiceCartButton = ({ serviceData, className = "" }) => {
       >
         <button
           onClick={handleAddToCart}
-          className={`${buttonBaseClasses} w-full h-10 sm:h-9 lg:h-10 text-white text-xs sm:text-[13px] lg:text-[14px] font-semibold px-4 sm:px-4 lg:px-4`}
+          className={`${buttonBaseClasses} w-full h-9 text-white text-sm sm:text-[14px] lg:text-[15px] font-semibold px-6 sm:px-6 lg:px-7`}
           aria-label={`Add ${serviceData.cardHeader} to cart`}
         >
           Add +
@@ -62,25 +62,25 @@ const ServiceCartButton = ({ serviceData, className = "" }) => {
     <div
       className={`${containerClasses} border border-[#CC2B52] bg-white ${className}`}
     >
-      <div className="flex items-center justify-between w-full h-10 sm:h-9 lg:h-10">
+      <div className="flex items-center justify-between w-full h-9">
         {/* Decrement Button */}
         <button
           onClick={handleDecrement}
-          className={`${buttonBaseClasses} flex-1 h-full text-[#CC2B52] hover:bg-[#CC2B52]/10 font-bold text-sm sm:text-sm lg:text-sm`}
+          className={`${buttonBaseClasses} flex-1 h-full text-[#CC2B52] hover:bg-[#CC2B52]/10 font-bold text-base sm:text-base lg:text-base`}
           aria-label="Decrease quantity"
         >
           -
         </button>
 
         {/* Quantity Display */}
-        <span className="flex items-center justify-center flex-1 h-full text-[#CC2B52] font-semibold text-xs sm:text-[13px] lg:text-[14px] min-w-[24px] border-l border-r border-[#CC2B52]/30">
+        <span className="flex items-center justify-center flex-1 h-full text-[#CC2B52] font-semibold text-sm sm:text-[13px] lg:text-[14px] min-w-[32px] border-l border-r border-[#CC2B52]/30">
           {quantity}
         </span>
 
         {/* Increment Button */}
         <button
           onClick={handleIncrement}
-          className={`${buttonBaseClasses} flex-1 h-full text-[#CC2B52] hover:bg-[#CC2B52]/10 font-bold text-sm sm:text-sm lg:text-sm`}
+          className={`${buttonBaseClasses} flex-1 h-full text-[#CC2B52] hover:bg-[#CC2B52]/10 font-bold text-base sm:text-base lg:text-base`}
           aria-label="Increase quantity"
         >
           +
