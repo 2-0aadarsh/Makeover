@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import PaymentMethodSelector from "../common/PaymentMethodSelector";
 import { usePayment } from "../../hooks/usePayment";
 import { useSelector } from "react-redux";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 
 /**
  * CompletePaymentModal Component
@@ -24,6 +25,7 @@ const CompletePaymentModal = ({
 
   // Get user data from Redux
   const user = useSelector((state) => state.auth.user);
+  useBodyScrollLock(isOpen);
 
   // Use payment hook for Razorpay integration
   const { createPaymentOrder } = usePayment();
@@ -739,6 +741,12 @@ CompletePaymentModal.propTypes = {
       customerPhone: PropTypes.string,
       customerEmail: PropTypes.string,
       notes: PropTypes.string,
+      streetAreaName: PropTypes.string,
+      completeAddress: PropTypes.string,
+      city: PropTypes.string,
+      state: PropTypes.string,
+      pincode: PropTypes.string,
+      country: PropTypes.string,
     }),
     booking: PropTypes.shape({
       date: PropTypes.string,

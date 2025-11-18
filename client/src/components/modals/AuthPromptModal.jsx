@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 
 const AuthPromptModal = ({
   isOpen,
@@ -12,6 +13,7 @@ const AuthPromptModal = ({
   signupLabel = "Create Account",
 }) => {
   const navigate = useNavigate();
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) {
     return null;

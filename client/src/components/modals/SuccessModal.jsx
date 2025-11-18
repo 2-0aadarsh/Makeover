@@ -1,21 +1,23 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 
 /**
  * SuccessModal Component
- * 
+ *
  * A custom success modal that matches the application theme
  * Displays success messages with optional details and actions
  */
-const SuccessModal = ({ 
-  isOpen, 
-  onClose, 
-  title = "Success!", 
-  message, 
+const SuccessModal = ({
+  isOpen,
+  onClose,
+  title = "Success!",
+  message,
   details = null,
   showIcon = true,
   buttonText = "OK",
-  onButtonClick = null
+  onButtonClick = null,
 }) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   const handleButtonClick = () => {
@@ -28,7 +30,7 @@ const SuccessModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all"
         onClick={(e) => e.stopPropagation()}
       >
@@ -38,17 +40,17 @@ const SuccessModal = ({
           {showIcon && (
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                <svg 
-                  className="w-10 h-10 text-green-500" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-10 h-10 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M5 13l4 4L19 7" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
                   />
                 </svg>
               </div>
@@ -68,9 +70,7 @@ const SuccessModal = ({
           {/* Additional Details (if provided) */}
           {details && (
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {details}
-              </p>
+              <p className="text-sm text-gray-700 leading-relaxed">{details}</p>
             </div>
           )}
 
@@ -95,8 +95,7 @@ SuccessModal.propTypes = {
   details: PropTypes.string,
   showIcon: PropTypes.bool,
   buttonText: PropTypes.string,
-  onButtonClick: PropTypes.func
+  onButtonClick: PropTypes.func,
 };
 
 export default SuccessModal;
-

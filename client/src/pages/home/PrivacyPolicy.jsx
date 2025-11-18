@@ -113,19 +113,17 @@ const PrivacyPolicy = () => {
     },
   ];
 
-
-
   return (
-    <div className="p-20">
-      <div className=" font-inter text-[#6E6E6E] leading-relaxed flex flex-col gap-10">
+    <div className="px-4 py-8 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-32">
+      <div className="font-inter text-[#6E6E6E] leading-relaxed flex flex-col gap-6 md:gap-8 lg:gap-10">
         {/* Back Button */}
-        <div className="mb-4">
+        {/* <div className="mb-2 md:mb-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[#CC2B52] hover:text-[#B02547] transition-colors duration-200 font-medium"
+            className="flex items-center gap-2 text-[#CC2B52] hover:text-[#B02547] transition-colors duration-200 font-medium text-sm md:text-base"
           >
             <svg
-              className="w-5 h-5"
+              className="w-4 h-4 md:w-5 md:h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -139,29 +137,31 @@ const PrivacyPolicy = () => {
             </svg>
             Back
           </button>
-        </div>
+        </div> */}
 
         <SectionTitle title="Privacy Policy" />
 
-        <div className="text-[20px] leading-[200%] font-normal">
-          <p className="mb-5">
+        <div className="text-base md:text-lg lg:text-[20px] leading-relaxed md:leading-[180%] lg:leading-[200%] font-normal">
+          <p className="mb-4 md:mb-5 text-sm md:text-base lg:text-lg">
             At Wemakeover, your privacy is our top priority. This Privacy Policy
             explains how we collect, use, protect, and share your personal
             information when you interact with our website, mobile application,
             or services.
-            <br />
+            <br className="hidden sm:block" />
             By using our services, you consent to the practices described in
             this policy.
           </p>
 
           {privacyData.map((section) => (
-            <div key={section.id} className="mb-6">
-              <h2 className="mb-2">
+            <div key={section.id} className="mb-4 md:mb-6">
+              <h2 className="mb-2 md:mb-3 text-lg md:text-xl font-semibold text-gray-800">
                 {section.id}. {section.title}
               </h2>
-              <ul className="list-disc pl-6 space-y-1">
+              <ul className="list-disc pl-4 md:pl-6 space-y-1 md:space-y-2 text-sm md:text-base lg:text-inherit">
                 {section.content.map((point, idx) => (
-                  <li key={idx}>{point}</li>
+                  <li key={idx} className="leading-normal md:leading-relaxed">
+                    {point}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -170,6 +170,6 @@ const PrivacyPolicy = () => {
       </div>
     </div>
   );
-}
+};
 
-export default PrivacyPolicy
+export default PrivacyPolicy;

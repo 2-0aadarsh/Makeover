@@ -1,6 +1,7 @@
 import SectionTitle from "../../ui/SectionTitle";
 import NewsletterSubscription from "../../ui/NewsletterSubscription";
-import model from "../../../assets/About/model.jpg";
+// import model from "../../../assets/About/model.jpg";
+import model2 from "../../../assets/About/model2.svg";
 import founder1 from "../../../assets/About/founder1.jpg";
 import Aadarsh from "../../../assets/About/Aadarsh.jpg";
 import Pushpraj from "../../../assets/About/Pushpraj.jpg";
@@ -285,9 +286,9 @@ const AboutUsPage = () => {
             </div>
           </div>
 
-          <div className="w-full sm:w-80 lg:w-[260px] h-auto sm:h-[320px] lg:h-[383px] bg-[#FF2F54] p-3 sm:p-4 rounded-xl mt-6 lg:mt-0">
+          <div className="w-full sm:w-80 lg:w-[260px] h-auto sm:h-[320px] lg:h-[383px] bg-[#FF2F54]  rounded-xl mt-6 lg:mt-0">
             <img
-              src={model}
+              src={model2}
               alt="Wemakeover model"
               className="w-full h-full object-cover rounded-lg lg:rounded-xl"
             />

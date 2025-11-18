@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
 import { HiLocationMarker, HiX } from "react-icons/hi";
 import { MdRocketLaunch } from "react-icons/md";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 
 /**
  * CityServiceabilityModal
@@ -17,10 +18,10 @@ const CityServiceabilityModal = ({
   validationType = "city", // "city" or "pincode"
   serviceableCities = [],
   serviceablePincodes = [],
-  serviceableCitiesDisplay,
   onChangeAddress,
   onJoinWaitlist,
 }) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   // Determine if it's a pincode issue or city issue
@@ -68,9 +69,14 @@ const CityServiceabilityModal = ({
                       : `Coming Soon to ${requestedCity}!`}
                   </h2>
                   <p className="text-white/90 text-xs truncate">
-                    {isPincodeIssue
-                      ? `We're expanding our coverage in ${requestedCity}`
-                      : "We're expanding to your city"}
+                    {isPincodeIssue ? (
+                      <>
+                        {"We're expanding our coverage in "}
+                        {requestedCity}
+                      </>
+                    ) : (
+                      "We're expanding to your city"
+                    )}
                   </p>
                 </div>
               </div>
@@ -82,11 +88,11 @@ const CityServiceabilityModal = ({
               <div className="text-center">
                 {isPincodeIssue ? (
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    We're expanding in{" "}
+                    {"We're expanding in "}
                     <span className="font-semibold text-[#CC2B52]">
                       {requestedCity}
                     </span>
-                    ! Currently, we don't cover pincode{" "}
+                    {"! Currently, we don't cover pincode "}
                     <span className="font-semibold text-[#CC2B52]">
                       {requestedPincode}
                     </span>
@@ -96,11 +102,13 @@ const CityServiceabilityModal = ({
                   </p>
                 ) : (
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    We're thrilled to bring our services to{" "}
+                    {"We're thrilled to bring our services to "}
                     <span className="font-semibold text-[#CC2B52]">
                       {requestedCity}
                     </span>
-                    ! While we work on expanding, you can book our services in:
+                    {
+                      "! While we work on expanding, you can book our services in:"
+                    }
                   </p>
                 )}
               </div>
@@ -191,8 +199,9 @@ const CityServiceabilityModal = ({
               {/* Footer Note */}
               <div className="text-center pt-2">
                 <p className="text-gray-500 text-xs">
-                  We're constantly expanding to new cities. Thank you for your
-                  patience! 💖
+                  {
+                    "We're constantly expanding to new cities. Thank you for your patience! 💖"
+                  }
                 </p>
               </div>
             </div>
@@ -233,7 +242,6 @@ CityServiceabilityModal.propTypes = {
   validationType: PropTypes.oneOf(["city", "pincode"]),
   serviceableCities: PropTypes.arrayOf(PropTypes.string),
   serviceablePincodes: PropTypes.arrayOf(PropTypes.string),
-  serviceableCitiesDisplay: PropTypes.string,
   onChangeAddress: PropTypes.func,
   onJoinWaitlist: PropTypes.func,
 };

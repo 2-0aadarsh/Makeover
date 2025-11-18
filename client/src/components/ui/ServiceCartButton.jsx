@@ -13,11 +13,9 @@ const ServiceCartButton = ({ serviceData, className = "" }) => {
 
   // Get cart item ID (use service_id if available, otherwise generate)
   const getCartItemId = (serviceData) => {
-    // If service has a unique service_id, use it
     if (serviceData.service_id) {
       return serviceData.service_id;
     }
-    // Fallback to generated ID for backward compatibility
     return `${serviceData.cardHeader}_${serviceData.price}_${
       serviceData.category || "default"
     }`;
@@ -37,45 +35,57 @@ const ServiceCartButton = ({ serviceData, className = "" }) => {
     decrementQuantity(itemId);
   };
 
+  // Fixed dimensions for consistent layout
+  const buttonBaseClasses =
+    "flex items-center justify-center transition-colors duration-200";
+  const containerClasses = "rounded-lg font-medium overflow-hidden";
+
   // If item is not in cart, show "Add +" button
   if (quantity === 0) {
     return (
-      <button
-        onClick={handleAddToCart}
-        className={`bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${className}`}
+      <div
+        className={`${containerClasses} bg-[#CC2B52] hover:bg-[#CC2B52]/90 ${className}`}
       >
-        Add +
-      </button>
+        <button
+          onClick={handleAddToCart}
+          className={`${buttonBaseClasses} w-full h-10 sm:h-9 lg:h-10 text-white text-xs sm:text-[13px] lg:text-[14px] font-semibold px-4 sm:px-4 lg:px-4`}
+          aria-label={`Add ${serviceData.cardHeader} to cart`}
+        >
+          Add +
+        </button>
+      </div>
     );
   }
 
-  // If item is in cart, show quantity selector "+ 1 -"
+  // If item is in cart, show quantity selector with same dimensions
   return (
     <div
-      className={`flex items-center bg-white border border-[#CC2B52] rounded-lg ${className}`}
+      className={`${containerClasses} border border-[#CC2B52] bg-white ${className}`}
     >
-      {/* Decrement Button */}
-      <button
-        onClick={handleDecrement}
-        className="px-3 py-2 text-[#CC2B52] hover:bg-[#CC2B52]/10 transition-colors duration-200 font-bold"
-        aria-label="Decrease quantity"
-      >
-        -
-      </button>
+      <div className="flex items-center justify-between w-full h-10 sm:h-9 lg:h-10">
+        {/* Decrement Button */}
+        <button
+          onClick={handleDecrement}
+          className={`${buttonBaseClasses} flex-1 h-full text-[#CC2B52] hover:bg-[#CC2B52]/10 font-bold text-sm sm:text-sm lg:text-sm`}
+          aria-label="Decrease quantity"
+        >
+          -
+        </button>
 
-      {/* Quantity Display */}
-      <span className="px-3 py-2 text-[#CC2B52] font-semibold min-w-[40px] text-center">
-        {quantity}
-      </span>
+        {/* Quantity Display */}
+        <span className="flex items-center justify-center flex-1 h-full text-[#CC2B52] font-semibold text-xs sm:text-[13px] lg:text-[14px] min-w-[24px] border-l border-r border-[#CC2B52]/30">
+          {quantity}
+        </span>
 
-      {/* Increment Button */}
-      <button
-        onClick={handleIncrement}
-        className="px-3 py-2 text-[#CC2B52] hover:bg-[#CC2B52]/10 transition-colors duration-200 font-bold"
-        aria-label="Increase quantity"
-      >
-        +
-      </button>
+        {/* Increment Button */}
+        <button
+          onClick={handleIncrement}
+          className={`${buttonBaseClasses} flex-1 h-full text-[#CC2B52] hover:bg-[#CC2B52]/10 font-bold text-sm sm:text-sm lg:text-sm`}
+          aria-label="Increase quantity"
+        >
+          +
+        </button>
+      </div>
     </div>
   );
 };

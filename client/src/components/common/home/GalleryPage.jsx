@@ -102,19 +102,30 @@ const GalleryPage = () => {
           </div>
 
           {/* Right Section: Animated Image - Mobile: Full width, Desktop: 2/3 */}
-          <div className="w-full lg:w-2/3 bg-[#F7EBEE] p-4 sm:p-8 md:p-16 lg:p-28 flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:h-auto">
-            <div className="w-full h-full relative overflow-hidden shadow-lg">
+          <div className="w-full lg:w-2/3 bg-[#F7EBEE] p-4 sm:p-6 md:p-8 lg:p-12 flex items-center justify-center">
+            <div className="w-full max-w-[500px] lg:max-w-none h-full relative overflow-hidden shadow-lg">
               <AnimatePresence mode="wait">
-                <motion.img
+                <motion.div
                   key={tabData[activeIndex].title}
-                  src={tabData[activeIndex].image}
-                  alt={tabData[activeIndex].title}
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full flex items-center justify-center"
                   initial={{ opacity: 0, scale: 1.05 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.8, ease: "easeInOut" }}
-                />
+                >
+                  {/* Consistent Portrait Image Container */}
+                  <div className="w-full aspect-[3/4] max-h-[500px] lg:max-h-[600px] xl:max-h-[700px] relative overflow-hidden">
+                    <img
+                      src={tabData[activeIndex].image}
+                      alt={tabData[activeIndex].title}
+                      className="w-full h-full object-cover object-center"
+                      // Force portrait orientation for all images
+                      style={{
+                        objectPosition: "center top", // Adjust this based on your images
+                      }}
+                    />
+                  </div>
+                </motion.div>
               </AnimatePresence>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import useBodyScrollLock from '../../hooks/useBodyScrollLock';
 
 /**
  * CancelBookingModal Component
@@ -16,6 +17,7 @@ const CancelBookingModal = ({
   errorMessage = null,
 }) => {
   const [cancellationReason, setCancellationReason] = useState('');
+  useBodyScrollLock(isOpen);
 
   // Format currency
   const formatCurrency = (amount) => {
