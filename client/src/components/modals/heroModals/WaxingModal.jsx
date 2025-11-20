@@ -5,7 +5,7 @@ import ServiceModal from "../ServiceModal";
 import fullBodyClassic from "../../../assets/modals/waxing/classic/fullBody-classic.png";
 import handsAndLegsClassic from "../../../assets/modals/waxing/classic/handsAndLegs-classic.png";
 import underarmsClassic from "../../../assets/modals/waxing/classic/Underarm.png";
-import faceWaxClassic from "../../../assets/modals/waxing/classic/face Wax.png";
+import faceWaxClassic from "../../../assets/modals/waxing/classic/Face Wax.png";
 import threadingClassic from "../../../assets/modals/waxing/classic/Threading.png";
 
 // premium images
