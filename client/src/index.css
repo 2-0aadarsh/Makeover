@@ -42,3 +42,44 @@ input[type="number"] {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 } */
+
+/* Custom scrollbar with 1px width */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button:start:decrement,
+.custom-scrollbar::-webkit-scrollbar-button:end:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #F7EBEE;
+  border-radius: 1px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #9CA3AF;
+  border-radius: 1px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}

@@ -269,7 +269,7 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
       >
         <motion.div
           ref={modalRef}
-          className="relative w-full md:w-auto md:max-w-[1104px] h-[87vh] md:h-[75vh] md:max-h-[75vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
+          className="relative w-full md:w-[1020px] h-[87vh] md:h-[620px] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-1 sm:pr-2 md:pr-2 lg:pr-2 flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
           variants={
             window.innerWidth < 768 ? modalVariants : desktopModalVariants
           }
@@ -367,8 +367,12 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
           <motion.div
             ref={contentRef}
             tabIndex={0}
-            className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 sm:mt-6 outline-none pb-10"
-            style={{ WebkitOverflowScrolling: "touch" }}
+            className="flex-1 w-full overflow-y-auto mt-4 sm:mt-6 outline-none pb-4 pr-0 custom-scrollbar"
+            style={{ 
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#9CA3AF #F7EBEE"
+            }}
             onTouchStart={handleContentTouchStart}
             onTouchMove={handleContentTouchMove}
             initial={{ opacity: 0 }}

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import EnquiryModal from "../modals/EnquiryModal";
+import ServiceCartButton from "./ServiceCartButton";
 
 const FlexCard = ({ item, source = "other" }) => {
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
@@ -18,6 +19,7 @@ const FlexCard = ({ item, source = "other" }) => {
     setIsEnquiryModalOpen(true);
   };
 
+  const addButtonClassName = item?.addButtonClassName ?? "w-full text-sm";
   return (
     <>
       <div className="flex flex-col gap-2 sm:gap-3 lg:gap-[10px] p-3 sm:p-4 md:p-5 lg:p-6 h-auto min-h-[300px] sm:min-h-[350px] lg:h-[392px] w-full sm:w-[280px] lg:w-[304px] rounded-xl shadow-xl bg-white">
@@ -40,22 +42,46 @@ const FlexCard = ({ item, source = "other" }) => {
               {item.description}
             </p>
 
-            {(item?.PriceEstimate || item?.Price) && (
-              <p className="price text-xs sm:text-sm lg:text-sm font-semibold text-[#3C3C43]">
-                {item?.PriceEstimate
-                  ? `Price Estimate : ${item.PriceEstimate}`
-                  : `Price : ${item.Price}`}
+            {item?.pricingNote ? (
+              <p className="text-sm font-semibold text-[#3C3C43]">
+                {item.pricingNote}
               </p>
+            ) : (item?.PriceEstimate || item?.Price) && (
+              <div className="price flex items-center justify-between w-full mt-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm sm:text-base font-semibold text-[#1F1F1F]">
+                    ₹ {item?.Price ? item.Price : item.PriceEstimate}
+                  </span>
+                  {item?.includingTax && (
+                    <span className="text-[10px] text-[#6B6B6B]">
+                      Including Taxes
+                    </span>
+                  )}
+                </div>
+                {item?.service && (
+                  <span className="text-[10px] font-semibold text-[#1F1F1F] whitespace-nowrap">
+                    {item.service}
+                  </span>
+                )}
+              </div>
             )}
           </div>
 
-          {/* car-button */}
-          <button
-            onClick={handleEnquiryClick}
-            className="button w-full font-semibold text-xs sm:text-sm lg:text-sm flex flex-col items-center justify-center text-[#FFFFFF] bg-[#CC2B52] rounded-3xl px-2 sm:px-3 lg:px-3 py-2 sm:py-2 lg:py-2 cursor-pointer hover:bg-[#CC2B52]/90 transition-colors"
-          >
-            Enquiry Now
-          </button>
+          {/* action-button */}
+          {item?.enableAddButton ? (
+            <ServiceCartButton
+              serviceData={serviceData}
+              className={addButtonClassName}
+              sizeConfig={item?.buttonSize}
+            />
+          ) : (
+            <button
+              onClick={handleEnquiryClick}
+              className="button w-full font-semibold text-xs sm:text-sm lg:text-sm flex flex-col items-center justify-center text-[#FFFFFF] bg-[#CC2B52] rounded-3xl px-2 sm:px-3 lg:px-3 py-2 sm:py-2 lg:py-2 cursor-pointer hover:bg-[#CC2B52]/90 transition-colors"
+            >
+              Enquiry Now
+            </button>
+          )}
         </div>
       </div>
 
