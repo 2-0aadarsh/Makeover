@@ -18,7 +18,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
       data: [
         {
           img: faceAndNeckDetan,
-          cardHeader: "Face & Neck De-Tan",
+          cardHeader: "Face & Neck Detan",
           description:
             "Step into softness with our expertly done hand and leg premium de-tan treatment.",
           price: "399",
@@ -29,7 +29,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
         },
         {
           img: handsAndLegsDetan,
-          cardHeader: "Hand & Leg De-tan",
+          cardHeader: "Hand & Leg Detan",
           description:
             "Effortless elegance begins with clean, silky hands and legs",
           price: "399",
@@ -40,7 +40,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
         },
         {
           img: fullBodyDetan,
-          cardHeader: "Full Body De-Tan ",
+          cardHeader: "Full Body Detan ",
           description:
             "Reveal silky, radiant skin all over with our expert full body de-tan",
           price: "899",
@@ -93,10 +93,10 @@ const BleachAndDeTanModal = ({ onClose }) => {
 
   return (
     <ServiceModal
-      title="De-Tan & Bleach"
+      title="Detan & Bleach"
       gridCard={card}
       onClose={onClose}
-      onConfirm={() => alert("De-Tan & Bleach Booking Confirmed!")}
+      onConfirm={() => alert("Detan & Bleach Booking Confirmed!")}
       source="bleach-detan"
     />
   );

@@ -52,7 +52,7 @@ const Hero = () => {
     },
     {
       id: 6,
-      name: "De-Tan & Bleach",
+      name: "Detan & Bleach",
       image: makeupImg,
       modal: <BleachAndDeTanModal onClose={closeModal} />,
     },
