@@ -93,10 +93,10 @@ const BleachAndDeTanModal = ({ onClose }) => {
 
   return (
     <ServiceModal
-      title="Bleach & De-Tan"
+      title="De-Tan & Bleach"
       gridCard={card}
       onClose={onClose}
-      onConfirm={() => alert("Bleach & De-Tan Booking Confirmed!")}
+      onConfirm={() => alert("De-Tan & Bleach Booking Confirmed!")}
       source="bleach-detan"
     />
   );

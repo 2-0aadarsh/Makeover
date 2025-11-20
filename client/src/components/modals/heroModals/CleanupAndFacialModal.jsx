@@ -111,7 +111,7 @@ const CleanupAndFacialModal = ({ onClose }) => {
           cardHeader: "Mamma Earth Ubtan Facial",
           description:
             "Brighten and revive your skin with the natural goodness of ubtan and turmeric",
-          price: "649",
+          price: "799",
           taxIncluded: true,
           duration: "1hr 10mins",
           button: "Add +",

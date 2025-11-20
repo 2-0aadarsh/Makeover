@@ -94,7 +94,7 @@ const ManicureAndPedicureModal = ({ onClose }) => {
           cardHeader: "Pedicure",
           description:
             "A deluxe pedicure experience that smooths & nourishes every step",
-          price: "599",
+          price: "699",
           taxIncluded: true,
           duration: "1hr 10mins",
           button: "Add +",
@@ -117,10 +117,10 @@ const ManicureAndPedicureModal = ({ onClose }) => {
 
   return (
     <ServiceModal
-      title="Manicure & Pedicure"
+      title="Mani/Pedi & Massage"
       gridCard={card}
       onClose={onClose}
-      onConfirm={() => alert("Manicure & Pedicure Booking Confirmed!")}
+      onConfirm={() => alert("Mani/Pedi & Massage Booking Confirmed!")}
     />
   );
 };
