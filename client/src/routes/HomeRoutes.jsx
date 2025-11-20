@@ -186,7 +186,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: "forgot-password",
-                element: (
+                element: ( 
                   <LazyWrapper>
                     <ForgotPasswordPage />
                   </LazyWrapper>

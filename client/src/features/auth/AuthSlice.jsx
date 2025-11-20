@@ -11,13 +11,46 @@ import {
 } from "./authThunks";
 import { toast } from "react-toastify";
 
+const SIGNUP_EMAIL_KEY = "pendingSignupEmail";
+const SIGNUP_SUCCESS_KEY = "pendingSignupSuccess";
+
+const isBrowser = typeof window !== "undefined";
+
+const getPendingSignupContext = () => {
+  if (!isBrowser) {
+    return { email: null, success: false };
+  }
+
+  const email = sessionStorage.getItem(SIGNUP_EMAIL_KEY);
+  const success = sessionStorage.getItem(SIGNUP_SUCCESS_KEY) === "true";
+  return {
+    email: email || null,
+    success,
+  };
+};
+
+const setPendingSignupContext = (email, success) => {
+  if (!isBrowser) return;
+
+  if (success && email) {
+    sessionStorage.setItem(SIGNUP_EMAIL_KEY, email);
+    sessionStorage.setItem(SIGNUP_SUCCESS_KEY, "true");
+  } else {
+    sessionStorage.removeItem(SIGNUP_EMAIL_KEY);
+    sessionStorage.removeItem(SIGNUP_SUCCESS_KEY);
+  }
+};
+
+const { email: storedSignupEmail, success: storedSignupSuccess } =
+  getPendingSignupContext();
+
 const initialState = {
   user: null,
-  userEmail: null,
+  userEmail: storedSignupEmail,
   status: "idle",
   error: null,
   isAuthenticated: false,
-  signupSuccess: false,
+  signupSuccess: storedSignupSuccess,
   forgotPasswordSuccess: false,
   resetPasswordSuccess: false,
 };
@@ -32,10 +65,12 @@ export const AuthSlice = createSlice({
       state.signupSuccess = false;
       state.forgotPasswordSuccess = false;
       state.resetPasswordSuccess = false;
+      setPendingSignupContext(null, false);
     },
 
     clearUserEmail: (state) => {
       state.userEmail = null; // allow manual reset if needed
+      setPendingSignupContext(null, false);
     },
   },
 
@@ -43,20 +78,25 @@ export const AuthSlice = createSlice({
     builder
       // SIGNUP
       .addCase(signupUser.pending, (state) => {
+        console.log("⏳ [Auth Slice] Signup pending...");
         state.status = "loading";
         state.error = null;
         state.signupSuccess = false;
       })
       .addCase(signupUser.rejected, (state, action) => {
+        console.error("❌ [Auth Slice] Signup rejected:", action.payload);
         state.status = "failed";
         state.error = action.payload || action.error.message;
         state.signupSuccess = false;
         toast.error(state.error);
       })
       .addCase(signupUser.fulfilled, (state, action) => {
+        console.log("✅ [Auth Slice] Signup fulfilled! Setting signupSuccess = true");
+        console.log("📧 [Auth Slice] User email:", action.meta.arg.email);
         state.status = "succeeded";
         state.signupSuccess = true;
         state.userEmail = action.meta.arg.email;
+        setPendingSignupContext(action.meta.arg.email, true);
         toast.success(
           action.payload.message ||
             "Signup successful. Check your email for verification."
@@ -79,6 +119,8 @@ export const AuthSlice = createSlice({
         state.user = action.payload.user; // comes from backend with phoneNumber
         state.isAuthenticated = true; // user is now logged in after verification
         state.userEmail = null;
+        state.signupSuccess = false;
+        setPendingSignupContext(null, false);
         toast.success("OTP verified successfully");
       })
 
@@ -143,6 +185,8 @@ export const AuthSlice = createSlice({
         state.isAuthenticated = false;
         state.error = null;
         state.userEmail = null;
+        state.signupSuccess = false;
+        setPendingSignupContext(null, false);
         toast.success("Logged out successfully!");
       })
 

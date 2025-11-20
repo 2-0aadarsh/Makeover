@@ -9,6 +9,40 @@ import {
   deleteAddress,
   setDefaultAddress,
 } from "../../../features/address/addressThunks";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
+
+const formatPhoneNumber = (phone) => {
+  if (!phone) return "";
+  return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
+};
+
+const normalizeAddressString = (addressString = "") =>
+  addressString.replace(/\|\s*Phone:.*$/, "").trim();
+
+const formatAddressString = (address) => {
+  if (!address) return "";
+  const phoneFormatted = address.phone
+    ? ` | Phone: ${formatPhoneNumber(address.phone)}`
+    : "";
+  return `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})${phoneFormatted}`;
+};
+
+const mapAddressForParent = (address) => {
+  if (!address) return null;
+  return {
+    street: address.streetAreaName,
+    city: address.city,
+    state: address.state,
+    pincode: address.pincode,
+    houseFlatNumber: address.houseFlatNumber,
+    completeAddress: address.completeAddress || address.address,
+    landmark: address.landmark,
+    country: address.country,
+    phone: address.phone,
+    addressType: address.addressType,
+    _id: address._id,
+  };
+};
 
 /**
  * AddressDetail Component
@@ -39,6 +73,11 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
     addressType: "home",
     isDefault: false,
   });
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [addressPendingDelete, setAddressPendingDelete] = useState(null);
+  useBodyScrollLock(
+    showAddressForm || showSavedAddresses || Boolean(addressPendingDelete)
+  );
 
   // Load addresses from Redux store on component mount
   useEffect(() => {
@@ -52,25 +91,25 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
     // If no currentAddress is provided and we have a default address, use it
     if (!currentAddress && defaultAddress && onAddressUpdate) {
       const fullAddress = formatAddressString(defaultAddress);
-      onAddressUpdate(fullAddress);
+      const addressObject = mapAddressForParent(defaultAddress);
+      onAddressUpdate(fullAddress, addressObject);
+      setSelectedAddressId(defaultAddress._id);
     }
   }, [addresses, defaultAddress, currentAddress, onAddressUpdate]);
 
-  // Helper function to format address string
-  const formatAddressString = (address) => {
-    if (!address) return "";
-    const phoneFormatted = address.phone
-      ? ` | Phone: ${formatPhoneNumber(address.phone)}`
-      : "";
-    return `${address.houseFlatNumber}, ${address.streetAreaName}, ${address.completeAddress}, ${address.landmark}, ${address.city} (${address.pincode})${phoneFormatted}`;
-  };
-
-  // Helper function to format phone number for display
-  const formatPhoneNumber = (phone) => {
-    if (!phone) return "";
-    // Format: +91 98765 43210
-    return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
-  };
+  useEffect(() => {
+    if (currentAddress && addresses.length > 0) {
+      const normalizedCurrent = normalizeAddressString(currentAddress);
+      const matched = addresses.find(
+        (addr) =>
+          normalizeAddressString(formatAddressString(addr)) ===
+          normalizedCurrent
+      );
+      if (matched) {
+        setSelectedAddressId(matched._id);
+      }
+    }
+  }, [currentAddress, addresses]);
 
   // Sort addresses so default is always first
   const sortedAddresses = [...addresses].sort((a, b) => {
@@ -143,23 +182,42 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
 
   // Handle form submission
   const handleSaveAddress = async () => {
-    if (isFormValid()) {
-      try {
-        if (editingAddress) {
-          await dispatch(
-            updateAddress({ id: editingAddress._id, data: formData })
-          ).unwrap();
-          toast.success("Address updated successfully!");
-        } else {
-          await dispatch(createAddress(formData)).unwrap();
-          toast.success("Address added successfully!");
-        }
+    if (!isFormValid()) return;
 
-        // Create full address string for display
-        const fullAddress = `${formData.houseFlatNumber}, ${formData.streetAreaName}, ${formData.address}, ${formData.landmark}, ${formData.city} (${formData.pincode})`;
+    try {
+      let savedAddressResponse;
+      if (editingAddress) {
+        savedAddressResponse = await dispatch(
+          updateAddress({ id: editingAddress._id, data: formData })
+        ).unwrap();
+        toast.success("Address updated successfully!");
+      } else {
+        savedAddressResponse = await dispatch(createAddress(formData)).unwrap();
+        toast.success("Address added successfully!");
+      }
 
-        // Also create address object for payment processing
-        const addressObject = {
+      const savedAddress =
+        savedAddressResponse?.data?.address ||
+        (editingAddress
+          ? {
+              ...editingAddress,
+              houseFlatNumber: formData.houseFlatNumber,
+              streetAreaName: formData.streetAreaName,
+              completeAddress: formData.address,
+              landmark: formData.landmark,
+              city: formData.city,
+              state: formData.state,
+              country: formData.country,
+              pincode: formData.pincode,
+              phone: formData.phone,
+              addressType: formData.addressType,
+              isDefault: formData.isDefault,
+            }
+          : null);
+
+      if (savedAddress) {
+        const fullAddress = formatAddressString(savedAddress);
+        const addressObject = mapAddressForParent(savedAddress) || {
           street: formData.streetAreaName,
           city: formData.city,
           state: formData.state,
@@ -168,33 +226,35 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
           completeAddress: formData.address,
           landmark: formData.landmark,
           country: formData.country,
-          phone: formData.phone, // Include phone number
+          phone: formData.phone,
+          addressType: formData.addressType,
         };
 
+        setSelectedAddressId(savedAddress._id || editingAddress?._id || null);
+
         if (onAddressUpdate) {
-          // Send both string and object for backward compatibility
           onAddressUpdate(fullAddress, addressObject);
         }
-
-        setShowAddressForm(false);
-        setEditingAddress(null);
-        // Reset form
-        setFormData({
-          houseFlatNumber: "",
-          streetAreaName: "",
-          address: "",
-          landmark: "",
-          city: "",
-          state: "Bihar",
-          country: "India",
-          pincode: "",
-          phone: "",
-          addressType: "home",
-          isDefault: false,
-        });
-      } catch (error) {
-        toast.error(error.message || "Failed to save address");
       }
+
+      setShowAddressForm(false);
+      setEditingAddress(null);
+      // Reset form
+      setFormData({
+        houseFlatNumber: "",
+        streetAreaName: "",
+        address: "",
+        landmark: "",
+        city: "",
+        state: "Bihar",
+        country: "India",
+        pincode: "",
+        phone: "",
+        addressType: "home",
+        isDefault: false,
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to save address");
     }
   };
 
@@ -212,21 +272,12 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
         const fullAddress = formatAddressString(selectedAddr);
 
         // Also create address object for payment processing
-        const addressObject = {
-          street: selectedAddr.streetAreaName,
-          city: selectedAddr.city,
-          state: selectedAddr.state,
-          pincode: selectedAddr.pincode,
-          houseFlatNumber: selectedAddr.houseFlatNumber,
-          completeAddress: selectedAddr.completeAddress,
-          landmark: selectedAddr.landmark,
-          country: selectedAddr.country,
-          phone: selectedAddr.phone, // Include phone number
-        };
+        const addressObject = mapAddressForParent(selectedAddr);
 
         onAddressUpdate(fullAddress, addressObject);
       }
 
+      setSelectedAddressId(selectedAddressId);
       setShowSavedAddresses(false);
     } catch (error) {
       toast.error(error.message || "Failed to set default address");
@@ -234,14 +285,17 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
   };
 
   // Handle delete address
-  const handleDeleteAddress = async (addressId) => {
-    if (window.confirm("Are you sure you want to delete this address?")) {
-      try {
-        await dispatch(deleteAddress(addressId)).unwrap();
-        toast.success("Address deleted successfully!");
-      } catch (error) {
-        toast.error(error.message || "Failed to delete address");
+  const handleDeleteAddress = async () => {
+    if (!addressPendingDelete) return;
+    try {
+      await dispatch(deleteAddress(addressPendingDelete._id)).unwrap();
+      toast.success("Address deleted successfully!");
+      if (addressPendingDelete._id === selectedAddressId) {
+        setSelectedAddressId(null);
       }
+      setAddressPendingDelete(null);
+    } catch (error) {
+      toast.error(error.message || "Failed to delete address");
     }
   };
 
@@ -258,38 +312,61 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
 
   // Handle edit address
   const handleEditAddress = (addressToEdit) => {
-    // Find the address object from the addresses array
-    const addressObj = addresses.find((addr) => {
-      const fullAddress = formatAddressString(addr);
-      return fullAddress === addressToEdit;
-    });
+    const addressObj =
+      typeof addressToEdit === "string"
+        ? addresses.find(
+            (addr) =>
+              normalizeAddressString(formatAddressString(addr)) ===
+              normalizeAddressString(addressToEdit)
+          )
+        : addressToEdit;
 
-    if (addressObj) {
-      setEditingAddress(addressObj);
-      setFormData({
-        houseFlatNumber: addressObj.houseFlatNumber || "",
-        streetAreaName: addressObj.streetAreaName || "",
-        address: addressObj.completeAddress || "",
-        landmark: addressObj.landmark || "",
-        city: addressObj.city || "",
-        state: addressObj.state || "Bihar",
-        country: addressObj.country || "India",
-        pincode: addressObj.pincode || "",
-        phone: addressObj.phone || "",
-        addressType: addressObj.addressType || "home",
-        isDefault: addressObj.isDefault || false,
-      });
-      setShowAddressForm(true);
-      setShowSavedAddresses(false);
-    }
+    if (!addressObj) return;
+
+    setEditingAddress(addressObj);
+    setFormData({
+      houseFlatNumber: addressObj.houseFlatNumber || "",
+      streetAreaName: addressObj.streetAreaName || "",
+      address: addressObj.completeAddress || "",
+      landmark: addressObj.landmark || "",
+      city: addressObj.city || "",
+      state: addressObj.state || "Bihar",
+      country: addressObj.country || "India",
+      pincode: addressObj.pincode || "",
+      phone: addressObj.phone || "",
+      addressType: addressObj.addressType || "home",
+      isDefault: addressObj.isDefault || false,
+    });
+    setShowAddressForm(true);
+    setShowSavedAddresses(false);
   };
 
   // Handle edit current address
   const handleEditCurrentAddress = () => {
-    const addressToEdit = currentAddress || formatAddressString(defaultAddress);
+    let addressObj = null;
 
-    if (addressToEdit) {
-      handleEditAddress(addressToEdit);
+    if (selectedAddressId) {
+      addressObj = addresses.find((addr) => addr._id === selectedAddressId);
+    }
+
+    if (!addressObj) {
+      const addressToEdit =
+        currentAddress || formatAddressString(defaultAddress);
+      if (addressToEdit) {
+        addressObj = addresses.find(
+          (addr) =>
+            normalizeAddressString(formatAddressString(addr)) ===
+            normalizeAddressString(addressToEdit)
+        );
+      }
+    }
+
+    if (addressObj) {
+      handleEditAddress(addressObj);
+    } else {
+      toast.error(
+        "Unable to find current address details. Please use Change Address."
+      );
     }
   };
 
@@ -694,7 +771,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
                       <div className="flex flex-col sm:items-end gap-2">
                         <div className="flex items-center gap-2 self-start sm:self-auto">
                           <button
-                            onClick={() => handleEditAddress(fullAddress)}
+                            onClick={() => handleEditAddress(savedAddress)}
                             className="text-blue-500 hover:text-blue-700 text-sm p-2 hover:bg-blue-50 rounded transition-colors border border-blue-200"
                             title="Edit Address"
                           >
@@ -715,7 +792,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
 
                           <button
                             onClick={() =>
-                              handleDeleteAddress(savedAddress._id)
+                              setAddressPendingDelete(savedAddress)
                             }
                             className="text-red-500 hover:text-red-700 text-sm p-2 hover:bg-red-50 rounded transition-colors border border-red-200"
                             title="Delete Address"
@@ -763,6 +840,38 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {addressPendingDelete && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-[#CC2B52] to-[#A91D3A] p-5 text-white">
+              <h3 className="text-lg font-semibold">Delete Address</h3>
+              <p className="text-sm text-white/80 mt-1">
+                This action cannot be undone. Are you sure you want to delete
+                this address?
+              </p>
+            </div>
+            <div className="p-5 space-y-3">
+              <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                {formatAddressString(addressPendingDelete)}
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setAddressPendingDelete(null)}
+                  className="flex-1 border border-gray-300 py-2.5 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAddress}
+                  className="flex-1 bg-[#CC2B52] text-white py-2.5 rounded-lg font-semibold hover:bg-[#A91D3A] transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>

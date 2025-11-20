@@ -10,7 +10,7 @@ const redis = new Redis({
   // Connection options for better error handling
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3,
-  lazyConnect: true, // Don't connect immediately
+  // lazyConnect: true, // Don't connect immediately
   // Optional: Enable TLS if Redis server requires it
   // tls: {},
 });

@@ -241,7 +241,7 @@ const BookingPage = () => {
             title="No booking details"
             description="You haven't made any bookings yet. Book your first beauty service today!"
             actionText="Book Now"
-            onAction={() => navigate("/services")}
+            onAction={() => navigate("/")}
           />
         )}
 

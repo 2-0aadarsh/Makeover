@@ -6,7 +6,6 @@ import signupHeader from "../../../assets/signupHeader.jpg";
 import Logo from "../../ui/Logo";
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../../../features/auth/authThunks";
-import { resetAuthState } from "../../../features/auth/AuthSlice";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -35,18 +34,54 @@ const SignupPage = () => {
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Client-side validation
     if (!formData.phoneNumber.trim()) {
       setFormError("Phone number is required.");
       return;
     }
 
+    // Validate phone number format (Indian format: 10 digits starting with 6-9)
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(formData.phoneNumber.trim())) {
+      setFormError(
+        "Phone number must be 10 digits starting with 6, 7, 8, or 9"
+      );
+      return;
+    }
+
+    // Validate password format
+    // eslint-disable-next-line no-useless-escape
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setFormError(
+        "Password must be at least 8 characters with uppercase, number, and special character"
+      );
+      return;
+    }
+
+    // Check password match
+    if (formData.password !== formData.confirmPassword) {
+      setFormError("Passwords do not match");
+      return;
+    }
+
     setFormError("");
+    console.log("📝 Submitting signup with data:", {
+      ...formData,
+      password: "***",
+      confirmPassword: "***",
+    });
+
     dispatch(signupUser(formData));
   };
 
   // react to signup success
   useEffect(() => {
+    console.log("🔄 Signup success changed:", signupSuccess);
     if (signupSuccess) {
+      console.log("✅ Signup successful! Navigating to verify-email page...");
       setFormData({
         name: "",
         email: "",
@@ -56,9 +91,10 @@ const SignupPage = () => {
       });
       setFormError("");
       navigate("/auth/verify-email");
-      dispatch(resetAuthState()); // cleanup after redirect
+      console.log("🧭 Navigation to /auth/verify-email initiated");
+      // Don't reset auth state here - let the verify-email page handle it on unmount
     }
-  }, [signupSuccess, navigate, formData.email, dispatch]);
+  }, [signupSuccess, navigate]);
 
   // Static content
   const inputData = [
