@@ -46,13 +46,13 @@ const Hero = () => {
     },
     {
       id: 5,
-      name: "Manicure & Pedicure",
+      name: "Mani/Pedi & Massage",
       image: primerImg,
       modal: <ManicureAndPedicureModal onClose={closeModal} />,
     },
     {
       id: 6,
-      name: "Bleach & De-Tan",
+      name: "Detan & Bleach",
       image: makeupImg,
       modal: <BleachAndDeTanModal onClose={closeModal} />,
     },
