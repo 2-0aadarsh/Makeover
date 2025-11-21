@@ -1,20 +1,135 @@
 /* eslint-disable react/prop-types */
+/**
+ * SERVICE MODAL LAYOUT STRUCTURE
+ * ===============================
+ *
+ * ┌─────────────────────────────────────────────────────────┐
+ * │ AnimatePresence                                         │
+ * │ ┌───────────────────────────────────────────────────┐   │
+ * │ │ motion.div (OVERLAY)                              │   │
+ * │ │ - Background overlay with backdrop blur           │   │
+ * │ │ - Handles click outside to close                  │   │
+ * │ │ ┌─────────────────────────────────────────────┐   │   │
+ * │ │ │ motion.div (MODAL CONTAINER)                 │   │   │
+ * │ │ │ - Main modal box (ref: modalRef)             │   │   │
+ * │ │ │ - Handles drag gestures                       │   │   │
+ * │ │ │                                               │   │   │
+ * │ │ │ ┌─────────────────────────────────────────┐   │   │   │
+ * │ │ │ │ Drag Handle (Mobile Only)               │   │   │   │
+ * │ │ │ │ - Top drag indicator bar                 │   │   │   │
+ * │ │ │ └─────────────────────────────────────────┘   │   │   │
+ * │ │ │                                               │   │   │
+ * │ │ │ ┌─────────────────────────────────────────┐   │   │   │
+ * │ │ │ │ Header (STICKY)                         │   │   │   │
+ * │ │ │ │ - Stays at top when scrolling            │   │   │   │
+ * │ │ │ │ ┌───────────────────────────────────┐   │   │   │   │
+ * │ │ │ │ │ Title Row                         │   │   │   │   │
+ * │ │ │ │ │ - Title (motion.h2)               │   │   │   │   │
+ * │ │ │ │ │ - Close Button (X)                │   │   │   │   │
+ * │ │ │ │ └───────────────────────────────────┘   │   │   │   │
+ * │ │ │ │                                         │   │   │   │
+ * │ │ │ │ ┌───────────────────────────────────┐   │   │   │   │
+ * │ │ │ │ │ Tabs Row (if gridCard exists)     │   │   │   │   │
+ * │ │ │ │ │ - Tab buttons (Regular/Premium)   │   │   │   │   │
+ * │ │ │ │ │ - Active tab indicator            │   │   │   │   │
+ * │ │ │ │ └───────────────────────────────────┘   │   │   │   │
+ * │ │ │ └─────────────────────────────────────────┘   │   │   │
+ * │ │ │                                               │   │   │
+ * │ │ │ ┌─────────────────────────────────────────┐   │   │   │
+ * │ │ │ │ Content Area (SCROLLABLE)               │   │   │   │
+ * │ │ │ │ - Scrollable container (ref: contentRef)│   │   │   │
+ * │ │ │ │ ┌───────────────────────────────────┐   │   │   │   │
+ * │ │ │ │ │ AnimatePresence                   │   │   │   │   │
+ * │ │ │ │ │ ┌─────────────────────────────┐   │   │   │   │   │
+ * │ │ │ │ │ │ motion.div (Tab Content)    │   │   │   │   │   │
+ * │ │ │ │ │ │ - Animates on tab change    │   │   │   │   │   │
+ * │ │ │ │ │ │                             │   │   │   │   │   │
+ * │ │ │ │ │ │ ┌───────────────────────┐   │   │   │   │   │   │
+ * │ │ │ │ │ │ │ FlexCards Section     │   │   │   │   │   │   │
+ * │ │ │ │ │ │ │ (if cards.length > 0) │   │   │   │   │   │   │
+ * │ │ │ │ │ │ │ - FlexCardContainer   │   │   │   │   │   │   │
+ * │ │ │ │ │ │ └───────────────────────┘   │   │   │   │   │   │
+ * │ │ │ │ │ │                             │   │   │   │   │   │
+ * │ │ │ │ │ │ ┌───────────────────────┐   │   │   │   │   │   │
+ * │ │ │ │ │ │ │ GridCards Section     │   │   │   │   │   │   │
+ * │ │ │ │ │ │ │ (if gridCard.length>0)│   │   │   │   │   │   │
+ * │ │ │ │ │ │ │ - GridCardContainer   │   │   │   │   │   │   │
+ * │ │ │ │ │ │ └───────────────────────┘   │   │   │   │   │   │
+ * │ │ │ │ │ └─────────────────────────────┘   │   │   │   │   │
+ * │ │ │ │ └───────────────────────────────────┘   │   │   │   │
+ * │ │ │ └─────────────────────────────────────────┘   │   │   │
+ * │ │ │                                               │   │   │
+ * │ │ │ ┌─────────────────────────────────────────┐   │   │   │
+ * │ │ │ │ Gradient Fade (Mobile Only)             │   │   │   │
+ * │ │ │ │ - Bottom fade indicator                 │   │   │   │
+ * │ │ │ └─────────────────────────────────────────┘   │   │   │
+ * │ │ └─────────────────────────────────────────────┘   │   │
+ * │ └───────────────────────────────────────────────────┘   │
+ * └─────────────────────────────────────────────────────────┘
+ *
+ * WHERE TO ADD NEW ELEMENTS:
+ * ===========================
+ *
+ * 1. NEW HEADER ELEMENT (above/below title):
+ *    → Add in "Title Row" div (line ~300)
+ *
+ * 2. NEW TAB:
+ *    → Modify 'tabs' array (line ~11)
+ *    → Tabs render automatically in "Tabs Row" (line ~327)
+ *
+ * 3. NEW CONTENT SECTION (in scrollable area):
+ *    → Add in "Tab Content" motion.div (line ~392)
+ *    → Can add before/after FlexCards or GridCards sections
+ *
+ * 4. NEW FOOTER/BOTTOM ELEMENT:
+ *    → Add new div after "Content Area" (after line ~427)
+ *    → Before "Gradient Fade" div
+ *
+ * 5. NEW BUTTON/ACTION BAR:
+ *    → Add in Header section OR after Content Area
+ *    → Use sticky positioning if needed in header
+ *
+ * 6. NEW SIDEBAR/ADJACENT CONTENT:
+ *    → Modify modal container to use grid/flex layout
+ *    → Add as sibling to "Header" or "Content Area"
+ */
+
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { IoInformationCircleOutline } from "react-icons/io5";
 import FlexCardContainer from "../../components/ui/FlexCardContainer";
 import GridCardContainer from "../ui/GridCardContainer";
 
-const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
+const ServiceModal = ({
+  title,
+  cards = [],
+  gridCard = [],
+  infoContent = null,
+  onClose,
+}) => {
   const modalRef = useRef(null);
   const contentRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const tabs = gridCard.map((item) => item?.title);
   const [currentTab, setCurrentTab] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const infoIconRef = useRef(null);
   const dragStartY = useRef(0);
   const touchStateRef = useRef({
     startY: 0,
   });
+
+  // Check if desktop on mount and resize
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
 
   // Animation variants
   const overlayVariants = {
@@ -258,6 +373,9 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
 
   return (
     <AnimatePresence mode="wait">
+      {/* ======================================== */}
+      {/* SECTION 1: OVERLAY (Background backdrop) */}
+      {/* ======================================== */}
       <motion.div
         key="modal-overlay"
         className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/30 backdrop-blur-sm"
@@ -267,9 +385,12 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
         exit="exit"
         onClick={onClose}
       >
+        {/* ======================================== */}
+        {/* SECTION 2: MODAL CONTAINER (Main box) */}
+        {/* ======================================== */}
         <motion.div
           ref={modalRef}
-          className="relative w-full md:w-auto md:max-w-[1104px] h-[87vh] md:h-[75vh] md:max-h-[75vh] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] px-3 sm:px-4 md:px-6 lg:px-[36px] flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
+          className="relative w-full md:w-[1020px] h-[77vh] md:h-[620px] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-1 sm:pr-2 md:pr-2 lg:pr-2 flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
           variants={
             window.innerWidth < 768 ? modalVariants : desktopModalVariants
           }
@@ -287,16 +408,24 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
           onMouseUp={handleDragEnd}
           onMouseLeave={handleDragEnd}
         >
-          {/* Enhanced Drag Handle Indicator - Mobile Only */}
+          {/* ======================================== */}
+          {/* SECTION 2.1: DRAG HANDLE (Mobile only) */}
+          {/* ======================================== */}
           <div
             className="md:hidden absolute top-3 left-1/2 transform -translate-x-1/2 w-16 h-1.5 bg-gray-400/60 rounded-full cursor-grab active:cursor-grabbing"
             onTouchStart={handleDragStart}
             onMouseDown={handleDragStart}
           />
 
-          {/* Header - Sticky with enhanced styling */}
+          {/* ======================================== */}
+          {/* SECTION 3: HEADER (Sticky at top) */}
+          {/* ✅ Add new header elements here */}
+          {/* ======================================== */}
           <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-2 sm:pb-3 lg:pb-0 mt-4 md:mt-0 border-b border-gray-200/50">
-            {/* Title Row */}
+            {/* ======================================== */}
+            {/* SECTION 3.1: TITLE ROW */}
+            {/* ✅ Add elements before/after title here */}
+            {/* ======================================== */}
             <div className="flex justify-between items-center w-full mb-3 sm:mb-4 lg:mb-6">
               <motion.h2
                 className="text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold"
@@ -306,6 +435,7 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
               >
                 {title}
               </motion.h2>
+
               <motion.button
                 onClick={onClose}
                 className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
@@ -322,53 +452,186 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
               </motion.button>
             </div>
 
-            {/* Enhanced Tabs Row */}
+            {/* ======================================== */}
+            {/* SECTION 3.2: TABS ROW */}
+            {/* ✅ Tabs render here automatically */}
+            {/* ✅ Info icon at extreme right */}
+            {/* ======================================== */}
             {gridCard.length > 0 && (
-              <motion.div
-                className="tabs flex flex-row items-center justify-start gap-4 sm:gap-6 lg:gap-8 text-[#CC2B52] text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-bold font-inter overflow-x-auto no-scrollbar pb-2"
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.3 }}
-              >
-                {tabs.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    onClick={() => setCurrentTab(index)}
-                    className={`relative py-2 sm:py-3 transition-all duration-300 ease-out cursor-pointer flex-shrink-0
-                              ${
-                                currentTab === index
-                                  ? "text-[#CC2B52] font-bold"
-                                  : "text-gray-600 font-medium hover:text-[#CC2B52]"
-                              }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <h3 className="whitespace-nowrap px-2">{item}</h3>
-                    {currentTab === index && (
+              <div className="relative w-full pb-2 overflow-visible">
+                <motion.div
+                  className="tabs flex flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-inter pb-2 overflow-visible"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                >
+                  <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 flex-shrink-0 overflow-visible">
+                    {tabs.map((item, index) => (
                       <motion.div
-                        className="absolute bottom-0 left-0 w-full h-0.5 bg-[#CC2B52]"
-                        layoutId="activeTab"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 30,
+                        key={index}
+                        onClick={() => setCurrentTab(index)}
+                        className={`relative py-2 sm:py-3 transition-all duration-300 ease-out cursor-pointer flex-shrink-0
+                                  ${
+                                    currentTab === index
+                                      ? "text-[#CC2B52] font-bold"
+                                      : "text-gray-600/60 font-normal hover:text-[#CC2B52]"
+                                  }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <span
+                          className={`whitespace-nowrap px-2 ${
+                            currentTab === index ? "font-bold" : "font-normal"
+                          }`}
+                          style={{
+                            fontWeight: currentTab === index ? 700 : 400,
+                          }}
+                        >
+                          {item}
+                        </span>
+                        {currentTab === index && (
+                          <motion.div
+                            className="absolute bottom-0 left-0 w-full h-0.5 bg-[#CC2B52]"
+                            layoutId="activeTab"
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 30,
+                            }}
+                          />
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Info Icon - conditionally rendered at extreme right */}
+                  {infoContent && (
+                    <div
+                      ref={infoIconRef}
+                      className="relative flex-shrink-0 overflow-visible"
+                      onMouseEnter={() => isDesktop && setShowInfo(true)}
+                      onMouseLeave={() => isDesktop && setShowInfo(false)}
+                    >
+                      <motion.button
+                        onClick={() => {
+                          if (!isDesktop) {
+                            setShowInfo(!showInfo);
+                          }
                         }}
-                      />
-                    )}
-                  </motion.div>
-                ))}
-              </motion.div>
+                        className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-[#CC2B52] hover:text-[#B02547] transition-colors cursor-pointer"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        aria-label="Service information"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.3 }}
+                      >
+                        <IoInformationCircleOutline className="w-full h-full" />
+                      </motion.button>
+
+                      {/* Info Popover - All screens appear near icon */}
+                      <AnimatePresence>
+                        {showInfo && (
+                          <>
+                            {/* Backdrop for mobile */}
+                            <motion.div
+                              className="fixed inset-0 bg-black/30 z-[60] lg:hidden"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              onClick={() => setShowInfo(false)}
+                            />
+
+                            {/* Popover content - positioned near icon on all screens */}
+                            <motion.div
+                              className="popover-content absolute top-full right-0 mt-3 w-[280px] sm:w-[320px] bg-white rounded-xl shadow-2xl z-[70] p-4"
+                              initial={{
+                                y: 10,
+                                opacity: 0,
+                                scale: 0.95,
+                              }}
+                              animate={{ y: 0, opacity: 1, scale: 1 }}
+                              exit={{
+                                y: 10,
+                                opacity: 0,
+                                scale: 0.95,
+                              }}
+                              transition={{
+                                type: "spring",
+                                damping: 25,
+                                stiffness: 300,
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              onMouseEnter={() => {
+                                if (isDesktop) {
+                                  setShowInfo(true);
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                if (isDesktop) {
+                                  setShowInfo(false);
+                                }
+                              }}
+                              style={{
+                                transformOrigin: "top right",
+                              }}
+                            >
+                              {/* Mobile/Tablet header with close button */}
+                              <div className="flex justify-between items-center mb-3 lg:mb-2">
+                                <h4 className="text-[#CC2B52] font-semibold text-sm lg:hidden">
+                                  Important Information
+                                </h4>
+                                <button
+                                  onClick={() => setShowInfo(false)}
+                                  className="text-gray-500 hover:text-gray-700 lg:hidden"
+                                >
+                                  <span className="text-xl">&times;</span>
+                                </button>
+                              </div>
+
+                              {/* Info content */}
+                              <ul className="space-y-2 text-sm text-gray-700 leading-relaxed">
+                                {infoContent.items?.map((item, index) => (
+                                  <li
+                                    key={index}
+                                    className="flex items-start gap-2"
+                                  >
+                                    <span className="text-[#CC2B52] mt-1 flex-shrink-0">
+                                      •
+                                    </span>
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+
+                              {/* Arrow pointing to icon */}
+                              <div className="absolute -top-2 right-4 w-4 h-4 bg-white transform rotate-45 shadow-lg border-l border-t border-gray-100" />
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
             )}
           </div>
 
-          {/* Content Area - Scrollable with enhanced styling */}
+          {/* ======================================== */}
+          {/* SECTION 4: CONTENT AREA (Scrollable) */}
+          {/* ✅ Add new content sections here */}
+          {/* ======================================== */}
           <motion.div
             ref={contentRef}
             tabIndex={0}
-            className="flex-1 w-full overflow-y-auto no-scrollbar mt-4 sm:mt-6 outline-none pb-10"
-            style={{ WebkitOverflowScrolling: "touch" }}
+            className="flex-1 w-full overflow-y-auto mt-4 sm:mt-6 outline-none pb-4 pr-0 custom-scrollbar"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#9CA3AF #F7EBEE",
+            }}
             onTouchStart={handleContentTouchStart}
             onTouchMove={handleContentTouchMove}
             initial={{ opacity: 0 }}
@@ -376,6 +639,10 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
             transition={{ delay: 0.3, duration: 0.4 }}
           >
             <AnimatePresence mode="wait">
+              {/* ======================================== */}
+              {/* SECTION 4.1: TAB CONTENT (Animated) */}
+              {/* ✅ Add new content sections here */}
+              {/* ======================================== */}
               <motion.div
                 key={currentTab}
                 variants={tabContentVariants}
@@ -384,7 +651,10 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
                 exit="exit"
                 transition={{ duration: 0.2 }}
               >
-                {/* FlexCards Section */}
+                {/* ======================================== */}
+                {/* SECTION 4.1.1: FLEX CARDS SECTION */}
+                {/* ✅ Modify FlexCards here */}
+                {/* ======================================== */}
                 {cards.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -395,7 +665,10 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
                   </motion.div>
                 )}
 
-                {/* GridCards Section */}
+                {/* ======================================== */}
+                {/* SECTION 4.1.2: GRID CARDS SECTION */}
+                {/* ✅ Modify GridCards here */}
+                {/* ======================================== */}
                 {gridCard.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -413,7 +686,14 @@ const ServiceModal = ({ title, cards = [], gridCard = [], onClose }) => {
             </AnimatePresence>
           </motion.div>
 
-          {/* Subtle gradient fade at bottom for mobile - indicates more content */}
+          {/* ======================================== */}
+          {/* SECTION 5: FOOTER/BOTTOM ELEMENTS */}
+          {/* ✅ Add footer, action buttons, etc. here */}
+          {/* ======================================== */}
+
+          {/* ======================================== */}
+          {/* SECTION 5.1: GRADIENT FADE (Mobile only) */}
+          {/* ======================================== */}
           <div className="md:hidden absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#FAF2F4] to-transparent pointer-events-none" />
         </motion.div>
       </motion.div>

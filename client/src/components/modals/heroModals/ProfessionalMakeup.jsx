@@ -19,8 +19,8 @@ const ProfessionalMakeup = ({ onClose }) => {
       cardHeader: "Party Makeup",
       serviceCategory: "Professional Makeup",
       description:
-        "We create the most elegant bridal looks! Contact us to book yours today.",
-      PriceEstimate: "4k-6k",
+        "A flawless look crafted to enhance your features and keep you glowing",
+      PriceEstimate: "2.5k-4k",
       button: "Enquire Now",
     },
     {

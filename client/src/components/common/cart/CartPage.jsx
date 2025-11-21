@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { scroller } from "react-scroll";
+import { FaShoppingCart, FaRegSadTear } from "react-icons/fa";
 import { useCart } from "../../../hooks/useCart";
 import OrderSummary from "../bookings/OrderSummary";
 import OrderSuccess from "../bookings/OrderSuccess";
@@ -126,47 +127,44 @@ const CartPage = () => {
   // Show empty cart state if no items
   if (services.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-8">
         <div className="max-w-md w-full text-center">
-          {/* Empty Cart Icon */}
-          <div className="mb-8">
-            <div className="mx-auto w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-              <svg
-                className="w-12 h-12 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"
-                />
-              </svg>
+          {/* Professional Empty Cart Icon */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative">
+              {/* Main Cart Icon */}
+              <div className="w-32 h-32 bg-gradient-to-br from-[#CC2B52] to-[#B02547] rounded-full flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                <FaShoppingCart className="w-16 h-16 text-white" />
+              </div>
+
+              {/* Sad Face Overlay */}
+              <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md border border-gray-200">
+                <FaRegSadTear className="w-6 h-6 text-[#CC2B52]" />
+              </div>
             </div>
           </div>
 
           {/* Empty Cart Message */}
-          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-4">
-            Your Cart is Empty
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+            Your Beauty Cart is Empty
           </h2>
-          <p className="text-gray-600 mb-8 text-sm sm:text-base">
-            Looks like you haven't added any services yet. Browse our amazing
-            makeover services and add them to your cart!
+          <p className="text-gray-600 mb-8 text-sm sm:text-base leading-relaxed">
+            Oops! It looks like you haven't added any beauty services yet.
+            Discover our amazing treatments and create your perfect beauty
+            experience!
           </p>
 
           {/* Action Buttons */}
-          <div className="space-y-3 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+          <div className="space-y-4 sm:space-y-0 sm:flex sm:gap-4 sm:justify-center">
             <button
               onClick={() => navigate("/")}
-              className="w-full sm:w-auto bg-[#CC2B52] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#B02547] transition-colors duration-200"
+              className="w-full sm:w-auto bg-gradient-to-r from-[#CC2B52] to-[#B02547] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#B02547] hover:to-[#CC2B52] transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
-              Browse Services
+              Explore Services
             </button>
             <button
               onClick={() => handleScrollOrNavigate("gallery")}
-              className="w-full sm:w-auto border border-[#CC2B52] text-[#CC2B52] px-6 py-3 rounded-lg font-medium hover:bg-[#CC2B52] hover:text-white transition-colors duration-200"
+              className="w-full sm:w-auto border-2 border-[#CC2B52] text-[#CC2B52] px-8 py-4 rounded-xl font-semibold hover:bg-[#CC2B52] hover:text-white transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               View Gallery
             </button>

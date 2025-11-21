@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import f1 from "../../../assets/feedback/f1.png";
-import f2 from "../../../assets/feedback/f2.png";
-import f3 from "../../../assets/feedback/f3.png";
-import f4 from "../../../assets/feedback/f4.jpg";
-import f5 from "../../../assets/feedback/f5.jpg";
-import f6 from "../../../assets/feedback/f6.jpg";
-import f7 from "../../../assets/feedback/f7.jpg";
+import f1 from "../../../assets/feedback/1.svg";
+import f2 from "../../../assets/feedback/2.svg";
+import f3 from "../../../assets/feedback/3.svg";
+import f4 from "../../../assets/feedback/4.svg";
+import f5 from "../../../assets/feedback/5.svg";
+import f6 from "../../../assets/feedback/6.svg";
+import f7 from "../../../assets/feedback/7.svg";
 
 const Testimonial = () => {
   const review =

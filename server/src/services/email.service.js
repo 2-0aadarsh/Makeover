@@ -12,7 +12,7 @@ const sendEmailVerification = async (to, subject, htmlContent) => {
 
     // Mail options
     const mailOptions = {
-      from: 'Chittchat <no-reply@chittchat.com>', // Valid sender address
+      from: 'Wemakeover', // Valid sender address
       to: to, // Recipient
       subject: subject, // Subject line
       html: emailHtml, // Email body (HTML format)
@@ -38,7 +38,7 @@ const sendForgetPassword = async(to, subject, emailContent) => {
       .replaceAll('[Your App Name]', emailContent.appName);
 
     const mailOptions = {
-      from: 'Chittchat <no-reply@chittchat.com>',
+      from: 'Wemakeover',
       to,
       subject,
       html: emailHtml,
@@ -64,7 +64,7 @@ const sendContactUsMail = async (userData) => {
 
     // Mail options
     const mailOptions = {
-      from: `"Wemakeover Contact" <no-reply@chittchat.com>`,
+      from: `"Wemakeover Contact"`,
       to: adminEmail, // 🔥 Admin email (replace with real admin email)
       subject: `New Contact Us Message `,
       replyTo: email, // allows admin to reply directly to user
@@ -123,7 +123,7 @@ const sendBookingNotificationToAdmin = async (bookingData) => {
 
     // Mail options
     const mailOptions = {
-      from: `"Wemakeover Bookings" <no-reply@chittchat.com>`,
+      from: `"Wemakeover Bookings"`,
       to: adminEmail,
       subject: `🎉 New Booking Received - Order #${bookingData.orderNumber}`,
       replyTo: emailData.customerEmail, // allows admin to reply directly to customer
@@ -167,7 +167,7 @@ const sendWelcomeNewsletterEmail = async (subscriberData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Newsletter" <no-reply@chittchat.com>',
+      from: '"Wemakeover Newsletter"',
       to: email,
       subject: "Welcome to Wemakeover's Community Circle! ✨",
       html: emailHtml,
@@ -205,7 +205,7 @@ const sendEnquiryNotificationToAdmin = async (enquiryData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Enquiries" <no-reply@chittchat.com>',
+      from: '"Wemakeover Enquiries"',
       to: adminEmail,
       subject: `🔔 New Service Enquiry - ${enquiryData.enquiryNumber}`,
       replyTo: enquiryData.userDetails.email, // allows admin to reply directly to customer
@@ -243,7 +243,7 @@ const sendEnquiryConfirmationToUser = async (enquiryData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      from: '"Wemakeover Services"',
       to: userDetails.email,
       subject: `✅ We received your enquiry - ${enquiryNumber}`,
       html: emailHtml,
@@ -281,7 +281,7 @@ const sendCancellationNotificationToAdmin = async (cancellationData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Bookings" <no-reply@chittchat.com>',
+      from: '"Wemakeover Bookings"',
       to: adminEmail,
       subject: `❌ Booking Cancelled - Order #${cancellationData.orderNumber}`,
       replyTo: cancellationData.customerEmail, // allows admin to reply directly to customer
@@ -317,7 +317,7 @@ const sendCancellationConfirmationToUser = async (cancellationData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      from: '"Wemakeover Services"',
       to: cancellationData.customerEmail,
       subject: `✅ Booking Cancelled - Order #${cancellationData.orderNumber}`,
       html: emailHtml,
@@ -355,7 +355,7 @@ const sendRescheduleNotificationToAdmin = async (rescheduleData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Bookings" <no-reply@chittchat.com>',
+      from: '"Wemakeover Bookings"',
       to: adminEmail,
       subject: `🔄 Booking Rescheduled - Order #${rescheduleData.orderNumber}`,
       replyTo: rescheduleData.customerEmail, // allows admin to reply directly to customer
@@ -391,7 +391,7 @@ const sendRescheduleConfirmationToUser = async (rescheduleData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      from: '"Wemakeover Services"',
       to: rescheduleData.customerEmail,
       subject: `✅ Booking Rescheduled - Order #${rescheduleData.orderNumber}`,
       html: emailHtml,
@@ -422,7 +422,7 @@ const sendPaymentConfirmationToAdmin = async (paymentData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      from: '"Wemakeover Services"',
       to: process.env.ADMIN_EMAIL || 'hello@wemakeover.co.in',
       subject: `💰 Payment Received - Order #${paymentData.orderNumber}`,
       html: emailHtml,
@@ -453,7 +453,7 @@ const sendPaymentConfirmationToUser = async (paymentData) => {
     
     // Mail options
     const mailOptions = {
-      from: '"Wemakeover Services" <no-reply@chittchat.com>',
+      from: '"Wemakeover Services"',
       to: paymentData.customerEmail,
       subject: `✅ Payment Confirmation - Order #${paymentData.orderNumber}`,
       html: emailHtml,

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import GImage1 from "../../../assets/Gallery/GImage1.svg";
-import GImage2 from "../../../assets/Gallery/GImage2.jpg";
-import GImage3 from "../../../assets/Gallery/GImage3.svg";
+import GImage1 from "../../../assets/Gallery/quick.svg";
+import GImage2 from "../../../assets/Gallery/bridal.svg";
+import GImage3 from "../../../assets/Gallery/Mehendi.svg";
 import SectionTitle from "../../ui/SectionTitle";
 import Button from "../../ui/Button";
 import { FaArrowRightLong } from "react-icons/fa6";

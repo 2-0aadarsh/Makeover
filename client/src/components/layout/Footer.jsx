@@ -24,30 +24,32 @@ const Footer = () => {
       </div>
 
       {/* Bottom Section - Responsive layout */}
-      <div className="flex flex-row justify-between items-end gap-3 md:gap-0 pt-3 sm:pt-4 ">
-        {/* Left: Copyright and Legal */}
-        <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 lg:gap-6 text-[#313957]">
-          <span className="text-[#A0A0A0] whitespace-nowrap text-xs sm:text-sm md:text-base">
-            © Wemakeover 2025
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 md:gap-5 pt-5 sm:pt-6 text-[10px] sm:text-xs md:text-sm w-full">
+        <div className="flex flex-row items-center gap-2 md:gap-5 text-[#313957] whitespace-nowrap">
+          <span className="text-[#A0A0A0]">
+            © wemakeover 2025
           </span>
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex flex-row items-center gap-2 md:gap-4">
             {legalLinks.map((item, index) => (
               <Link
                 key={index}
                 to={item.link}
-                className="hover:underline text-[#313957] font-medium whitespace-nowrap text-center text-xs sm:text-sm md:text-base"
+                className="hover:underline text-[#313957] font-medium whitespace-nowrap"
               >
                 {item.title}
               </Link>
             ))}
           </div>
         </div>
-
-        {/* Right: Customer Support */}
-        <div className="text-[#313957] bg-white rounded px-2 sm:px-3 sm:py-2 whitespace-nowrap text-xs sm:text-sm md:text-base">
-          <span className="hidden sm:inline">Customer Support: </span>
-          <span className="sm:hidden">Support: </span>
-          <span className="font-semibold">+91-8969699521</span>
+        <div className="text-[#313957] bg-white rounded px-2 sm:px-3 sm:py-2 flex items-center gap-1 whitespace-nowrap">
+          <span>Customer Support:</span>
+          <a
+            href="tel:+917258858999"
+            className="font-semibold text-[#CC2B52] hover:underline"
+          >
+            +91-7258858999
+          </a>
+          <span>(09:00 am - 06:00 pm)</span>
         </div>
       </div>
     </footer>

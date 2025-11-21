@@ -13,8 +13,8 @@ const ProfessionalMehendiModal = ({ onClose }) => {
       serviceCategory: "Professional Mehendi",
       description:
         "Let your hands tell a love story with our bespoke Bridal Mehendi designs",
-      Price: "6999",
-      PriceEstimate: null,
+      Price: null,
+      PriceEstimate: "2.5k-11k",
       includingTax: true,
       service: "Both Hands & Legs",
       button: "Add +",
@@ -26,11 +26,11 @@ const ProfessionalMehendiModal = ({ onClose }) => {
       serviceCategory: "Professional Mehendi",
       description:
         "From casual charm to festive flair—mehendi that suits every style",
-      Price: "899",
+      Price: "499",
       PriceEstimate: null,
       includingTax: true,
-      service: "Both Hands & Legs",
-      button: "Add +",
+      service: "Both Hands",
+      button: "Enquiry Now",
       service_id: "mehendi_for_all",
     },
     {
@@ -39,10 +39,7 @@ const ProfessionalMehendiModal = ({ onClose }) => {
       serviceCategory: "Professional Mehendi",
       description:
         "From names to motifs—custom mehendi that's as unique as you are ",
-      Price: null,
-      PriceEstimate: "1k-8k",
-      includingTax: true,
-      service: "On Demand",
+      pricingNote: "Get in touch for pricing",
       button: "Add +",
       service_id: "custom_designs_mehendi",
     },
