@@ -9,7 +9,7 @@ import handsAndLegsDetan from "../../../assets/modals/bleach and de-tan/classic/
 import fullBodyDetan from "../../../assets/modals/bleach and de-tan/classic/fullBodyDetan.png";
 
 // premium images
-import fullBodyPolish from "../../../assets/modals/bleach and de-tan/premium/fullBodyPolish.png";
+import fullBodyPolish from "../../../assets/modals/bleach and de-tan/premium/fullBodyPolish.svg";
 
 const BleachAndDeTanModal = ({ onClose }) => {
   const card = [
@@ -32,7 +32,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Hand & Leg Detan",
           description:
             "Effortless elegance begins with clean, silky hands and legs",
-          price: "399",
+          price: "599",
           taxIncluded: true,
           duration: "30mins",
           button: "Add +",
@@ -42,8 +42,8 @@ const BleachAndDeTanModal = ({ onClose }) => {
           img: fullBodyDetan,
           cardHeader: "Full Body Detan ",
           description:
-            "Reveal silky, radiant skin all over with our expert full body de-tan",
-          price: "899",
+            "Removes tan, brightens skin, and restores your natural glow instantly.",
+          price: "999",
           taxIncluded: true,
           duration: "1hr 30mins",
           button: "Add +",
@@ -54,7 +54,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Face & Neck Bleach",
           description:
             "Step into softness with our expertly done face and neck premium de-tan treatment.",
-          price: "255",
+          price: "249",
           taxIncluded: true,
           duration: "30mins",
           button: "Add +",
@@ -65,7 +65,7 @@ const BleachAndDeTanModal = ({ onClose }) => {
           cardHeader: "Hand & Leg Bleach",
           description:
             "Effortless elegance begins with clean, silky hands and legs",
-          price: "255",
+          price: "399",
           taxIncluded: true,
           duration: "30mins",
           button: "Add +",

@@ -1,6 +1,6 @@
 import ServiceModal from "../ServiceModal";
 import BridalMakeup from "../../../assets/modals/professional makeup/BridalMakeup.png";
-import EngagementMakeup from "../../../assets/modals/professional makeup/EngagementMakeup.png";
+import EngagementMakeup from "../../../assets/modals/professional makeup/EngagementMakeup2.png";
 import PartyMakeup from "../../../assets/modals/professional makeup/PartyMakeup.png";
 
 const ProfessionalMakeup = ({ onClose }) => {

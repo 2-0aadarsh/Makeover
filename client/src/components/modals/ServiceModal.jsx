@@ -458,9 +458,9 @@ const ServiceModal = ({
             {/* ✅ Info icon at extreme right */}
             {/* ======================================== */}
             {gridCard.length > 0 && (
-              <div className="relative w-full pb-2 overflow-visible">
+              <div className="relative w-full  pb-2 overflow-visible">
                 <motion.div
-                  className="tabs flex flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-inter pb-2 overflow-visible"
+                  className="tabs flex flex-row items-center justify-between pr-2 gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-inter pb-2 overflow-visible"
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
@@ -694,7 +694,7 @@ const ServiceModal = ({
           {/* ======================================== */}
           {/* SECTION 5.1: GRADIENT FADE (Mobile only) */}
           {/* ======================================== */}
-          <div className="md:hidden absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#FAF2F4] to-transparent pointer-events-none" />
+          <div className="md:hidden absolute bottom-0 left-0 right-0 h-8 bg-[#FFFCFD] to-transparent pointer-events-none" />
         </motion.div>
       </motion.div>
     </AnimatePresence>
