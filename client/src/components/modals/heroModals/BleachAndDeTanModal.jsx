@@ -78,12 +78,12 @@ const BleachAndDeTanModal = ({ onClose }) => {
       data: [
         {
           img: fullBodyPolish,
-          cardHeader: "Full Body Polish and Waxing",
+          cardHeader: "Full Body Polish+Detan",
           description:
-            "Experience the ultimate in comfort and elegance with full body premium de-tan",
-          price: "1499",
+            "Exfoliates dead skin, smoothens texture, and restores an even, healthy glow from head to toe",
+          price: "2199",
           taxIncluded: true,
-          duration: "1hr 25mins",
+          duration: "2hr 10mins",
           button: "Add +",
           service_id: "full_body_polish_and_waxing_premium",
         },

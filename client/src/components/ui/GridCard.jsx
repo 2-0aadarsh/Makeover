@@ -49,7 +49,7 @@ const GridCard = ({ gridCardData, category }) => {
 
                 {/* Pricing Row - Always at bottom */}
                 <div className="card-pricing flex items-center justify-between gap-6 mt-auto pt-0 border-t border-gray-200">
-                  <div className="price-time flex items-center gap-4 flex-1 min-w-0 pt-1">
+                  <div className="price-time flex items-center justify-between gap-4 flex-1 min-w-0 pt-1">
                     <span className="text-[15px] sm:text-[16px] lg:text-[17px] font-bold text-gray-900 whitespace-nowrap">
                       ₹ {item.price}
                       {item.taxIncluded && (
@@ -58,7 +58,7 @@ const GridCard = ({ gridCardData, category }) => {
                         </span>
                       )}
                     </span>
-                    <span className="text-[13px] sm:text-[14px] font-semibold text-gray-900 whitespace-nowrap ml-8">
+                    <span className="text-[10px] sm:text-[10px] font-semibold text-gray-900 whitespace-nowrap ml-8">
                       {item.duration}
                     </span>
                   </div>

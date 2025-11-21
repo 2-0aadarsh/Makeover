@@ -179,7 +179,7 @@ const BookYourSlot = ({
           {/* Today Button */}
           <button
             onClick={() => handleDateTypeSelect("today")}
-            className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`px-4 py-2 text-[12px] md:text-[14px] lg:text-[14px] font-medium rounded-lg border-2 transition-all duration-200 ${
               selectedDateType === "today"
                 ? "bg-[#CC2B52] border-[#CC2B52] text-white"
                 : "bg-white border-[#CC2B52] text-[#CC2B52] hover:bg-[#CC2B52] hover:text-white"
@@ -191,7 +191,7 @@ const BookYourSlot = ({
           {/* Tomorrow Button */}
           <button
             onClick={() => handleDateTypeSelect("tomorrow")}
-            className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`px-4 py-2 text-[12px] md:text-[14px] lg:text-[14px] font-medium rounded-lg border-2 transition-all duration-200 ${
               selectedDateType === "tomorrow"
                 ? "bg-[#CC2B52] border-[#CC2B52] text-white"
                 : "bg-white border-[#CC2B52] text-[#CC2B52] hover:bg-[#CC2B52] hover:text-white"
@@ -203,14 +203,14 @@ const BookYourSlot = ({
           {/* Pick Your Date Button */}
           <button
             onClick={() => handleDateTypeSelect("custom")}
-            className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 flex items-center gap-2 ${
+            className={`px-4 py-2 text-[12px] md:text-[14px] lg:text-[14px] font-medium rounded-lg border-2 transition-all duration-200 flex items-center gap-2 ${
               selectedDateType === "custom"
                 ? "bg-[#CC2B52] border-[#CC2B52] text-white"
                 : "bg-white border-[#CC2B52] text-[#CC2B52] hover:bg-[#CC2B52] hover:text-white"
             }`}
           >
-            <Calendar className="w-4 h-4" />
-            Pick your date
+            <Calendar className="w-[14px] h-[14px] md:w-[16px] md:h-[16px] lg:w-[16px] lg:h-[16px]" />
+            Custom Date
           </button>
         </div>
 
