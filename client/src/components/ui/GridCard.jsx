@@ -13,7 +13,7 @@ const GridCard = ({ gridCardData, category }) => {
         return (
           <div
             key={index}
-            className="w-full md:max-w-[478px] h-auto lg:h-[120px] py-4 px-3 sm:px-4 lg:pl-4 lg:pr-4 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center bg-white"
+            className="w-full h-auto lg:h-[120px] py-4 px-3 sm:px-4 lg:pl-4 lg:pr-4 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center bg-white"
           >
             <div className="card-content w-full flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 lg:h-full">
               {/* Image Container - 80px × 80px */}
@@ -33,15 +33,15 @@ const GridCard = ({ gridCardData, category }) => {
                 </div>
 
                 {/* Description with consistent line clamping */}
-                <div 
+                <div
                   className="card-description text-[10px] text-[#3C3C43] leading-[14px] mb-[2px] overflow-hidden min-h-[28px]"
                   style={{
-                    display: '-webkit-box',
+                    display: "-webkit-box",
                     WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    lineHeight: '14px'
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    lineHeight: "14px",
                   }}
                 >
                   {item.description}

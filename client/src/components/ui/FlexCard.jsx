@@ -46,24 +46,26 @@ const FlexCard = ({ item, source = "other" }) => {
               <p className="text-sm font-semibold text-[#3C3C43]">
                 {item.pricingNote}
               </p>
-            ) : (item?.PriceEstimate || item?.Price) && (
-              <div className="price flex items-center justify-between w-full mt-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-sm sm:text-base font-semibold text-[#1F1F1F]">
-                    ₹ {item?.Price ? item.Price : item.PriceEstimate}
-                  </span>
-                  {item?.includingTax && (
-                    <span className="text-[10px] text-[#6B6B6B]">
-                      Including Taxes
+            ) : (
+              (item?.PriceEstimate || item?.Price) && (
+                <div className="price flex items-center justify-between w-full mt-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm sm:text-base font-semibold text-[#1F1F1F]">
+                      ₹ {item?.Price ? item.Price : item.PriceEstimate}
+                    </span>
+                    {item?.includingTax && (
+                      <span className="text-[10px] text-[#6B6B6B]">
+                        Including Taxes
+                      </span>
+                    )}
+                  </div>
+                  {item?.service && (
+                    <span className="text-[10px] font-semibold text-[#1F1F1F] whitespace-nowrap">
+                      {item.service}
                     </span>
                   )}
                 </div>
-                {item?.service && (
-                  <span className="text-[10px] font-semibold text-[#1F1F1F] whitespace-nowrap">
-                    {item.service}
-                  </span>
-                )}
-              </div>
+              )
             )}
           </div>
 
