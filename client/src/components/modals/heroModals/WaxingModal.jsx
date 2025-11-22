@@ -13,7 +13,7 @@ import bikiniWaxingPremium from "../../../assets/modals/waxing/premium/bikiniWax
 import fullBodyPremium from "../../../assets/modals/waxing/premium/fullBody-premium.png";
 import handsAndLegsPremium from "../../../assets/modals/waxing/premium/handsAndLegs-premium.png";
 
-const WaxingModal = ({ onClose }) => {
+const WaxingModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const card = [
     {
       title: "Classic",
@@ -138,10 +138,13 @@ const WaxingModal = ({ onClose }) => {
 
   return (
     <ServiceModal
-      title="Waxing Services"
+      title="Waxing"
       gridCard={card}
       infoContent={waxingInfo}
       onClose={onClose}
+      services={services}
+      currentServiceId={currentServiceId}
+      onServiceChange={onServiceChange}
       onConfirm={() => alert("Waxing Booking Confirmed!")}
     />
   );

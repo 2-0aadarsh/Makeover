@@ -19,42 +19,56 @@ const Hero = () => {
 
   const closeModal = () => setActiveModalId(null);
 
+  const handleServiceChange = (serviceId) => {
+    setActiveModalId(serviceId);
+  };
+
+  // Define services list for dropdown
+  const servicesList = [
+    { id: 1, name: "Professional Makeup" },
+    { id: 2, name: "Cleanup & Facial" },
+    { id: 3, name: "Professional Mehendi" },
+    { id: 4, name: "Waxing" },
+    { id: 5, name: "Mani/Pedi & Massage" },
+    { id: 6, name: "Detan & Bleach" },
+  ];
+
   const services = [
     {
       id: 1,
       name: "Professional Makeup",
       image: artistImg,
-      modal: <ProfessionalMakeup onClose={closeModal} />,
+      modal: <ProfessionalMakeup onClose={closeModal} services={servicesList} currentServiceId={1} onServiceChange={handleServiceChange} />,
     },
     {
       id: 2,
       name: "Cleanup & Facial",
       image: faceFoundationImg,
-      modal: <CleanupAndFacialModal onClose={closeModal} />,
+      modal: <CleanupAndFacialModal onClose={closeModal} services={servicesList} currentServiceId={2} onServiceChange={handleServiceChange} />,
     },
     {
       id: 3,
       name: "Professional Mehendi",
       image: tattooImg,
-      modal: <ProfessionalMehendiModal onClose={closeModal} />,
+      modal: <ProfessionalMehendiModal onClose={closeModal} services={servicesList} currentServiceId={3} onServiceChange={handleServiceChange} />,
     },
     {
       id: 4,
       name: "Waxing",
       image: naturalIngridentsImg,
-      modal: <WaxingModal onClose={closeModal} />,
+      modal: <WaxingModal onClose={closeModal} services={servicesList} currentServiceId={4} onServiceChange={handleServiceChange} />,
     },
     {
       id: 5,
       name: "Mani/Pedi & Massage",
       image: primerImg,
-      modal: <ManicureAndPedicureModal onClose={closeModal} />,
+      modal: <ManicureAndPedicureModal onClose={closeModal} services={servicesList} currentServiceId={5} onServiceChange={handleServiceChange} />,
     },
     {
       id: 6,
       name: "Detan & Bleach",
       image: makeupImg,
-      modal: <BleachAndDeTanModal onClose={closeModal} />,
+      modal: <BleachAndDeTanModal onClose={closeModal} services={servicesList} currentServiceId={6} onServiceChange={handleServiceChange} />,
     },
   ];
 

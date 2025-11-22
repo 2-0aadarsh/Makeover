@@ -96,7 +96,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { IoInformationCircleOutline } from "react-icons/io5";
+import { IoInformationCircleOutline, IoChevronDown } from "react-icons/io5";
+import { HiShoppingCart } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../../hooks/useCart";
 import FlexCardContainer from "../../components/ui/FlexCardContainer";
 import GridCardContainer from "../ui/GridCardContainer";
 
@@ -106,7 +109,12 @@ const ServiceModal = ({
   gridCard = [],
   infoContent = null,
   onClose,
+  services = [],
+  currentServiceId = null,
+  onServiceChange = null,
 }) => {
+  const navigate = useNavigate();
+  const { totalServices } = useCart();
   const modalRef = useRef(null);
   const contentRef = useRef(null);
   const scrollPositionRef = useRef(0);
@@ -115,11 +123,44 @@ const ServiceModal = ({
   const [isDragging, setIsDragging] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const infoIconRef = useRef(null);
+  const dropdownRef = useRef(null);
   const dragStartY = useRef(0);
   const touchStateRef = useRef({
     startY: 0,
   });
+
+  const handleCartClick = () => {
+    onClose();
+    navigate("/cart");
+  };
+
+  const handleServiceSelect = (serviceId) => {
+    if (onServiceChange && serviceId !== currentServiceId) {
+      onServiceChange(serviceId);
+    }
+    setShowDropdown(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [showDropdown]);
 
   // Check if desktop on mount and resize
   useEffect(() => {
@@ -427,18 +468,95 @@ const ServiceModal = ({
             {/* ✅ Add elements before/after title here */}
             {/* ======================================== */}
             <div className="flex justify-between items-center w-full mb-3 sm:mb-4 lg:mb-6">
-              <motion.h2
-                className="text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-              >
-                {title}
-              </motion.h2>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {services.length > 0 && onServiceChange ? (
+                  <div ref={dropdownRef} className="relative flex-1 min-w-0">
+                    <motion.button
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className="flex items-center gap-2 text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold hover:opacity-80 transition-opacity"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1, duration: 0.3 }}
+                    >
+                      <span className="truncate">{title}</span>
+                      <IoChevronDown
+                        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0 transition-transform duration-200 ${
+                          showDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </motion.button>
+
+                    {/* Dropdown Menu */}
+                    <AnimatePresence>
+                      {showDropdown && (
+                        <>
+                          {/* Backdrop for mobile */}
+                          <motion.div
+                            className="fixed inset-0 bg-black/30 z-[60] lg:hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowDropdown(false)}
+                          />
+
+                          {/* Dropdown Content */}
+                          <motion.div
+                            className="absolute top-full left-0 mt-2 w-[280px] sm:w-[320px] bg-white rounded-xl shadow-2xl z-[70] overflow-hidden border border-gray-100"
+                            initial={{
+                              y: -10,
+                              opacity: 0,
+                              scale: 0.95,
+                            }}
+                            animate={{ y: 0, opacity: 1, scale: 1 }}
+                            exit={{
+                              y: -10,
+                              opacity: 0,
+                              scale: 0.95,
+                            }}
+                            transition={{
+                              type: "spring",
+                              damping: 25,
+                              stiffness: 300,
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {services.map((service, index) => (
+                              <button
+                                key={service.id}
+                                onClick={() => handleServiceSelect(service.id)}
+                                className={`w-full text-left px-4 py-3 sm:py-3.5 text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors ${
+                                  service.id === currentServiceId
+                                    ? "bg-gray-100 font-semibold text-[#CC2B52]"
+                                    : "text-[#3C3C43]"
+                                } ${
+                                  index !== services.length - 1
+                                    ? "border-b border-gray-200"
+                                    : ""
+                                }`}
+                              >
+                                {service.name}
+                              </button>
+                            ))}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <motion.h2
+                    className="text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                  >
+                    {title}
+                  </motion.h2>
+                )}
+              </div>
 
               <motion.button
                 onClick={onClose}
-                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0 ml-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Close modal"
@@ -692,7 +810,35 @@ const ServiceModal = ({
           {/* ======================================== */}
 
           {/* ======================================== */}
-          {/* SECTION 5.1: GRADIENT FADE (Mobile only) */}
+          {/* SECTION 5.1: CART BUTTON (Bottom Right) */}
+          {/* ======================================== */}
+          <motion.button
+            onClick={handleCartClick}
+            className="absolute bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#CC2B52] text-white shadow-lg hover:bg-[#B02547] transition-all duration-200"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            aria-label="Go to cart"
+          >
+            <HiShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
+            {/* Cart Badge */}
+            {totalServices > 0 && (
+              <span
+                className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-white text-[#CC2B52] rounded-full shadow-md border border-[#CC2B52]/20 text-xs font-bold"
+                style={{
+                  fontSize: "10px",
+                  lineHeight: "1",
+                }}
+              >
+                {totalServices}
+              </span>
+            )}
+          </motion.button>
+
+          {/* ======================================== */}
+          {/* SECTION 5.2: GRADIENT FADE (Mobile only) */}
           {/* ======================================== */}
           <div className="md:hidden absolute bottom-0 left-0 right-0 h-8 bg-[#FFFCFD] to-transparent pointer-events-none" />
         </motion.div>

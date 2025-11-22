@@ -3,7 +3,7 @@ import BridalMakeup from "../../../assets/modals/professional makeup/BridalMakeu
 import EngagementMakeup from "../../../assets/modals/professional makeup/EngagementMakeup2.png";
 import PartyMakeup from "../../../assets/modals/professional makeup/PartyMakeup.png";
 
-const ProfessionalMakeup = ({ onClose }) => {
+const ProfessionalMakeup = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const makeupCard = [
     {
       img: BridalMakeup,
@@ -39,6 +39,9 @@ const ProfessionalMakeup = ({ onClose }) => {
       description="Get camera-ready with flawless makeup done by our expert artists."
       cards={makeupCard}
       onClose={onClose}
+      services={services}
+      currentServiceId={currentServiceId}
+      onServiceChange={onServiceChange}
       onConfirm={() => alert("Professional Makeup Booking Confirmed!")}
       source="professional-makeup"
     />
