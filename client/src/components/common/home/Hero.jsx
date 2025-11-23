@@ -87,14 +87,14 @@ const Hero = () => {
       </div>
 
       {/* Content Section - Mobile/Tablet: Full width, Desktop: Right half */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 sm:px-8 md:px-12 lg:px-20 py-8 lg:py-0 order-2 lg:order-2">
-        <div className="w-full flex flex-col items-center justify-center gap-6 lg:gap-4">
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-[clamp(1rem,4vw,5rem)] py-[clamp(2rem,5vw,3rem)] lg:py-0 order-2 lg:order-2">
+        <div className="w-full flex flex-col items-center justify-center gap-[clamp(1.5rem,4vw,2rem)]">
           {/* Header Section */}
-          <div className="header flex flex-col items-start justify-center gap-4 text-left">
-            <h1 className="title font-semibold text-2xl sm:text-3xl md:text-4xl lg:text-[38px] text-[#CC2B52] leading-tight lg:leading-[100%]">
+          <div className="header flex flex-col items-start justify-center gap-[clamp(1rem,3vw,1.5rem)] text-left w-full">
+            <h1 className="title font-semibold text-[clamp(1.5rem,4vw,2.375rem)] text-[#CC2B52] leading-tight">
               Professional Makeup & Grooming at your Doorstep!
             </h1>
-            <p className="description font-normal text-base sm:text-lg leading-relaxed lg:leading-[26px] text-[#292929] max-w-lg">
+            <p className="description font-normal text-[clamp(0.875rem,2vw,1.125rem)] leading-relaxed text-[#292929] max-w-lg">
               We bring professional makeup and grooming essential services to
               you at a very friendly price
             </p>
@@ -102,19 +102,19 @@ const Hero = () => {
 
           {/* Services Section */}
           <div className="service-container w-full">
-            <div className="services grid grid-cols-3 gap-3 sm:gap-4 lg:gap-4">
+            <div className="services grid grid-cols-3 gap-[clamp(0.75rem,2vw,1.5rem)]">
               {services.map((service) => (
                 <div
                   key={service.id}
-                  className="service-item flex flex-col items-center justify-center p-2 sm:p-3 border rounded-xl shadow-md w-full h-32 sm:h-36 md:h-40 lg:w-40 lg:h-40 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                  className="service-item flex flex-col items-center justify-center p-[clamp(0.5rem,2vw,1rem)] border rounded-xl shadow-md w-full aspect-square cursor-pointer hover:shadow-lg transition-shadow duration-200"
                   onClick={() => setActiveModalId(service.id)}
                 >
                   <img
                     src={service.image}
                     alt={service.name}
-                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-20 lg:h-20 object-cover mb-1 sm:mb-2"
+                    className="w-[clamp(3rem,8vw,5rem)] h-[clamp(3rem,8vw,5rem)] object-cover mb-[clamp(0.25rem,1vw,0.5rem)]"
                   />
-                  <p className="service-name text-center text-xs sm:text-sm md:text-base lg:text-lg font-medium leading-tight">
+                  <p className="service-name text-center text-[clamp(0.75rem,1.5vw,1.125rem)] font-medium leading-tight">
                     {service.name}
                   </p>
                 </div>
@@ -130,7 +130,7 @@ const Hero = () => {
           service.id === activeModalId && (
             <div
               key={service.id}
-              className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+              className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50 p-[clamp(0.5rem,2vw,1rem)]"
               onClick={closeModal}
             >
               {service.modal}

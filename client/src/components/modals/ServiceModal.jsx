@@ -431,7 +431,7 @@ const ServiceModal = ({
         {/* ======================================== */}
         <motion.div
           ref={modalRef}
-          className="relative w-full md:w-[1020px] h-[77vh] md:h-[620px] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-1 sm:pr-2 md:pr-2 lg:pr-2 flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
+          className="relative w-full max-w-[min(95vw,1020px)] h-[min(85vh,620px)] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-[clamp(1rem,3vw,3.75rem)] px-[clamp(0.5rem,2vw,1.5rem)] flex flex-col mx-auto overflow-hidden"
           variants={
             window.innerWidth < 768 ? modalVariants : desktopModalVariants
           }
@@ -462,25 +462,25 @@ const ServiceModal = ({
           {/* SECTION 3: HEADER (Sticky at top) */}
           {/* ✅ Add new header elements here */}
           {/* ======================================== */}
-          <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-2 sm:pb-3 lg:pb-0 mt-4 md:mt-0 border-b border-gray-200/50">
+          <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-[clamp(0.5rem,1.5vw,0.75rem)] mt-[clamp(0.5rem,2vw,1rem)] md:mt-0 border-b border-gray-200/50">
             {/* ======================================== */}
             {/* SECTION 3.1: TITLE ROW */}
             {/* ✅ Add elements before/after title here */}
             {/* ======================================== */}
-            <div className="flex justify-between items-center w-full mb-3 sm:mb-4 lg:mb-6">
+            <div className="flex justify-between items-center w-full mb-[clamp(0.75rem,2vw,1.5rem)]">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 {services.length > 0 && onServiceChange ? (
                   <div ref={dropdownRef} className="relative flex-1 min-w-0">
                     <motion.button
                       onClick={() => setShowDropdown(!showDropdown)}
-                      className="flex items-center gap-2 text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold hover:opacity-80 transition-opacity"
+                      className="flex items-center gap-2 text-[#CC2B52] text-[clamp(1.25rem,3vw,2rem)] leading-tight font-bold hover:opacity-80 transition-opacity"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1, duration: 0.3 }}
                     >
                       <span className="truncate">{title}</span>
                       <IoChevronDown
-                        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 flex-shrink-0 transition-transform duration-200 ${
+                        className={`w-[clamp(1.25rem,3vw,2rem)] h-[clamp(1.25rem,3vw,2rem)] flex-shrink-0 transition-transform duration-200 ${
                           showDropdown ? "rotate-180" : ""
                         }`}
                       />
@@ -501,7 +501,7 @@ const ServiceModal = ({
 
                           {/* Dropdown Content */}
                           <motion.div
-                            className="absolute top-full left-0 mt-2 w-[280px] sm:w-[320px] bg-white rounded-xl shadow-2xl z-[70] overflow-hidden border border-gray-100"
+                            className="absolute top-full left-0 mt-2 w-[clamp(200px,90vw,320px)] min-w-[200px] max-w-[320px] bg-white rounded-xl shadow-2xl z-[70] overflow-hidden border border-gray-100"
                             initial={{
                               y: -10,
                               opacity: 0,
@@ -524,7 +524,7 @@ const ServiceModal = ({
                               <button
                                 key={service.id}
                                 onClick={() => handleServiceSelect(service.id)}
-                                className={`w-full text-left px-4 py-3 sm:py-3.5 text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors ${
+                                className={`w-full text-left px-[clamp(0.875rem,2.5vw,1.5rem)] py-[clamp(0.625rem,1.75vw,0.875rem)] text-[clamp(0.8125rem,1.4vw,1rem)] font-medium hover:bg-gray-50 transition-colors whitespace-nowrap ${
                                   service.id === currentServiceId
                                     ? "bg-gray-100 font-semibold text-[#CC2B52]"
                                     : "text-[#3C3C43]"
@@ -544,7 +544,7 @@ const ServiceModal = ({
                   </div>
                 ) : (
                   <motion.h2
-                    className="text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold"
+                    className="text-[#CC2B52] text-[clamp(1.25rem,3vw,2rem)] leading-tight font-bold"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1, duration: 0.3 }}
@@ -556,7 +556,7 @@ const ServiceModal = ({
 
               <motion.button
                 onClick={onClose}
-                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0 ml-2"
+                className="flex items-center justify-center w-[clamp(2rem,4vw,3rem)] h-[clamp(2rem,4vw,3rem)] rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0 ml-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Close modal"
@@ -564,7 +564,7 @@ const ServiceModal = ({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.15, duration: 0.3 }}
               >
-                <span className="text-lg sm:text-xl lg:text-2xl font-semibold">
+                <span className="text-[clamp(1.125rem,2.5vw,1.5rem)] font-semibold">
                   &times;
                 </span>
               </motion.button>
@@ -578,17 +578,17 @@ const ServiceModal = ({
             {gridCard.length > 0 && (
               <div className="relative w-full  pb-2 overflow-visible">
                 <motion.div
-                  className="tabs flex flex-row items-center justify-between pr-2 gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-inter pb-2 overflow-visible"
+                  className="tabs flex flex-row items-center justify-between pr-2 gap-[clamp(1rem,3vw,2rem)] text-[clamp(0.875rem,1.5vw,1.25rem)] leading-[clamp(1.5rem,2vw,2rem)] font-inter pb-2 overflow-visible"
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
                 >
-                  <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 flex-shrink-0 overflow-visible">
+                  <div className="flex items-center gap-[clamp(1rem,3vw,2rem)] flex-shrink-0 overflow-visible">
                     {tabs.map((item, index) => (
                       <motion.div
                         key={index}
                         onClick={() => setCurrentTab(index)}
-                        className={`relative py-2 sm:py-3 transition-all duration-300 ease-out cursor-pointer flex-shrink-0
+                        className={`relative py-[clamp(0.5rem,1.5vw,0.75rem)] transition-all duration-300 ease-out cursor-pointer flex-shrink-0
                                   ${
                                     currentTab === index
                                       ? "text-[#CC2B52] font-bold"
@@ -638,7 +638,7 @@ const ServiceModal = ({
                             setShowInfo(!showInfo);
                           }
                         }}
-                        className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-[#CC2B52] hover:text-[#B02547] transition-colors cursor-pointer"
+                        className="flex items-center justify-center w-[clamp(1.25rem,2.5vw,1.5rem)] h-[clamp(1.25rem,2.5vw,1.5rem)] text-[#CC2B52] hover:text-[#B02547] transition-colors cursor-pointer"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Service information"
@@ -653,9 +653,9 @@ const ServiceModal = ({
                       <AnimatePresence>
                         {showInfo && (
                           <>
-                            {/* Backdrop for mobile */}
+                            {/* Backdrop - 25% transparent */}
                             <motion.div
-                              className="fixed inset-0 bg-black/30 z-[60] lg:hidden"
+                              className="fixed inset-0 bg-black/25 z-[60]"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
@@ -664,7 +664,7 @@ const ServiceModal = ({
 
                             {/* Popover content - positioned near icon on all screens */}
                             <motion.div
-                              className="popover-content absolute top-full right-0 mt-3 w-[280px] sm:w-[320px] bg-white rounded-xl shadow-2xl z-[70] p-4"
+                              className="popover-content absolute top-full right-0 mt-3 w-[min(90vw,320px)] bg-white rounded-xl shadow-2xl z-[70] p-[clamp(1rem,2vw,1.5rem)]"
                               initial={{
                                 y: 10,
                                 opacity: 0,
@@ -744,7 +744,7 @@ const ServiceModal = ({
           <motion.div
             ref={contentRef}
             tabIndex={0}
-            className="flex-1 w-full overflow-y-auto mt-4 sm:mt-6 outline-none pb-4 pr-0 custom-scrollbar"
+            className="flex-1 w-full overflow-y-auto mt-[clamp(1rem,2vw,1.5rem)] outline-none pb-[clamp(1rem,2vw,1.5rem)] pr-0 custom-scrollbar"
             style={{
               WebkitOverflowScrolling: "touch",
               scrollbarWidth: "thin",
@@ -814,7 +814,7 @@ const ServiceModal = ({
           {/* ======================================== */}
           <motion.button
             onClick={handleCartClick}
-            className="absolute bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#CC2B52] text-white shadow-lg hover:bg-[#B02547] transition-all duration-200"
+            className="absolute bottom-[clamp(1rem,2vw,1.5rem)] right-[clamp(1rem,2vw,1.5rem)] z-50 flex items-center justify-center w-[clamp(2.5rem,5vw,3rem)] h-[clamp(2.5rem,5vw,3rem)] rounded-full bg-[#CC2B52] text-white shadow-lg hover:bg-[#B02547] transition-all duration-200"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, scale: 0.8 }}
@@ -822,7 +822,7 @@ const ServiceModal = ({
             transition={{ delay: 0.3, duration: 0.3 }}
             aria-label="Go to cart"
           >
-            <HiShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
+            <HiShoppingCart className="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
             {/* Cart Badge */}
             {totalServices > 0 && (
               <span
