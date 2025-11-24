@@ -22,10 +22,10 @@ const FlexCard = ({ item, source = "other" }) => {
   const addButtonClassName = item?.addButtonClassName ?? "w-full text-sm";
   return (
     <>
-      <div className="flex flex-col gap-2 sm:gap-3 lg:gap-[10px] p-3 sm:p-4 md:p-4 lg:p-6 h-auto min-h-[300px] sm:min-h-[320px] md:min-h-[340px] lg:h-[392px] w-full rounded-xl shadow-xl bg-white">
-        <div className="w-full h-auto lg:h-[344px] flex flex-col gap-3 sm:gap-3 lg:gap-6">
+      <div className="flex flex-col gap-[clamp(0.75rem,2vw,1rem)] p-[clamp(0.75rem,2vw,1.5rem)] min-h-[clamp(280px,38vh,360px)] w-full rounded-2xl shadow-xl bg-white">
+        <div className="w-full flex flex-col gap-[clamp(0.75rem,2vw,1.25rem)] flex-1">
           {/*image-container*/}
-          <div className="image-container h-[180px] sm:h-[200px] md:h-[220px] lg:h-[256px] rounded-xl overflow-hidden flex items-center justify-center">
+          <div className="image-container h-[clamp(160px,24vh,256px)] rounded-2xl overflow-hidden flex items-center justify-center">
             <img
               src={item.img}
               className="w-full h-full object-cover object-center"
@@ -33,12 +33,12 @@ const FlexCard = ({ item, source = "other" }) => {
             />
           </div>
 
-          <div className="card-decription font-inter flex flex-col gap-1 sm:gap-2 lg:gap-[6px] items-start">
-            <h2 className="font-medium text-base sm:text-lg lg:text-lg text-black leading-tight">
+          <div className="card-decription font-inter flex flex-col gap-[clamp(0.25rem,1vw,0.5rem)] items-start flex-1">
+            <h2 className="font-medium text-[clamp(1rem,2vw,1.125rem)] text-black leading-tight">
               {item.cardHeader}
             </h2>
 
-            <p className="description text-xs sm:text-sm lg:text-sm font-normal text-[#666666] leading-relaxed">
+            <p className="description text-[clamp(0.85rem,1.8vw,0.95rem)] font-normal text-[#666666] leading-relaxed">
               {item.description}
             </p>
 
@@ -48,19 +48,19 @@ const FlexCard = ({ item, source = "other" }) => {
               </p>
             ) : (
               (item?.PriceEstimate || item?.Price) && (
-                <div className="price flex items-center justify-between w-full mt-1">
+                <div className="price flex items-center justify-between w-full mt-1 flex-wrap gap-2">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-sm sm:text-base font-semibold text-[#1F1F1F]">
+                    <span className="text-[clamp(0.95rem,2vw,1.05rem)] font-semibold text-[#1F1F1F]">
                       ₹ {item?.Price ? item.Price : item.PriceEstimate}
                     </span>
                     {item?.includingTax && (
-                      <span className="text-[10px] text-[#6B6B6B]">
+                      <span className="text-[clamp(0.6rem,1.4vw,0.7rem)] text-[#6B6B6B] whitespace-nowrap">
                         Including Taxes
                       </span>
                     )}
                   </div>
                   {item?.service && (
-                    <span className="text-[10px] font-semibold text-[#1F1F1F] whitespace-nowrap">
+                    <span className="text-[clamp(0.6rem,1.4vw,0.7rem)] font-semibold text-[#1F1F1F] whitespace-nowrap">
                       {item.service}
                     </span>
                   )}

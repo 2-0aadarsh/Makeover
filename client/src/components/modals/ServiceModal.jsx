@@ -435,7 +435,7 @@ const ServiceModal = ({
         {/* ======================================== */}
         <motion.div
           ref={modalRef}
-          className="relative w-full lg:w-[1020px] h-[77vh] lg:h-[620px] bg-[#FAF2F4] rounded-t-3xl lg:rounded-2xl shadow-2xl py-4 sm:py-6 lg:py-8 xl:py-[60px] pl-2 sm:pl-3 lg:pl-4 xl:pl-6 pr-1 sm:pr-2 lg:pr-2 xl:pr-2 flex flex-col mx-0 lg:mx-2 xl:mx-4 overflow-hidden"
+          className="relative w-full max-w-[min(95vw,1020px)] h-[clamp(460px,85vh,620px)] bg-[#FAF2F4] rounded-[16px] shadow-2xl py-[clamp(1rem,3vw,3.75rem)] px-[clamp(0.5rem,2vw,1.5rem)] flex flex-col mx-auto overflow-hidden"
           variants={isDesktop ? desktopModalVariants : modalVariants}
           initial="hidden"
           animate="visible"
@@ -482,7 +482,7 @@ const ServiceModal = ({
                     >
                       <span className="truncate">{title}</span>
                       <IoChevronDown
-                        className={`w-[clamp(1.25rem,3vw,2rem)] h-[clamp(1.25rem,3vw,2rem)] flex-shrink-0 transition-transform duration-200 ${
+                        className={`w-[clamp(1rem,2.5vw,1.5rem)] h-[clamp(1rem,2.5vw,1.5rem)] flex-shrink-0 transition-transform duration-200 ${
                           showDropdown ? "rotate-180" : ""
                         }`}
                       />

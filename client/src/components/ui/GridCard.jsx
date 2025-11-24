@@ -13,11 +13,10 @@ const GridCard = ({ gridCardData, category }) => {
         return (
           <div
             key={index}
-            className="w-full h-auto lg:h-[120px] py-4 px-3 sm:px-4 lg:pl-4 lg:pr-4 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center bg-white"
+            className="w-full h-auto py-[clamp(0.75rem,2vw,1rem)] px-[clamp(0.75rem,2vw,1rem)] rounded-2xl shadow-md flex flex-col lg:flex-row lg:items-center bg-white gap-[clamp(0.5rem,1.5vw,1rem)]"
           >
-            <div className="card-content w-full flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 lg:h-full">
-              {/* Image Container - 80px × 80px */}
-              <div className="img-container w-[80px] h-[80px] rounded-[12px] overflow-hidden flex-shrink-0 shadow-sm">
+            <div className="card-content w-full flex flex-row items-center justify-between gap-[clamp(0.5rem,1.5vw,1rem)]">
+              <div className="img-container w-[clamp(64px,10vw,84px)] h-[clamp(64px,10vw,84px)] rounded-[14px] overflow-hidden flex-shrink-0 shadow-sm">
                 <img
                   src={item.img}
                   className="w-full h-full object-cover"
@@ -25,16 +24,13 @@ const GridCard = ({ gridCardData, category }) => {
                 />
               </div>
 
-              {/* Content Container - 244px width (hug), 81px height (hug) */}
-              <div className="card-descriptions flex flex-col justify-between md:w-[244px] lg:h-[81px] min-w-0 flex-1">
-                {/* Title with consistent truncation */}
-                <div className="card-header text-[18px] font-bold tracking-normal leading-tight text-gray-900 whitespace-nowrap mb-1">
+              <div className="card-descriptions flex flex-col justify-between flex-1 min-w-0">
+                <div className="card-header text-[clamp(1rem,2vw,1.125rem)] font-bold leading-tight text-gray-900 truncate mb-[2px]">
                   {item.cardHeader}
                 </div>
 
-                {/* Description with consistent line clamping */}
                 <div
-                  className="card-description text-[10px] text-[#3C3C43] leading-[14px] mb-[2px] overflow-hidden min-h-[28px]"
+                  className="card-description text-[clamp(0.75rem,1.3vw,0.875rem)] text-[#3C3C43] leading-relaxed mb-[2px] overflow-hidden"
                   style={{
                     display: "-webkit-box",
                     WebkitLineClamp: 2,
@@ -47,26 +43,24 @@ const GridCard = ({ gridCardData, category }) => {
                   {item.description}
                 </div>
 
-                {/* Pricing Row - Always at bottom */}
-                <div className="card-pricing flex items-center justify-between gap-6 mt-auto pt-0 border-t border-gray-200">
-                  <div className="price-time flex items-center justify-between gap-4 flex-1 min-w-0 pt-1">
-                    <span className="text-[15px] sm:text-[16px] lg:text-[17px] font-bold text-gray-900 whitespace-nowrap">
+                <div className="card-pricing flex items-center justify-between gap-[clamp(0.5rem,1.5vw,1rem)] mt-auto pt-2 border-t border-gray-100 flex-wrap">
+                  <div className="price-time flex items-center gap-[clamp(0.5rem,1vw,0.75rem)] flex-1 min-w-0">
+                    <span className="text-[clamp(0.95rem,1.6vw,1.05rem)] font-bold text-gray-900 whitespace-nowrap">
                       ₹ {item.price}
                       {item.taxIncluded && (
-                        <span className="ml-2 text-[10px] sm:text-[11px] lg:text-[11px] font-medium text-gray-500 whitespace-nowrap">
+                        <span className="ml-2 text-[clamp(0.65rem,1.2vw,0.75rem)] font-medium text-gray-500 whitespace-nowrap">
                           Including Taxes
                         </span>
                       )}
                     </span>
-                    <span className="text-[10px] sm:text-[10px] font-semibold text-gray-900 whitespace-nowrap ml-8">
+                    <span className="text-[clamp(0.65rem,1.2vw,0.8rem)] font-semibold text-gray-900 whitespace-nowrap">
                       {item.duration}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Button Container - Desktop: Fixed consistent width on right */}
-              <div className="button-container hidden lg:flex flex-shrink-0 w-[100px] items-center justify-end lg:ml-2">
+              <div className="button-container hidden lg:flex flex-shrink-0 w-[110px] items-center justify-end lg:ml-2">
                 <ServiceCartButton
                   serviceData={serviceDataWithCategory}
                   className="text-xs sm:text-[13px] lg:text-[14px] whitespace-nowrap"
