@@ -19,7 +19,7 @@ import BridalFacial from "../../../assets/modals/cleanup and facical/bridal/O3+B
 import AromaMagicBridalFacial from "../../../assets/modals/cleanup and facical/bridal/AromaMagicBridalFacial.png";
 import KanpekiBridalFacial from "../../../assets/modals/cleanup and facical/bridal/Kanpeki Bridal Facial.png";
 
-const CleanupAndFacialModal = ({ onClose }) => {
+const CleanupAndFacialModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const card = [
     {
       title: "Regular",
@@ -153,6 +153,9 @@ const CleanupAndFacialModal = ({ onClose }) => {
       title="Cleanup & Facial"
       gridCard={card}
       onClose={onClose}
+      services={services}
+      currentServiceId={currentServiceId}
+      onServiceChange={onServiceChange}
       onConfirm={() => alert("Cleanup & Facial Booking Confirmed!")}
     />
   );

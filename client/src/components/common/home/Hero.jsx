@@ -19,42 +19,56 @@ const Hero = () => {
 
   const closeModal = () => setActiveModalId(null);
 
+  const handleServiceChange = (serviceId) => {
+    setActiveModalId(serviceId);
+  };
+
+  // Define services list for dropdown
+  const servicesList = [
+    { id: 1, name: "Professional Makeup" },
+    { id: 2, name: "Cleanup & Facial" },
+    { id: 3, name: "Professional Mehendi" },
+    { id: 4, name: "Waxing" },
+    { id: 5, name: "Mani/Pedi & Massage" },
+    { id: 6, name: "Detan & Bleach" },
+  ];
+
   const services = [
     {
       id: 1,
       name: "Professional Makeup",
       image: artistImg,
-      modal: <ProfessionalMakeup onClose={closeModal} />,
+      modal: <ProfessionalMakeup onClose={closeModal} services={servicesList} currentServiceId={1} onServiceChange={handleServiceChange} />,
     },
     {
       id: 2,
       name: "Cleanup & Facial",
       image: faceFoundationImg,
-      modal: <CleanupAndFacialModal onClose={closeModal} />,
+      modal: <CleanupAndFacialModal onClose={closeModal} services={servicesList} currentServiceId={2} onServiceChange={handleServiceChange} />,
     },
     {
       id: 3,
       name: "Professional Mehendi",
       image: tattooImg,
-      modal: <ProfessionalMehendiModal onClose={closeModal} />,
+      modal: <ProfessionalMehendiModal onClose={closeModal} services={servicesList} currentServiceId={3} onServiceChange={handleServiceChange} />,
     },
     {
       id: 4,
       name: "Waxing",
       image: naturalIngridentsImg,
-      modal: <WaxingModal onClose={closeModal} />,
+      modal: <WaxingModal onClose={closeModal} services={servicesList} currentServiceId={4} onServiceChange={handleServiceChange} />,
     },
     {
       id: 5,
       name: "Mani/Pedi & Massage",
       image: primerImg,
-      modal: <ManicureAndPedicureModal onClose={closeModal} />,
+      modal: <ManicureAndPedicureModal onClose={closeModal} services={servicesList} currentServiceId={5} onServiceChange={handleServiceChange} />,
     },
     {
       id: 6,
       name: "Detan & Bleach",
       image: makeupImg,
-      modal: <BleachAndDeTanModal onClose={closeModal} />,
+      modal: <BleachAndDeTanModal onClose={closeModal} services={servicesList} currentServiceId={6} onServiceChange={handleServiceChange} />,
     },
   ];
 
@@ -72,44 +86,37 @@ const Hero = () => {
         />
       </div>
 
-      {/* Content Section */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 md:py-10 lg:py-12 order-2 lg:order-2">
-        <div className="w-full max-w-6xl flex flex-col items-center justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
+      {/* Content Section - Mobile/Tablet: Full width, Desktop: Right half */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-[clamp(1rem,4vw,5rem)] py-[clamp(2rem,5vw,3rem)] lg:py-0 order-2 lg:order-2">
+        <div className="w-full flex flex-col items-center justify-center gap-[clamp(1.5rem,4vw,2rem)]">
           {/* Header Section */}
-          <div className="header flex flex-col items-start justify-center gap-3 sm:gap-4 md:gap-4 text-left w-full">
-            <h1 className="title font-semibold text-2xl sm:text-3xl md:text-[32px] lg:text-[38px] xl:text-[42px] text-[#CC2B52] leading-tight lg:leading-[110%]">
+          <div className="header flex flex-col items-start justify-center gap-[clamp(1rem,3vw,1.5rem)] text-left w-full">
+            <h1 className="title font-semibold text-[clamp(1.5rem,4vw,2.375rem)] text-[#CC2B52] leading-tight">
               Professional Makeup & Grooming at your Doorstep!
             </h1>
-            <p className="description font-normal text-base sm:text-lg md:text-[17px] lg:text-xl leading-relaxed lg:leading-[28px] text-[#292929] max-w-2xl">
+            <p className="description font-normal text-[clamp(0.875rem,2vw,1.125rem)] leading-relaxed text-[#292929] max-w-lg">
               We bring professional makeup and grooming essential services to
               you at a very friendly price
             </p>
           </div>
 
-          {/* Services Section - Optimized for tablet */}
-          <div className="service-container w-full max-w-4xl">
-            <div className="services grid grid-cols-3 gap-3 sm:gap-4 md:gap-4 lg:gap-5 xl:gap-6 w-full">
+          {/* Services Section */}
+          <div className="service-container w-full">
+            <div className="services grid grid-cols-3 gap-[clamp(0.75rem,2vw,1.5rem)]">
               {services.map((service) => (
                 <div
                   key={service.id}
-                  className="service-item flex flex-col items-center justify-center p-2 sm:p-3 md:p-3 lg:p-4 border rounded-xl shadow-md w-full aspect-square max-w-full cursor-pointer hover:shadow-lg transition-all duration-200 bg-white"
+                  className="service-item flex flex-col items-center justify-center p-[clamp(0.5rem,2vw,1rem)] border rounded-xl shadow-md w-full aspect-square cursor-pointer hover:shadow-lg transition-shadow duration-200"
                   onClick={() => setActiveModalId(service.id)}
                 >
-                  {/* Image container with tablet-optimized sizing */}
-                  <div className="flex-1 flex items-center justify-center mb-1 sm:mb-1 md:mb-2 w-full">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="w-10 h-10 sm:w-12 sm:h-12 md:w-20 md:h-20 lg:w-16 lg:h-16 xl:w-18 xl:h-18 object-contain flex-shrink-0"
-                    />
-                  </div>
-
-                  {/* Service name with tablet-optimized text */}
-                  <div className="w-full flex-shrink-0 px-1">
-                    <p className="service-name text-center text-xs sm:text-xs md:text-lg lg:text-base font-medium leading-tight text-gray-800 break-words hyphens-auto line-clamp-2">
-                      {service.name}
-                    </p>
-                  </div>
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="w-[clamp(3rem,8vw,5rem)] h-[clamp(3rem,8vw,5rem)] object-cover mb-[clamp(0.25rem,1vw,0.5rem)]"
+                  />
+                  <p className="service-name text-center text-[clamp(0.75rem,1.5vw,1.125rem)] font-medium leading-tight">
+                    {service.name}
+                  </p>
                 </div>
               ))}
             </div>
@@ -123,7 +130,7 @@ const Hero = () => {
           service.id === activeModalId && (
             <div
               key={service.id}
-              className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+              className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50 p-[clamp(0.5rem,2vw,1rem)]"
               onClick={closeModal}
             >
               {service.modal}

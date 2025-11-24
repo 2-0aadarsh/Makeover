@@ -96,7 +96,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { IoInformationCircleOutline } from "react-icons/io5";
+import { IoInformationCircleOutline, IoChevronDown } from "react-icons/io5";
+import { HiShoppingCart } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../../hooks/useCart";
 import FlexCardContainer from "../../components/ui/FlexCardContainer";
 import GridCardContainer from "../ui/GridCardContainer";
 
@@ -109,7 +112,12 @@ const ServiceModal = ({
   gridCard = [],
   infoContent = null,
   onClose,
+  services = [],
+  currentServiceId = null,
+  onServiceChange = null,
 }) => {
+  const navigate = useNavigate();
+  const { totalServices } = useCart();
   const modalRef = useRef(null);
   const contentRef = useRef(null);
   const scrollPositionRef = useRef(0);
@@ -118,11 +126,45 @@ const ServiceModal = ({
   const [isDragging, setIsDragging] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [isDesktop, setIsDesktop] = useState(getIsDesktop());
+  // const [isDesktop, setIsDesktop] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const infoIconRef = useRef(null);
+  const dropdownRef = useRef(null);
   const dragStartY = useRef(0);
   const touchStateRef = useRef({
     startY: 0,
   });
+
+  const handleCartClick = () => {
+    onClose();
+    navigate("/cart");
+  };
+
+  const handleServiceSelect = (serviceId) => {
+    if (onServiceChange && serviceId !== currentServiceId) {
+      onServiceChange(serviceId);
+    }
+    setShowDropdown(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [showDropdown]);
 
   // Check if desktop on mount and resize
   useEffect(() => {
@@ -422,24 +464,101 @@ const ServiceModal = ({
           {/* SECTION 3: HEADER (Sticky at top) */}
           {/* ✅ Add new header elements here */}
           {/* ======================================== */}
-          <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-2 sm:pb-3 lg:pb-0 mt-4 md:mt-0 border-b border-gray-200/50">
+          <div className="sticky w-full top-0 bg-[#FAF2F4] z-10 pb-[clamp(0.5rem,1.5vw,0.75rem)] mt-[clamp(0.5rem,2vw,1rem)] md:mt-0 border-b border-gray-200/50">
             {/* ======================================== */}
             {/* SECTION 3.1: TITLE ROW */}
             {/* ✅ Add elements before/after title here */}
             {/* ======================================== */}
-            <div className="flex justify-between items-center w-full mb-3 sm:mb-4 lg:mb-6">
-              <motion.h2
-                className="text-[#CC2B52] text-xl sm:text-2xl md:text-3xl lg:text-[32px] leading-tight sm:leading-relaxed lg:leading-[52px] font-bold"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-              >
-                {title}
-              </motion.h2>
+            <div className="flex justify-between items-center w-full mb-[clamp(0.75rem,2vw,1.5rem)]">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {services.length > 0 && onServiceChange ? (
+                  <div ref={dropdownRef} className="relative flex-1 min-w-0">
+                    <motion.button
+                      onClick={() => setShowDropdown(!showDropdown)}
+                      className="flex items-center gap-2 text-[#CC2B52] text-[clamp(1.25rem,3vw,2rem)] leading-tight font-bold hover:opacity-80 transition-opacity"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1, duration: 0.3 }}
+                    >
+                      <span className="truncate">{title}</span>
+                      <IoChevronDown
+                        className={`w-[clamp(1.25rem,3vw,2rem)] h-[clamp(1.25rem,3vw,2rem)] flex-shrink-0 transition-transform duration-200 ${
+                          showDropdown ? "rotate-180" : ""
+                        }`}
+                      />
+                    </motion.button>
+
+                    {/* Dropdown Menu */}
+                    <AnimatePresence>
+                      {showDropdown && (
+                        <>
+                          {/* Backdrop for mobile */}
+                          <motion.div
+                            className="fixed inset-0 bg-black/30 z-[60] lg:hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowDropdown(false)}
+                          />
+
+                          {/* Dropdown Content */}
+                          <motion.div
+                            className="absolute top-full left-0 mt-2 w-[clamp(200px,90vw,320px)] min-w-[200px] max-w-[320px] bg-white rounded-xl shadow-2xl z-[70] overflow-hidden border border-gray-100"
+                            initial={{
+                              y: -10,
+                              opacity: 0,
+                              scale: 0.95,
+                            }}
+                            animate={{ y: 0, opacity: 1, scale: 1 }}
+                            exit={{
+                              y: -10,
+                              opacity: 0,
+                              scale: 0.95,
+                            }}
+                            transition={{
+                              type: "spring",
+                              damping: 25,
+                              stiffness: 300,
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {services.map((service, index) => (
+                              <button
+                                key={service.id}
+                                onClick={() => handleServiceSelect(service.id)}
+                                className={`w-full text-left px-[clamp(0.875rem,2.5vw,1.5rem)] py-[clamp(0.625rem,1.75vw,0.875rem)] text-[clamp(0.8125rem,1.4vw,1rem)] font-medium hover:bg-gray-50 transition-colors whitespace-nowrap ${
+                                  service.id === currentServiceId
+                                    ? "bg-gray-100 font-semibold text-[#CC2B52]"
+                                    : "text-[#3C3C43]"
+                                } ${
+                                  index !== services.length - 1
+                                    ? "border-b border-gray-200"
+                                    : ""
+                                }`}
+                              >
+                                {service.name}
+                              </button>
+                            ))}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <motion.h2
+                    className="text-[#CC2B52] text-[clamp(1.25rem,3vw,2rem)] leading-tight font-bold"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                  >
+                    {title}
+                  </motion.h2>
+                )}
+              </div>
 
               <motion.button
                 onClick={onClose}
-                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center justify-center w-[clamp(2rem,4vw,3rem)] h-[clamp(2rem,4vw,3rem)] rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-red-600 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0 ml-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Close modal"
@@ -447,7 +566,7 @@ const ServiceModal = ({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.15, duration: 0.3 }}
               >
-                <span className="text-lg sm:text-xl lg:text-2xl font-semibold">
+                <span className="text-[clamp(1.125rem,2.5vw,1.5rem)] font-semibold">
                   &times;
                 </span>
               </motion.button>
@@ -461,17 +580,17 @@ const ServiceModal = ({
             {gridCard.length > 0 && (
               <div className="relative w-full  pb-2 overflow-visible">
                 <motion.div
-                  className="tabs flex flex-row items-center justify-between pr-2 gap-4 sm:gap-6 lg:gap-8 text-sm sm:text-base md:text-lg lg:text-[20px] leading-6 sm:leading-7 lg:leading-8 font-inter pb-2 overflow-visible"
+                  className="tabs flex flex-row items-center justify-between pr-2 gap-[clamp(1rem,3vw,2rem)] text-[clamp(0.875rem,1.5vw,1.25rem)] leading-[clamp(1.5rem,2vw,2rem)] font-inter pb-2 overflow-visible"
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
                 >
-                  <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 flex-shrink-0 overflow-visible">
+                  <div className="flex items-center gap-[clamp(1rem,3vw,2rem)] flex-shrink-0 overflow-visible">
                     {tabs.map((item, index) => (
                       <motion.div
                         key={index}
                         onClick={() => setCurrentTab(index)}
-                        className={`relative py-2 sm:py-3 transition-all duration-300 ease-out cursor-pointer flex-shrink-0
+                        className={`relative py-[clamp(0.5rem,1.5vw,0.75rem)] transition-all duration-300 ease-out cursor-pointer flex-shrink-0
                                   ${
                                     currentTab === index
                                       ? "text-[#CC2B52] font-bold"
@@ -521,7 +640,7 @@ const ServiceModal = ({
                             setShowInfo(!showInfo);
                           }
                         }}
-                        className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-[#CC2B52] hover:text-[#B02547] transition-colors cursor-pointer"
+                        className="flex items-center justify-center w-[clamp(1.25rem,2.5vw,1.5rem)] h-[clamp(1.25rem,2.5vw,1.5rem)] text-[#CC2B52] hover:text-[#B02547] transition-colors cursor-pointer"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         aria-label="Service information"
@@ -533,21 +652,22 @@ const ServiceModal = ({
                       </motion.button>
 
                       {/* Info Popover - All screens appear near icon */}
+                      {/* Info Popover - All screens appear near icon */}
                       <AnimatePresence>
                         {showInfo && (
                           <>
-                            {/* Backdrop for mobile */}
+                            {/* Backdrop - 25% transparent */}
                             <motion.div
-                              className="fixed inset-0 bg-black/30 z-[60] lg:hidden"
+                              className="fixed inset-0 bg-black/25 z-[60]"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
                               onClick={() => setShowInfo(false)}
                             />
 
-                            {/* Popover content - positioned near icon on all screens */}
+                            {/* Popover content - Fully responsive sizing */}
                             <motion.div
-                              className="popover-content absolute top-full right-0 mt-3 w-[280px] sm:w-[320px] bg-white rounded-xl shadow-2xl z-[70] p-4"
+                              className="popover-content absolute top-full right-0 mt-3 w-[85vw] max-w-[320px] sm:w-[75vw] sm:max-w-[360px] md:w-[65vw] md:max-w-[380px] lg:w-[380px] xl:w-[400px] bg-white rounded-xl shadow-2xl z-[70] p-3 sm:p-4 md:p-5"
                               initial={{
                                 y: 10,
                                 opacity: 0,
@@ -580,8 +700,8 @@ const ServiceModal = ({
                               }}
                             >
                               {/* Mobile/Tablet header with close button */}
-                              <div className="flex justify-between items-center mb-3 lg:mb-2">
-                                <h4 className="text-[#CC2B52] font-semibold text-sm lg:hidden">
+                              <div className="flex justify-between items-center mb-3 lg:mb-3">
+                                <h4 className="text-[#CC2B52] font-semibold text-sm sm:text-base md:text-lg lg:text-base">
                                   Important Information
                                 </h4>
                                 <button
@@ -592,23 +712,23 @@ const ServiceModal = ({
                                 </button>
                               </div>
 
-                              {/* Info content */}
-                              <ul className="space-y-2 text-sm text-gray-700 leading-relaxed">
+                              {/* Info content - Responsive text sizing */}
+                              <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm md:text-base lg:text-sm text-gray-700 leading-relaxed sm:leading-loose">
                                 {infoContent.items?.map((item, index) => (
                                   <li
                                     key={index}
-                                    className="flex items-start gap-2"
+                                    className="flex items-start gap-2 sm:gap-3"
                                   >
-                                    <span className="text-[#CC2B52] mt-1 flex-shrink-0">
+                                    <span className="text-[#CC2B52] mt-0.5 sm:mt-1 flex-shrink-0 text-sm sm:text-base">
                                       •
                                     </span>
-                                    <span>{item}</span>
+                                    <span className="flex-1">{item}</span>
                                   </li>
                                 ))}
                               </ul>
 
-                              {/* Arrow pointing to icon */}
-                              <div className="absolute -top-2 right-4 w-4 h-4 bg-white transform rotate-45 shadow-lg border-l border-t border-gray-100" />
+                              {/* Arrow pointing to icon - Responsive positioning */}
+                              <div className="absolute -top-2 right-3 sm:right-4 w-3 h-3 sm:w-4 sm:h-4 bg-white transform rotate-45 shadow-lg border-l border-t border-gray-100" />
                             </motion.div>
                           </>
                         )}
@@ -627,7 +747,7 @@ const ServiceModal = ({
           <motion.div
             ref={contentRef}
             tabIndex={0}
-            className="flex-1 w-full overflow-y-auto mt-4 sm:mt-6 outline-none pb-4 pr-0 custom-scrollbar"
+            className="flex-1 w-full overflow-y-auto mt-[clamp(1rem,2vw,1.5rem)] outline-none pb-[clamp(1rem,2vw,1.5rem)] pr-0 custom-scrollbar"
             style={{
               WebkitOverflowScrolling: "touch",
               scrollbarWidth: "thin",
@@ -693,7 +813,35 @@ const ServiceModal = ({
           {/* ======================================== */}
 
           {/* ======================================== */}
-          {/* SECTION 5.1: GRADIENT FADE (Mobile only) */}
+          {/* SECTION 5.1: CART BUTTON (Bottom Right) */}
+          {/* ======================================== */}
+          <motion.button
+            onClick={handleCartClick}
+            className="absolute bottom-[clamp(1rem,2vw,1.5rem)] right-[clamp(1rem,2vw,1.5rem)] z-50 flex items-center justify-center w-[clamp(2.5rem,5vw,3rem)] h-[clamp(2.5rem,5vw,3rem)] rounded-full bg-[#CC2B52] text-white shadow-lg hover:bg-[#B02547] transition-all duration-200"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            aria-label="Go to cart"
+          >
+            <HiShoppingCart className="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
+            {/* Cart Badge */}
+            {totalServices > 0 && (
+              <span
+                className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-white text-[#CC2B52] rounded-full shadow-md border border-[#CC2B52]/20 text-xs font-bold"
+                style={{
+                  fontSize: "10px",
+                  lineHeight: "1",
+                }}
+              >
+                {totalServices}
+              </span>
+            )}
+          </motion.button>
+
+          {/* ======================================== */}
+          {/* SECTION 5.2: GRADIENT FADE (Mobile only) */}
           {/* ======================================== */}
           <div className="md:hidden absolute bottom-0 left-0 right-0 h-8 bg-[#FFFCFD] to-transparent pointer-events-none" />
         </motion.div>

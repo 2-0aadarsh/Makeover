@@ -11,7 +11,7 @@ import fullBodyDetan from "../../../assets/modals/bleach and de-tan/classic/full
 // premium images
 import fullBodyPolish from "../../../assets/modals/bleach and de-tan/premium/fullBodyPolish.svg";
 
-const BleachAndDeTanModal = ({ onClose }) => {
+const BleachAndDeTanModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const card = [
     {
       title: "Classic",
@@ -96,6 +96,9 @@ const BleachAndDeTanModal = ({ onClose }) => {
       title="Detan & Bleach"
       gridCard={card}
       onClose={onClose}
+      services={services}
+      currentServiceId={currentServiceId}
+      onServiceChange={onServiceChange}
       onConfirm={() => alert("Detan & Bleach Booking Confirmed!")}
       source="bleach-detan"
     />

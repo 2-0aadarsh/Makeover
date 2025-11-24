@@ -5,7 +5,7 @@ import BridalMehendi from "../../../assets/modals/Professional Mehendi/BridalMeh
 import MehendiForAll from "../../../assets/modals/Professional Mehendi/MehendiForAll.png";
 import CustomDesigns from "../../../assets/modals/Professional Mehendi/CustomDesigns.png";
 
-const ProfessionalMehendiModal = ({ onClose }) => {
+const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const mehendiCard = [
     {
       img: BridalMehendi,
@@ -49,6 +49,9 @@ const ProfessionalMehendiModal = ({ onClose }) => {
       title="Professional Mehendi"
       cards={mehendiCard}
       onClose={onClose}
+      services={services}
+      currentServiceId={currentServiceId}
+      onServiceChange={onServiceChange}
       onConfirm={() => alert("Professional Mehendi Booking Confirmed!")}
       source="professional-mehendi"
     />

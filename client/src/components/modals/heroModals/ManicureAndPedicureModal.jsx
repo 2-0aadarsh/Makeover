@@ -13,7 +13,7 @@ import ManicurePremium from "../../../assets/modals/manicure and pedicure/premiu
 import PedicurePremium from "../../../assets/modals/manicure and pedicure/premium/Pedicure-premium.png";
 import PremiumMassage from "../../../assets/modals/manicure and pedicure/premium/Premium Massage.png";
 
-const ManicureAndPedicureModal = ({ onClose }) => {
+const ManicureAndPedicureModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const card = [
     {
       title: "Classic",
@@ -120,6 +120,9 @@ const ManicureAndPedicureModal = ({ onClose }) => {
       title="Mani/Pedi & Massage"
       gridCard={card}
       onClose={onClose}
+      services={services}
+      currentServiceId={currentServiceId}
+      onServiceChange={onServiceChange}
       onConfirm={() => alert("Mani/Pedi & Massage Booking Confirmed!")}
     />
   );
