@@ -24,7 +24,8 @@ import {
   checkSlotAvailability,
   sanitizeBookingData,
   validatePagination,
-  validateBookingFilters
+  validateBookingFilters,
+  checkMinimumOrderValue
 } from '../middlewares/booking.middleware.js';
 import {
   getServiceableCities,
@@ -131,10 +132,16 @@ router.get('/available-slots',
  * @desc    Create a new booking
  * @access  Private
  * @body    services, bookingDetails, pricing
+ * @validation
+ *   - Sanitizes booking data
+ *   - Validates all required fields
+ *   - Checks minimum order value (MOV)
+ *   - Creates booking if all validations pass
  */
 router.post('/',
   sanitizeBookingData,
   validateBookingCreation,
+  checkMinimumOrderValue,  // ⬅️ NEW: Check MOV before creating booking
   createBooking
 );
 

@@ -55,6 +55,15 @@ const initialState = {
   slotsLoading: false,
   slotsError: null,
   
+  // Booking configuration
+  bookingConfig: {
+    minimumOrderValue: null,
+    currency: 'INR',
+    loading: false,
+    error: null,
+    lastFetched: null
+  },
+  
   // Last action timestamps
   lastFetched: null,
   lastCreated: null,
@@ -294,6 +303,21 @@ export const fetchAvailableSlots = createAsyncThunk(
   }
 );
 
+export const fetchMinimumOrderValue = createAsyncThunk(
+  'booking/fetchMinimumOrderValue',
+  async (_, { rejectWithValue }) => {
+    try {
+      console.log('🚀 fetchMinimumOrderValue thunk - Starting API call...');
+      const response = await bookingApi.getMinimumOrderValue();
+      console.log('✅ fetchMinimumOrderValue thunk - API response:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ fetchMinimumOrderValue thunk - Error:', error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 // Booking slice
 const bookingSlice = createSlice({
   name: 'booking',
@@ -364,9 +388,23 @@ const bookingSlice = createSlice({
     // Reset state
     resetBookingState: (state) => {
       return { ...initialState };
+    },
+
+    // Initialize bookingConfig if missing (for Redux Persist compatibility)
+    initializeBookingConfig: (state) => {
+      if (!state.bookingConfig) {
+        state.bookingConfig = {
+          minimumOrderValue: null,
+          currency: 'INR',
+          loading: false,
+          error: null,
+          lastFetched: null
+        };
+      }
     }
   },
   extraReducers: (builder) => {
+    builder
     builder
       // Fetch user bookings
       .addCase(fetchUserBookings.pending, (state) => {
@@ -601,6 +639,60 @@ const bookingSlice = createSlice({
       .addCase(fetchAvailableSlots.rejected, (state, action) => {
         state.slotsLoading = false;
         state.slotsError = action.payload;
+      })
+
+      // Fetch minimum order value
+      .addCase(fetchMinimumOrderValue.pending, (state) => {
+        // Initialize bookingConfig if missing (Redux Persist compatibility)
+        if (!state.bookingConfig) {
+          state.bookingConfig = {
+            minimumOrderValue: null,
+            currency: 'INR',
+            loading: false,
+            error: null,
+            lastFetched: null
+          };
+        }
+        state.bookingConfig.loading = true;
+        state.bookingConfig.error = null;
+      })
+      .addCase(fetchMinimumOrderValue.fulfilled, (state, action) => {
+        console.log('🔍 fetchMinimumOrderValue.fulfilled - Payload:', action.payload);
+        // Initialize bookingConfig if missing (Redux Persist compatibility)
+        if (!state.bookingConfig) {
+          state.bookingConfig = {
+            minimumOrderValue: null,
+            currency: 'INR',
+            loading: false,
+            error: null,
+            lastFetched: null
+          };
+        }
+        state.bookingConfig.loading = false;
+        const configData = action.payload?.data;
+        if (configData) {
+          state.bookingConfig.minimumOrderValue = configData.value;
+          state.bookingConfig.currency = configData.currency || 'INR';
+          state.bookingConfig.lastFetched = new Date().toISOString();
+          console.log('✅ MOV updated in state:', state.bookingConfig.minimumOrderValue);
+        }
+      })
+      .addCase(fetchMinimumOrderValue.rejected, (state, action) => {
+        console.error('❌ fetchMinimumOrderValue.rejected - Error:', action.payload);
+        // Initialize bookingConfig if missing (Redux Persist compatibility)
+        if (!state.bookingConfig) {
+          state.bookingConfig = {
+            minimumOrderValue: null,
+            currency: 'INR',
+            loading: false,
+            error: null,
+            lastFetched: null
+          };
+        }
+        state.bookingConfig.loading = false;
+        state.bookingConfig.error = action.payload;
+        // Set default MOV on error (fail-safe)
+        state.bookingConfig.minimumOrderValue = 999;
       });
   }
 });
@@ -615,7 +707,8 @@ export const {
   updateBookingInList,
   addBookingToList,
   removeBookingFromList,
-  resetBookingState
+  resetBookingState,
+  initializeBookingConfig
 } = bookingSlice.actions;
 
 // Export selectors
@@ -640,6 +733,20 @@ export const selectBookingUpdateError = (state) => state.booking.updateError;
 export const selectBookingCancelError = (state) => state.booking.cancelError;
 export const selectBookingRescheduleError = (state) => state.booking.rescheduleError;
 export const selectSlotsError = (state) => state.booking.slotsError;
+
+// Booking config selectors (with safe access for Redux Persist compatibility)
+export const selectMinimumOrderValue = (state) => 
+  state.booking?.bookingConfig?.minimumOrderValue ?? null;
+export const selectBookingConfig = (state) => 
+  state.booking?.bookingConfig ?? {
+    minimumOrderValue: null,
+    currency: 'INR',
+    loading: false,
+    error: null,
+    lastFetched: null
+  };
+export const selectMovLoading = (state) => 
+  state.booking?.bookingConfig?.loading ?? false;
 
 // Export reducer
 export default bookingSlice.reducer;

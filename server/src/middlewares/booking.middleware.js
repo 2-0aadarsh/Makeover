@@ -1,5 +1,6 @@
 import Booking from '../models/booking.model.js';
 import { validateIndianPhone } from '../utils/payment.utils.js';
+import BookingConfigService from '../services/bookingConfig.service.js';
 
 // Validate booking creation
 export const validateBookingCreation = (req, res, next) => {
@@ -399,4 +400,71 @@ export const validateBookingFilters = (req, res, next) => {
   };
   
   next();
+};
+
+// Check minimum order value
+export const checkMinimumOrderValue = async (req, res, next) => {
+  try {
+    console.log('🔍 [MOV CHECK] Starting minimum order value validation...');
+    
+    // 1. Fetch MOV config from cache/DB
+    const movResult = await BookingConfigService.getConfigByKey('MINIMUM_ORDER_VALUE');
+    
+    // 2. If config not found or inactive, skip validation (fail open)
+    if (!movResult.success || !movResult.data || !movResult.data.isActive) {
+      console.log('⚠️ [MOV CHECK] MOV config not found or inactive, skipping validation');
+      return next();
+    }
+    
+    const movConfig = movResult.data;
+    const minimumOrderValue = movConfig.value;
+    
+    console.log(`✅ [MOV CHECK] MOV config loaded: ₹${minimumOrderValue} (source: ${movResult.source})`);
+    
+    // 3. Calculate order subtotal from services
+    const { services } = req.body;
+    
+    if (!services || !Array.isArray(services) || services.length === 0) {
+      // Let other middleware handle this validation
+      return next();
+    }
+    
+    const subtotal = services.reduce((sum, service) => {
+      const price = parseFloat(service.price) || 0;
+      const quantity = parseInt(service.quantity) || 1;
+      return sum + (price * quantity);
+    }, 0);
+    
+    console.log(`💰 [MOV CHECK] Order subtotal: ₹${subtotal}`);
+    
+    // 4. Compare with MOV
+    if (subtotal < minimumOrderValue) {
+      const shortfall = minimumOrderValue - subtotal;
+      
+      console.log(`❌ [MOV CHECK] Order rejected - Subtotal (₹${subtotal}) < MOV (₹${minimumOrderValue})`);
+      
+      return res.status(400).json({
+        success: false,
+        message: `Minimum order value of ₹${minimumOrderValue} is required to place a booking.`,
+        error: 'MINIMUM_ORDER_VALUE_NOT_MET',
+        details: {
+          currentOrderValue: subtotal,
+          minimumOrderValue: minimumOrderValue,
+          shortfall: shortfall,
+          currency: movConfig.currency || 'INR',
+          message: `Please add services worth ₹${shortfall} more to proceed with your booking.`
+        }
+      });
+    }
+    
+    // 5. Validation passed
+    console.log(`✅ [MOV CHECK] Validation passed - Subtotal (₹${subtotal}) >= MOV (₹${minimumOrderValue})`);
+    next();
+    
+  } catch (error) {
+    console.error('❌ [MOV CHECK] Error checking minimum order value:', error);
+    // Fail open - don't block booking if validation fails
+    console.log('⚠️ [MOV CHECK] Validation error, allowing booking to proceed (fail open)');
+    next();
+  }
 };

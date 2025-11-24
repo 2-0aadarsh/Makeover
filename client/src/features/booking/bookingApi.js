@@ -121,6 +121,14 @@ export const bookingApi = {
       status,
       notes
     });
+  },
+
+  // Get minimum order value config
+  getMinimumOrderValue: () => {
+    return axios.get(`${backendurl}/api/admin/booking-config/MINIMUM_ORDER_VALUE`, {
+      withCredentials: true,
+      timeout: 5000
+    });
   }
 };
 

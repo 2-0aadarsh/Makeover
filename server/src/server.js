@@ -20,6 +20,7 @@ import paymentRouter from './routes/payment.routes.js';
 import newsletterRouter from './routes/newsletter.routes.js';
 import enquiryRouter from './routes/enquiry.routes.js';
 import serviceableCityAdminRouter from './routes/admin/serviceableCity.admin.routes.js';
+import bookingConfigRouter from './routes/bookingConfig.routes.js';
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/payment', paymentRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/enquiry', enquiryRouter);
 app.use('/api/admin/serviceable-cities', serviceableCityAdminRouter);
+app.use('/api/admin/booking-config', bookingConfigRouter);
 
 app.disable('x-powered-by');
 

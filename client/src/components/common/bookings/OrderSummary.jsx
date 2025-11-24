@@ -182,31 +182,29 @@ const OrderSummary = ({
 
       <div className="min-h-screen bg-white pt-16">
         {/* Main Content - Responsive padding */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-20">
           {/* Order Summary Header - Moved to top level */}
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 font-['DM_Sans'] leading-6">
             Order Summary
           </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Left Column - Order Summary */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="p-6">
-                {/* Table Header */}
-                <div className="hidden md:flex justify-between items-center pb-4 border-b border-gray-300">
-                  <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
+              <div className="p-4 sm:p-6">
+                {/* Table Header - Improved responsive layout */}
+                <div className="hidden md:grid grid-cols-12 gap-4 pb-4 border-b border-gray-300">
+                  <div className="col-span-6 font-['DM_Sans'] font-semibold text-base text-[#121212]">
                     Service
                   </div>
-                  <div className="flex justify-between items-center w-[350px]">
-                    <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
-                      Quantity
-                    </div>
-                    <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
-                      Price
-                    </div>
-                    <div className="font-['DM_Sans'] font-semibold text-base text-[#121212]">
-                      Subtotal
-                    </div>
+                  <div className="col-span-2 font-['DM_Sans'] font-semibold text-base text-[#121212] text-center">
+                    Quantity
+                  </div>
+                  <div className="col-span-2 font-['DM_Sans'] font-semibold text-base text-[#121212] text-right">
+                    Price
+                  </div>
+                  <div className="col-span-2 font-['DM_Sans'] font-semibold text-base text-[#121212] text-right">
+                    Subtotal
                   </div>
                 </div>
 
@@ -216,14 +214,14 @@ const OrderSummary = ({
                     {services.map((service, index) => (
                       <div
                         key={index}
-                        className="py-6 border-b border-gray-200"
+                        className="py-4 sm:py-6 border-b border-gray-200"
                       >
-                        {/* Desktop Layout */}
-                        <div className="hidden md:flex justify-between items-center">
-                          {/* Service Details */}
-                          <div className="flex items-center gap-4 flex-1">
+                        {/* Desktop Layout - Improved with grid */}
+                        <div className="hidden md:grid grid-cols-12 gap-4 items-center">
+                          {/* Service Details - Takes more space */}
+                          <div className="col-span-6 flex items-center gap-3 min-w-0">
                             {/* Service Image */}
-                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                               <img
                                 src={service.image}
                                 alt={service.name}
@@ -237,20 +235,26 @@ const OrderSummary = ({
                               />
                             </div>
 
-                            {/* Service Info */}
-                            <div className="flex-1">
-                              <h3 className="font-['DM_Sans'] font-semibold text-sm text-[#CC2B52] mb-1">
+                            {/* Service Info - Improved text handling */}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-['DM_Sans'] font-semibold text-sm sm:text-base text-[#CC2B52] mb-1 truncate">
                                 {service.name}
                               </h3>
-                              <p className="font-['DM_Sans'] text-xs text-gray-600 leading-relaxed">
+                              <p
+                                className="font-['DM_Sans'] text-xs text-gray-600 leading-relaxed overflow-hidden"
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                }}
+                              >
                                 {service.description}
                               </p>
                             </div>
                           </div>
 
-                          {/* Quantity, Price, Subtotal */}
-                          <div className="flex items-center gap-16">
-                            {/* Quantity Controls */}
+                          {/* Quantity Controls */}
+                          <div className="col-span-2 flex justify-center">
                             <div className="flex items-center border border-gray-300 rounded-lg w-20 h-8">
                               <button
                                 onClick={() => handleQuantityChange(index, -1)}
@@ -270,29 +274,29 @@ const OrderSummary = ({
                                 <Plus className="w-3 h-3 text-gray-600" />
                               </button>
                             </div>
+                          </div>
 
-                            {/* Price */}
-                            <div className="w-20 text-right">
-                              <p className="font-['DM_Sans'] font-medium text-sm text-gray-800">
-                                {formatPrice(service.price)}
-                              </p>
-                            </div>
+                          {/* Price */}
+                          <div className="col-span-2 text-right">
+                            <p className="font-['DM_Sans'] font-medium text-sm sm:text-base text-gray-800">
+                              {formatPrice(service.price)}
+                            </p>
+                          </div>
 
-                            {/* Subtotal */}
-                            <div className="w-20 text-right">
-                              <p className="font-['DM_Sans'] font-medium text-sm text-gray-800">
-                                {formatPrice(service.price * service.quantity)}
-                              </p>
-                            </div>
+                          {/* Subtotal */}
+                          <div className="col-span-2 text-right">
+                            <p className="font-['DM_Sans'] font-medium text-sm sm:text-base text-gray-800">
+                              {formatPrice(service.price * service.quantity)}
+                            </p>
                           </div>
                         </div>
 
-                        {/* Mobile Layout */}
-                        <div className="md:hidden">
+                        {/* Mobile Layout - Improved */}
+                        <div className="md:hidden space-y-4">
                           {/* Service Details */}
-                          <div className="flex items-center gap-4 mb-4">
+                          <div className="flex items-start gap-3">
                             {/* Service Image */}
-                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                               <img
                                 src={service.image}
                                 alt={service.name}
@@ -307,7 +311,7 @@ const OrderSummary = ({
                             </div>
 
                             {/* Service Info */}
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <h3 className="font-['DM_Sans'] font-semibold text-sm text-[#CC2B52] mb-1">
                                 {service.name}
                               </h3>
@@ -317,10 +321,10 @@ const OrderSummary = ({
                             </div>
                           </div>
 
-                          {/* Price and Quantity Row */}
+                          {/* Price, Quantity and Subtotal Row */}
                           <div className="flex justify-between items-center">
                             {/* Price and Subtotal */}
-                            <div className="flex gap-6">
+                            <div className="flex gap-4 sm:gap-6">
                               <div>
                                 <p className="text-xs text-gray-500 mb-1">
                                   Price
@@ -372,8 +376,8 @@ const OrderSummary = ({
                   </div>
                 )}
 
-                {/* Total Amount */}
-                <div className="py-6 border-b border-gray-200">
+                {/* Total Amount Section */}
+                <div className="py-4 sm:py-6 border-b border-gray-200">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-gray-900 font-['DM_Sans']">
                       Total Amount:
@@ -394,7 +398,7 @@ const OrderSummary = ({
 
                 {/* Breakup Details - Conditionally Rendered */}
                 {showBreakup && (
-                  <div className="py-6 space-y-3">
+                  <div className="py-4 sm:py-6 space-y-3">
                     {/* Subtotal */}
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-700 font-['DM_Sans']">

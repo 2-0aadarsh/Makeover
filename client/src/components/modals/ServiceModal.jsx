@@ -100,6 +100,9 @@ import { IoInformationCircleOutline } from "react-icons/io5";
 import FlexCardContainer from "../../components/ui/FlexCardContainer";
 import GridCardContainer from "../ui/GridCardContainer";
 
+const getIsDesktop = () =>
+  typeof window !== "undefined" && window.innerWidth >= 1024;
+
 const ServiceModal = ({
   title,
   cards = [],
@@ -114,7 +117,7 @@ const ServiceModal = ({
   const [currentTab, setCurrentTab] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(getIsDesktop());
   const infoIconRef = useRef(null);
   const dragStartY = useRef(0);
   const touchStateRef = useRef({
@@ -378,7 +381,7 @@ const ServiceModal = ({
       {/* ======================================== */}
       <motion.div
         key="modal-overlay"
-        className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/30 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-end lg:items-center justify-center p-0 lg:p-4 bg-black/30 backdrop-blur-sm"
         variants={overlayVariants}
         initial="hidden"
         animate="visible"
@@ -390,10 +393,8 @@ const ServiceModal = ({
         {/* ======================================== */}
         <motion.div
           ref={modalRef}
-          className="relative w-full md:w-[1020px] h-[77vh] md:h-[620px] bg-[#FAF2F4] rounded-t-3xl md:rounded-2xl shadow-2xl py-4 sm:py-6 md:py-8 lg:py-[60px] pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-1 sm:pr-2 md:pr-2 lg:pr-2 flex flex-col mx-0 md:mx-2 lg:mx-4 overflow-hidden"
-          variants={
-            window.innerWidth < 768 ? modalVariants : desktopModalVariants
-          }
+          className="relative w-full lg:w-[1020px] h-[77vh] lg:h-[620px] bg-[#FAF2F4] rounded-t-3xl lg:rounded-2xl shadow-2xl py-4 sm:py-6 lg:py-8 xl:py-[60px] pl-2 sm:pl-3 lg:pl-4 xl:pl-6 pr-1 sm:pr-2 lg:pr-2 xl:pr-2 flex flex-col mx-0 lg:mx-2 xl:mx-4 overflow-hidden"
+          variants={isDesktop ? desktopModalVariants : modalVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -412,7 +413,7 @@ const ServiceModal = ({
           {/* SECTION 2.1: DRAG HANDLE (Mobile only) */}
           {/* ======================================== */}
           <div
-            className="md:hidden absolute top-3 left-1/2 transform -translate-x-1/2 w-16 h-1.5 bg-gray-400/60 rounded-full cursor-grab active:cursor-grabbing"
+            className="lg:hidden absolute top-3 left-1/2 transform -translate-x-1/2 w-16 h-1.5 bg-gray-400/60 rounded-full cursor-grab active:cursor-grabbing"
             onTouchStart={handleDragStart}
             onMouseDown={handleDragStart}
           />

@@ -22,10 +22,10 @@ const FlexCard = ({ item, source = "other" }) => {
   const addButtonClassName = item?.addButtonClassName ?? "w-full text-sm";
   return (
     <>
-      <div className="flex flex-col gap-2 sm:gap-3 lg:gap-[10px] p-3 sm:p-4 md:p-5 lg:p-6 h-auto min-h-[300px] sm:min-h-[350px] lg:h-[392px] w-full sm:w-[280px] lg:w-[304px] rounded-xl shadow-xl bg-white">
-        <div className="w-full h-auto lg:h-[344px] flex flex-col gap-3 sm:gap-4 lg:gap-6">
+      <div className="flex flex-col gap-2 sm:gap-3 lg:gap-[10px] p-3 sm:p-4 md:p-4 lg:p-6 h-auto min-h-[300px] sm:min-h-[320px] md:min-h-[340px] lg:h-[392px] w-full rounded-xl shadow-xl bg-white">
+        <div className="w-full h-auto lg:h-[344px] flex flex-col gap-3 sm:gap-3 lg:gap-6">
           {/*image-container*/}
-          <div className="image-container h-[200px] sm:h-[220px] md:h-[240px] lg:h-[256px] rounded-xl overflow-hidden flex items-center justify-center">
+          <div className="image-container h-[180px] sm:h-[200px] md:h-[220px] lg:h-[256px] rounded-xl overflow-hidden flex items-center justify-center">
             <img
               src={item.img}
               className="w-full h-full object-cover object-center"
