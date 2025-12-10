@@ -747,7 +747,7 @@ const ServiceModal = ({
           <motion.div
             ref={contentRef}
             tabIndex={0}
-            className="flex-1 w-full overflow-y-auto mt-[clamp(1rem,2vw,1.5rem)] outline-none pb-[clamp(1rem,2vw,1.5rem)] pr-0 custom-scrollbar"
+            className="flex-1 w-full overflow-y-auto mt-[clamp(1rem,2vw,1.5rem)] outline-none pb-[clamp(1rem,2vw,1.5rem)] pr-[clamp(0.75rem,2vw,1.5rem)] custom-scrollbar"
             style={{
               WebkitOverflowScrolling: "touch",
               scrollbarWidth: "thin",

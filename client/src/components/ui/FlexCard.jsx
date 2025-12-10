@@ -34,11 +34,11 @@ const FlexCard = ({ item, source = "other" }) => {
           </div>
 
           <div className="card-decription font-inter flex flex-col gap-[clamp(0.25rem,1vw,0.5rem)] items-start flex-1">
-            <h2 className="font-medium text-[clamp(1rem,2vw,1.125rem)] text-black leading-tight">
+            <h2 className="font-medium text-[18px] text-black leading-tight">
               {item.cardHeader}
             </h2>
 
-            <p className="description text-[clamp(0.85rem,1.8vw,0.95rem)] font-normal text-[#666666] leading-relaxed">
+            <p className="description text-[10px] font-normal text-[#666666] leading-relaxed">
               {item.description}
             </p>
 

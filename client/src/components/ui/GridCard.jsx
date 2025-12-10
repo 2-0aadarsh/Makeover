@@ -25,12 +25,12 @@ const GridCard = ({ gridCardData, category }) => {
               </div>
 
               <div className="card-descriptions flex flex-col justify-between flex-1 min-w-0">
-                <div className="card-header text-[clamp(1rem,2vw,1.125rem)] font-bold leading-tight text-gray-900 truncate mb-[2px]">
+                <div className="card-header text-[18px] font-bold leading-tight text-gray-900 mb-[2px] whitespace-nowrap overflow-visible">
                   {item.cardHeader}
                 </div>
 
                 <div
-                  className="card-description text-[clamp(0.75rem,1.3vw,0.875rem)] text-[#3C3C43] leading-relaxed mb-[2px] overflow-hidden"
+                  className="card-description text-[10px] text-[#3C3C43] leading-relaxed mb-[2px] overflow-hidden"
                   style={{
                     display: "-webkit-box",
                     WebkitLineClamp: 2,
