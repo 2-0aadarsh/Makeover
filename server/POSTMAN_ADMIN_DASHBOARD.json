@@ -1,0 +1,429 @@
+{
+  "info": {
+    "name": "WeMakeover - Admin Dashboard APIs",
+    "description": "Complete collection for testing Admin Dashboard endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "admin-dashboard-v1"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test response status",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test response body",
+                  "pm.test(\"Response has success true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});",
+                  "",
+                  "// Test cookies are set",
+                  "pm.test(\"Cookies are set\", function () {",
+                  "    pm.expect(pm.cookies.has('accessToken')).to.be.true;",
+                  "    pm.expect(pm.cookies.has('refreshToken')).to.be.true;",
+                  "});",
+                  "",
+                  "console.log(\"✅ Admin login successful\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@wemakeover.com\",\n  \"password\": \"YourPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with admin credentials. Cookies will be automatically stored."
+          },
+          "response": []
+        },
+        {
+          "name": "Check Auth Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"User is logged in\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.loggedIn).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test(\"User role is admin\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.role).to.eql('admin');",
+                  "});",
+                  "",
+                  "console.log(\"✅ Auth status verified\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/status",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "status"]
+            },
+            "description": "Verify authentication status and admin role"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Metrics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has metrics data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('totalUsers');",
+                  "    pm.expect(jsonData.data).to.have.property('totalBookings');",
+                  "    pm.expect(jsonData.data).to.have.property('totalRevenue');",
+                  "    pm.expect(jsonData.data).to.have.property('upcomingBookings');",
+                  "});",
+                  "",
+                  "pm.test(\"Metrics have required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var metrics = jsonData.data.totalUsers;",
+                  "    pm.expect(metrics).to.have.property('count');",
+                  "    pm.expect(metrics).to.have.property('growth');",
+                  "    pm.expect(metrics).to.have.property('trend');",
+                  "});",
+                  "",
+                  "// Log metrics",
+                  "var data = pm.response.json().data;",
+                  "console.log(\"📊 Dashboard Metrics:\");",
+                  "console.log(\"Total Users:\", data.totalUsers.count);",
+                  "console.log(\"Total Bookings:\", data.totalBookings.count);",
+                  "console.log(\"Total Revenue:\", data.totalRevenue.formattedAmount);",
+                  "console.log(\"Upcoming Bookings:\", data.upcomingBookings.count);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/dashboard/metrics",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "dashboard", "metrics"]
+            },
+            "description": "Get main dashboard metrics: Total Users, Bookings, Revenue, Upcoming Bookings"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Today's Bookings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has bookings array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('bookings');",
+                  "    pm.expect(jsonData.data.bookings).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Response has pagination\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('pagination');",
+                  "    pm.expect(jsonData.data.pagination).to.have.property('currentPage');",
+                  "    pm.expect(jsonData.data.pagination).to.have.property('totalPages');",
+                  "});",
+                  "",
+                  "// Log booking count",
+                  "var data = pm.response.json().data;",
+                  "console.log(\"📅 Today's Bookings:\", data.bookings.length);",
+                  "console.log(\"Total:\", data.pagination.totalBookings);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/dashboard/today-bookings?page=1&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "dashboard", "today-bookings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get today's bookings with pagination. Optional status filter."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Today's Bookings - Filtered by Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"All bookings have correct status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var bookings = jsonData.data.bookings;",
+                  "    bookings.forEach(function(booking) {",
+                  "        pm.expect(booking.status).to.eql('completed');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log(\"✅ Status filter working correctly\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/dashboard/today-bookings?page=1&limit=10&status=completed",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "dashboard", "today-bookings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "completed"
+                }
+              ]
+            },
+            "description": "Get today's bookings filtered by status (completed)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recent Activity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has all activity types\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('recentBookings');",
+                  "    pm.expect(jsonData.data).to.have.property('recentEnquiries');",
+                  "    pm.expect(jsonData.data).to.have.property('recentUsers');",
+                  "});",
+                  "",
+                  "// Log activity counts",
+                  "var data = pm.response.json().data;",
+                  "console.log(\"🔔 Recent Activity:\");",
+                  "console.log(\"Recent Bookings:\", data.recentBookings.length);",
+                  "console.log(\"Recent Enquiries:\", data.recentEnquiries.length);",
+                  "console.log(\"Recent Users:\", data.recentUsers.length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/dashboard/recent-activity?limit=5",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "dashboard", "recent-activity"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Get recent bookings, enquiries, and new users"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Dashboard Statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has statistics data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('bookingStatusBreakdown');",
+                  "    pm.expect(jsonData.data).to.have.property('paymentStatusBreakdown');",
+                  "    pm.expect(jsonData.data).to.have.property('monthlyRevenue');",
+                  "});",
+                  "",
+                  "// Log statistics",
+                  "var data = pm.response.json().data;",
+                  "console.log(\"📈 Dashboard Statistics:\");",
+                  "console.log(\"Booking Status Types:\", data.bookingStatusBreakdown.length);",
+                  "console.log(\"Payment Status Types:\", data.paymentStatusBreakdown.length);",
+                  "console.log(\"Monthly Revenue Records:\", data.monthlyRevenue.length);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/dashboard/stats",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "dashboard", "stats"]
+            },
+            "description": "Get detailed statistics: booking status breakdown, payment status, monthly revenue"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Metrics - No Auth (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 or 200 with loggedIn false\", function () {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Access denied\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.expect(jsonData.loggedIn).to.eql(false);",
+                  "    }",
+                  "});",
+                  "",
+                  "console.log(\"✅ Unauthorized access blocked correctly\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/dashboard/metrics",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "dashboard", "metrics"]
+            },
+            "description": "Test accessing metrics without authentication (should fail)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}
