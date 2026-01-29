@@ -108,6 +108,10 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "categories",
+            element: <Navigate to="/admin/services?tab=categories" replace />,
+          },
+          {
             path: "services/create",
             element: (
               <LazyWrapper>

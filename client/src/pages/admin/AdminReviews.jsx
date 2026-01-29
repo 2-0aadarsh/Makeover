@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ReviewsTable from "../../components/admin/reviews/ReviewsTable";
 import AdminPagination from "../../components/admin/common/AdminPagination";
 import Loader from "../../components/common/Loader/loader.jsx";
+import Select from "../../components/ui/Select.jsx";
 import { fetchAllReviews } from "../../features/admin/reviews/adminReviewsThunks";
 import {
   setSearchQuery,
@@ -129,20 +130,19 @@ const AdminReviews = () => {
           </div>
 
           {/* Sort Dropdown */}
-          <select
-            value={sortBy}
-            onChange={handleSortChange}
-            className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent font-sans"
-            style={{
-              fontSize: "16px",
-              fontWeight: 400,
-              color: "#3D3C42",
-              height: "38px",
-            }}
-          >
-            <option value="newest">Short by: Newest</option>
-            <option value="oldest">Short by: Oldest</option>
-          </select>
+          <div style={{ width: "150px" }}>
+            <Select
+              value={sortBy}
+              onChange={handleSortChange}
+              options={[
+                { value: "newest", label: "Sort by: Newest" },
+                { value: "oldest", label: "Sort by: Oldest" },
+              ]}
+              placeholder="Sort by"
+              height="38px"
+              showLabel={false}
+            />
+          </div>
         </div>
 
         {/* Content */}

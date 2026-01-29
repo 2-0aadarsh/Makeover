@@ -1,5 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchAllCategories, fetchCategoryServices } from './adminCategoriesThunks';
+import { 
+  fetchAllCategories, 
+  fetchCategoryServices,
+  fetchCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  toggleCategoryActive
+} from './adminCategoriesThunks';
 
 const initialState = {
   categories: [],
@@ -13,10 +21,19 @@ const initialState = {
   },
   loading: false,
   error: null,
+  // Selected category details
+  selectedCategory: null,
+  selectedCategoryLoading: false,
+  selectedCategoryError: null,
   // Selected category services
   selectedCategoryServices: [],
   servicesLoading: false,
   servicesError: null,
+  // Operation states
+  creating: false,
+  updating: false,
+  deleting: false,
+  operationError: null,
 };
 
 const adminCategoriesSlice = createSlice({
@@ -25,6 +42,13 @@ const adminCategoriesSlice = createSlice({
   reducers: {
     clearSelectedCategoryServices: (state) => {
       state.selectedCategoryServices = [];
+    },
+    clearSelectedCategory: (state) => {
+      state.selectedCategory = null;
+      state.selectedCategoryError = null;
+    },
+    clearOperationError: (state) => {
+      state.operationError = null;
     },
   },
   extraReducers: (builder) => {
@@ -106,9 +130,141 @@ const adminCategoriesSlice = createSlice({
         state.servicesLoading = false;
         state.servicesError = action.payload || action.error.message;
         state.selectedCategoryServices = [];
+      })
+
+      // Fetch Category By ID
+      .addCase(fetchCategoryById.pending, (state) => {
+        state.selectedCategoryLoading = true;
+        state.selectedCategoryError = null;
+      })
+      .addCase(fetchCategoryById.fulfilled, (state, action) => {
+        state.selectedCategoryLoading = false;
+        state.selectedCategoryError = null;
+        const responseData = action.payload?.data;
+        if (responseData) {
+          state.selectedCategory = {
+            ...responseData,
+            id: responseData.id || responseData._id,
+            _id: responseData._id || responseData.id,
+          };
+        }
+      })
+      .addCase(fetchCategoryById.rejected, (state, action) => {
+        state.selectedCategoryLoading = false;
+        state.selectedCategoryError = action.payload || action.error.message;
+        state.selectedCategory = null;
+      })
+
+      // Create Category
+      .addCase(createCategory.pending, (state) => {
+        state.creating = true;
+        state.operationError = null;
+      })
+      .addCase(createCategory.fulfilled, (state, action) => {
+        state.creating = false;
+        state.operationError = null;
+        const responseData = action.payload?.data;
+        if (responseData) {
+          const newCategory = {
+            ...responseData,
+            id: responseData.id || responseData._id,
+            _id: responseData._id || responseData.id,
+          };
+          state.categories.unshift(newCategory); // Add to beginning
+        }
+      })
+      .addCase(createCategory.rejected, (state, action) => {
+        state.creating = false;
+        state.operationError = action.payload || action.error.message;
+      })
+
+      // Update Category
+      .addCase(updateCategory.pending, (state) => {
+        state.updating = true;
+        state.operationError = null;
+      })
+      .addCase(updateCategory.fulfilled, (state, action) => {
+        state.updating = false;
+        state.operationError = null;
+        const responseData = action.payload?.data;
+        if (responseData) {
+          const updatedCategory = {
+            ...responseData,
+            id: responseData.id || responseData._id,
+            _id: responseData._id || responseData.id,
+          };
+          // Update in categories list
+          const index = state.categories.findIndex(
+            (cat) => (cat.id || cat._id) === (updatedCategory.id || updatedCategory._id)
+          );
+          if (index !== -1) {
+            state.categories[index] = updatedCategory;
+          }
+          // Update selected category if it's the same
+          if (state.selectedCategory && (state.selectedCategory.id === updatedCategory.id || state.selectedCategory._id === updatedCategory._id)) {
+            state.selectedCategory = updatedCategory;
+          }
+        }
+      })
+      .addCase(updateCategory.rejected, (state, action) => {
+        state.updating = false;
+        state.operationError = action.payload || action.error.message;
+      })
+
+      // Delete Category
+      .addCase(deleteCategory.pending, (state) => {
+        state.deleting = true;
+        state.operationError = null;
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        state.deleting = false;
+        state.operationError = null;
+        const categoryId = action.payload?.categoryId;
+        if (categoryId) {
+          // Remove from categories list
+          state.categories = state.categories.filter(
+            (cat) => (cat.id || cat._id) !== categoryId
+          );
+          // Clear selected category if it's the deleted one
+          if (state.selectedCategory && (state.selectedCategory.id === categoryId || state.selectedCategory._id === categoryId)) {
+            state.selectedCategory = null;
+          }
+        }
+      })
+      .addCase(deleteCategory.rejected, (state, action) => {
+        state.deleting = false;
+        state.operationError = action.payload || action.error.message;
+      })
+
+      // Toggle Category Active
+      .addCase(toggleCategoryActive.pending, (state) => {
+        state.operationError = null;
+      })
+      .addCase(toggleCategoryActive.fulfilled, (state, action) => {
+        state.operationError = null;
+        const { categoryId, isActive } = action.payload || {};
+        if (categoryId) {
+          const idStr = String(categoryId);
+          const index = state.categories.findIndex(
+            (cat) => String(cat.id || cat._id) === idStr
+          );
+          if (index !== -1) {
+            state.categories[index].isActive = isActive;
+          }
+          if (state.selectedCategory && (String(state.selectedCategory.id || state.selectedCategory._id) === idStr)) {
+            state.selectedCategory.isActive = isActive;
+          }
+        }
+      })
+      .addCase(toggleCategoryActive.rejected, (state, action) => {
+        state.operationError = action.payload || action.error.message;
       });
   },
 });
 
-export const { clearSelectedCategoryServices } = adminCategoriesSlice.actions;
+export const { 
+  clearSelectedCategoryServices, 
+  clearSelectedCategory,
+  clearOperationError 
+} = adminCategoriesSlice.actions;
 export default adminCategoriesSlice.reducer;

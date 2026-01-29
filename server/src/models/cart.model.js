@@ -61,8 +61,8 @@ const cartItemSchema = new mongoose.Schema({
     default: 'Standard',
     trim: true,
     enum: {
-      values: ['Standard', 'Premium', 'Deluxe'],
-      message: 'Service type must be one of: Standard, Premium, Deluxe'
+      values: ['Standard', 'Premium', 'Deluxe', 'Bridal', 'Classic'],
+      message: 'Service type must be one of: Standard, Premium, Deluxe, Bridal, Classic'
     }
   },
   

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import heroImg from "../../../assets/hero/Hero.jpg";
 import artistImg from "../../../assets/hero/artist.png";
 import faceFoundationImg from "../../../assets/hero/faceFoundation.png";
@@ -6,6 +6,7 @@ import tattooImg from "../../../assets/hero/tattoo.png";
 import naturalIngridentsImg from "../../../assets/hero/naturalIngridents.png";
 import primerImg from "../../../assets/hero/primer.png";
 import makeupImg from "../../../assets/hero/makeup.png";
+import { backendurl } from "../../../constants";
 
 import ProfessionalMakeup from "../../modals/heroModals/ProfessionalMakeup";
 import CleanupAndFacialModal from "../../modals/heroModals/CleanupAndFacialModal";
@@ -16,6 +17,8 @@ import BleachAndDeTanModal from "../../modals/heroModals/BleachAndDeTanModal";
 
 const Hero = () => {
   const [activeModalId, setActiveModalId] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const closeModal = () => setActiveModalId(null);
 
@@ -23,7 +26,7 @@ const Hero = () => {
     setActiveModalId(serviceId);
   };
 
-  // Define services list for dropdown
+  // Define services list for dropdown (used inside the hardcoded modals)
   const servicesList = [
     { id: 1, name: "Professional Makeup" },
     { id: 2, name: "Cleanup & Facial" },
@@ -33,7 +36,8 @@ const Hero = () => {
     { id: 6, name: "Detan & Bleach" },
   ];
 
-  const services = [
+  // Hardcoded categories configuration (these will always show if they exist in DB)
+  const hardcodedCategories = [
     {
       id: 1,
       name: "Professional Makeup",
@@ -72,6 +76,96 @@ const Hero = () => {
     },
   ];
 
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${backendurl}/api/categories`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          // Match hardcoded categories with DB categories by name (case-insensitive)
+          const dbCategories = result.data;
+          const matchedHardcoded = hardcodedCategories.map((hardcoded) => {
+            const dbMatch = dbCategories.find(
+              (dbCat) => dbCat.name.toLowerCase().trim() === hardcoded.name.toLowerCase().trim()
+            );
+            
+            if (dbMatch) {
+              // Use DB image if available, otherwise use hardcoded image
+              return {
+                ...hardcoded,
+                dbId: dbMatch._id || dbMatch.id,
+                image: dbMatch.image || hardcoded.image,
+                name: dbMatch.name, // Use DB name in case of slight variations
+              };
+            }
+            // If not found in DB, still show with hardcoded image
+            return hardcoded;
+          });
+
+          // Find additional categories that are not in hardcoded list
+          const additionalCategories = dbCategories
+            .filter((dbCat) => {
+              return !hardcodedCategories.some(
+                (hardcoded) => hardcoded.name.toLowerCase().trim() === dbCat.name.toLowerCase().trim()
+              );
+            })
+            .map((dbCat, index) => ({
+              id: `dynamic-${dbCat._id || dbCat.id}`,
+              dbId: dbCat._id || dbCat.id,
+              name: dbCat.name,
+              image: dbCat.image || artistImg, // Fallback to default image
+              isDynamic: true,
+              modal: null, // No custom modal for dynamic categories
+            }));
+
+          // Combine: hardcoded first (in order), then additional ones
+          setCategories([...matchedHardcoded, ...additionalCategories]);
+        } else {
+          // Fallback to hardcoded if API fails
+          setCategories(hardcodedCategories);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Fallback to hardcoded categories on error
+        setCategories(hardcodedCategories);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Handle category click
+  const handleCategoryClick = (category) => {
+    if (category.isDynamic) {
+      // For dynamic categories without custom modals, you can:
+      // Option 1: Navigate to a services page (if you have one)
+      // navigate(`/services?category=${category.dbId}`);
+      
+      // Option 2: Show a simple message (for now)
+      // You can customize this behavior later
+      console.log(`Dynamic category clicked: ${category.name}`);
+      // For now, do nothing - you can add navigation or modal later
+    } else {
+      // For hardcoded categories, show their custom modal
+      setActiveModalId(category.id);
+    }
+  };
+
   return (
     <main
       id="hero"
@@ -102,38 +196,56 @@ const Hero = () => {
 
           {/* Services Section */}
           <div className="service-container w-full">
-            <div className="services grid grid-cols-3 gap-[clamp(0.75rem,2vw,1.5rem)]">
-              {services.map((service) => (
-                <div
-                  key={service.id}
-                  className="service-item flex flex-col items-center justify-center p-[clamp(0.5rem,2vw,1rem)] border rounded-xl shadow-md w-full aspect-square cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                  onClick={() => setActiveModalId(service.id)}
-                >
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="w-[clamp(3rem,8vw,5rem)] h-[clamp(3rem,8vw,5rem)] object-cover mb-[clamp(0.25rem,1vw,0.5rem)]"
-                  />
-                  <p className="service-name text-center text-[clamp(0.75rem,1.5vw,1.125rem)] font-medium leading-tight">
-                    {service.name}
-                  </p>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="services grid grid-cols-3 gap-[clamp(0.75rem,2vw,1.5rem)]">
+                {[...Array(6)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="service-item flex flex-col items-center justify-center p-[clamp(0.5rem,2vw,1rem)] border rounded-xl shadow-md w-full aspect-square animate-pulse bg-gray-100"
+                  >
+                    <div className="w-[clamp(3rem,8vw,5rem)] h-[clamp(3rem,8vw,5rem)] bg-gray-200 rounded mb-[clamp(0.25rem,1vw,0.5rem)]" />
+                    <div className="h-4 w-20 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="services grid grid-cols-3 gap-[clamp(0.75rem,2vw,1.5rem)]">
+                {categories.map((category) => (
+                  <div
+                    key={category.id}
+                    className="service-item flex flex-col items-center justify-center p-[clamp(0.5rem,2vw,1rem)] border rounded-xl shadow-md w-full aspect-square cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleCategoryClick(category)}
+                  >
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-[clamp(3rem,8vw,5rem)] h-[clamp(3rem,8vw,5rem)] object-cover mb-[clamp(0.25rem,1vw,0.5rem)] rounded"
+                      onError={(e) => {
+                        // Fallback to default image if image fails to load
+                        e.target.src = artistImg;
+                      }}
+                    />
+                    <p className="service-name text-center text-[clamp(0.75rem,1.5vw,1.125rem)] font-medium leading-tight">
+                      {category.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Render the active modal if set */}
-      {services.map(
-        (service) =>
-          service.id === activeModalId && (
+      {categories.map(
+        (category) =>
+          category.id === activeModalId && category.modal && (
             <div
-              key={service.id}
+              key={category.id}
               className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50 p-[clamp(0.5rem,2vw,1rem)]"
               onClick={closeModal}
             >
-              {service.modal}
+              {category.modal}
             </div>
           )
       )}

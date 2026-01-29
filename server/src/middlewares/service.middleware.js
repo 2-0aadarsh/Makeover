@@ -42,9 +42,9 @@ export const validateServiceCreation = (req, res, next) => {
   }
   
   // Service type validation
-  const validServiceTypes = ['Standard', 'Premium', 'Deluxe'];
+  const validServiceTypes = ['Standard', 'Premium', 'Deluxe', 'Bridal', 'Classic'];
   if (req.body.serviceType && !validServiceTypes.includes(req.body.serviceType)) {
-    errors.push('Service type must be one of: Standard, Premium, Deluxe');
+    errors.push('Service type must be one of: Standard, Premium, Deluxe, Bridal, Classic');
   }
   
   // Boolean validation
@@ -104,9 +104,9 @@ export const validateServiceUpdate = (req, res, next) => {
   }
   
   // Service type validation
-  const validServiceTypes = ['Standard', 'Premium', 'Deluxe'];
+  const validServiceTypes = ['Standard', 'Premium', 'Deluxe', 'Bridal', 'Classic'];
   if (req.body.serviceType && !validServiceTypes.includes(req.body.serviceType)) {
-    errors.push('Service type must be one of: Standard, Premium, Deluxe');
+    errors.push('Service type must be one of: Standard, Premium, Deluxe, Bridal, Classic');
   }
   
   // Boolean validation

@@ -46,7 +46,11 @@ const GridCard = ({ gridCardData, category }) => {
                 <div className="card-pricing flex items-center justify-between gap-[clamp(0.5rem,1.5vw,1rem)] mt-auto pt-2 border-t border-gray-100 flex-wrap">
                   <div className="price-time flex items-center gap-[clamp(0.5rem,1vw,0.75rem)] flex-1 min-w-0">
                     <span className="text-[clamp(0.95rem,1.6vw,1.05rem)] font-bold text-gray-900 whitespace-nowrap">
-                      ₹ {item.price}
+                      {typeof item.price === 'number'
+                        ? `₹ ${item.price.toLocaleString('en-IN')}`
+                        : String(item.price || '').startsWith('₹')
+                          ? item.price
+                          : `₹ ${item.price ?? ''}`}
                       {item.taxIncluded && (
                         <span className="ml-2 text-[clamp(0.65rem,1.2vw,0.75rem)] font-medium text-gray-500 whitespace-nowrap">
                           Including Taxes

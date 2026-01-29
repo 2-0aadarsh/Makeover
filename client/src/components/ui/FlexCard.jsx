@@ -47,11 +47,17 @@ const FlexCard = ({ item, source = "other" }) => {
                 {item.pricingNote}
               </p>
             ) : (
-              (item?.PriceEstimate || item?.Price) && (
+              (item?.PriceEstimate != null || item?.Price != null) && (
                 <div className="price flex items-center justify-between w-full mt-1 flex-wrap gap-2">
                   <div className="flex items-baseline gap-2">
                     <span className="text-[clamp(0.95rem,2vw,1.05rem)] font-semibold text-[#1F1F1F]">
-                      ₹ {item?.Price ? item.Price : item.PriceEstimate}
+                      {(() => {
+                        const value = item?.Price ?? item?.PriceEstimate;
+                        if (value === 'Price on request') return value;
+                        if (typeof value === 'number') return `₹ ${value.toLocaleString('en-IN')}`;
+                        if (typeof value === 'string' && value.startsWith('₹')) return value;
+                        return `₹ ${value}`;
+                      })()}
                     </span>
                     {item?.includingTax && (
                       <span className="text-[clamp(0.6rem,1.4vw,0.7rem)] text-[#6B6B6B] whitespace-nowrap">

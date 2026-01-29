@@ -32,3 +32,78 @@ export const fetchCategoryServices = createAsyncThunk(
     }
   }
 );
+
+/**
+ * Get category by ID
+ */
+export const fetchCategoryById = createAsyncThunk(
+  'adminCategories/fetchById',
+  async (categoryId, { rejectWithValue }) => {
+    try {
+      const response = await adminCategoriesApi.getCategoryById(categoryId);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to fetch category details');
+    }
+  }
+);
+
+/**
+ * Create new category
+ */
+export const createCategory = createAsyncThunk(
+  'adminCategories/create',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await adminCategoriesApi.createCategory(formData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to create category');
+    }
+  }
+);
+
+/**
+ * Update category
+ */
+export const updateCategory = createAsyncThunk(
+  'adminCategories/update',
+  async ({ categoryId, formData }, { rejectWithValue }) => {
+    try {
+      const response = await adminCategoriesApi.updateCategory(categoryId, formData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to update category');
+    }
+  }
+);
+
+/**
+ * Delete category
+ */
+export const deleteCategory = createAsyncThunk(
+  'adminCategories/delete',
+  async (categoryId, { rejectWithValue }) => {
+    try {
+      const response = await adminCategoriesApi.deleteCategory(categoryId);
+      return { ...response, categoryId }; // Include ID for state update
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to delete category');
+    }
+  }
+);
+
+/**
+ * Toggle category active status
+ */
+export const toggleCategoryActive = createAsyncThunk(
+  'adminCategories/toggleActive',
+  async (categoryId, { rejectWithValue }) => {
+    try {
+      const response = await adminCategoriesApi.toggleCategoryActive(categoryId);
+      return { ...response?.data, categoryId };
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to toggle category status');
+    }
+  }
+);

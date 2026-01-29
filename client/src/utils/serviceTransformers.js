@@ -93,8 +93,9 @@ export const transformServicesToFlexCards = (services, categoryName = '') => {
       cardHeader: service.name || 'Service',
       serviceCategory: categoryName,
       description: service.description || '',
-      PriceEstimate: service.price ? `₹${service.price}` : 'Price on request',
-      Price: service.price ? `₹${service.price}` : null, // Also set Price for compatibility
+      // Store raw number so UI adds ₹ once (avoids double rupee symbol)
+      PriceEstimate: service.price != null ? service.price : 'Price on request',
+      Price: service.price != null ? service.price : null,
       button: service.ctaContent || 'Enquire Now',
       service_id: service._id?.toString() || service.id?.toString(),
       // Set enableAddButton to true for "Add" services so ServiceCartButton is used

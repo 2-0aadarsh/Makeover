@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AdminsTable from "../../components/admin/admins/AdminsTable";
 import AdminPagination from "../../components/admin/common/AdminPagination";
 import Loader from "../../components/common/Loader/loader.jsx";
+import Select from "../../components/ui/Select.jsx";
 import { fetchAllAdmins, fetchAdminStats } from "../../features/admin/admins/adminAdminsThunks";
 import {
   setSearchQuery,
@@ -195,61 +196,35 @@ const AdminAdmins = () => {
             </div>
 
             {/* Status Filter */}
-            <div className="relative" style={{ width: "150px", height: "38px" }}>
-              <select
+            <div style={{ width: "150px" }}>
+              <Select
                 value={statusFilter}
                 onChange={handleStatusFilterChange}
-                className="w-full h-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent appearance-none bg-white font-sans"
-                style={{ fontSize: "14px" }}
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
+                options={[
+                  { value: "all", label: "All Status" },
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" },
+                ]}
+                placeholder="All Status"
+                height="38px"
+                showLabel={false}
+              />
             </div>
           </div>
 
           {/* Right: Sort */}
-          <div className="relative" style={{ width: "150px", height: "38px" }}>
-            <select
+          <div style={{ width: "150px" }}>
+            <Select
               value={sortBy}
               onChange={handleSortChange}
-              className="w-full h-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent appearance-none bg-white font-sans"
-              style={{ fontSize: "14px" }}
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-            </select>
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <svg
-                className="w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
+              options={[
+                { value: "newest", label: "Newest First" },
+                { value: "oldest", label: "Oldest First" },
+              ]}
+              placeholder="Sort by"
+              height="38px"
+              showLabel={false}
+            />
           </div>
         </div>
 

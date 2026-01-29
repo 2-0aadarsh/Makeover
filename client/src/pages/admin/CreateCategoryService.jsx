@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { fetchAllCategories } from "../../features/admin/categories/adminCategoriesThunks";
 import { adminCategoriesApi } from "../../features/admin/categories/adminCategoriesApi";
 import { adminServicesApi } from "../../features/admin/services/adminServicesApi";
+import Select from "../../components/ui/Select.jsx";
+import Checkbox from "../../components/ui/Checkbox.jsx";
 
 /**
  * CreateCategoryService - Page for creating categories and services
@@ -482,44 +484,21 @@ const CreateCategoryService = () => {
           <form onSubmit={handleServiceSubmit}>
             <div className="space-y-6">
               {/* Select Category */}
-              <div>
-                <label
-                  className="block mb-2"
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: "#292D32",
-                  }}
-                >
-                  Select Category
-                </label>
-                <div className="relative">
-                  <select
-                    value={serviceForm.categoryId}
-                    onChange={(e) => setServiceForm({ ...serviceForm, categoryId: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent appearance-none bg-white font-sans"
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      color: "#292D32",
-                      height: "44px",
-                    }}
-                    required
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((category) => (
-                      <option key={category.id || category._id} value={category.id || category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5" fill="#CC2B52" viewBox="0 0 24 24">
-                      <path d="M7 10l5 5 5-5z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
+              <Select
+                label="Select Category"
+                value={serviceForm.categoryId}
+                onChange={(e) => setServiceForm({ ...serviceForm, categoryId: e.target.value })}
+                options={[
+                  { value: "", label: "Select Category" },
+                  ...categories.map((category) => ({
+                    value: category.id || category._id,
+                    label: category.name,
+                  })),
+                ]}
+                placeholder="Select Category"
+                required
+                height="44px"
+              />
 
               {/* Add Service Section */}
               <div>
@@ -610,113 +589,47 @@ const CreateCategoryService = () => {
                     </div>
 
                     {/* CTA Content */}
-                    <div>
-                      <label
-                        className="block mb-2"
-                        style={{
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          color: "#292D32",
-                        }}
-                      >
-                        CTA Content
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={serviceForm.ctaContent}
-                          onChange={(e) => setServiceForm({ ...serviceForm, ctaContent: e.target.value })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent appearance-none bg-white font-sans"
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: 400,
-                            color: "#292D32",
-                            height: "44px",
-                          }}
-                        >
-                          <option value="Add">Add</option>
-                          <option value="Enquire Now">Enquire Now</option>
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg className="w-5 h-5" fill="#CC2B52" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
+                    <Select
+                      label="CTA Content"
+                      value={serviceForm.ctaContent}
+                      onChange={(e) => setServiceForm({ ...serviceForm, ctaContent: e.target.value })}
+                      options={[
+                        { value: "Add", label: "Add" },
+                        { value: "Enquire Now", label: "Enquire Now" },
+                      ]}
+                      placeholder="Select"
+                      height="44px"
+                    />
 
                     {/* Service Type - Only show when CTA Content is "Add" */}
                     {serviceForm.ctaContent === "Add" && (
-                      <div>
-                        <label
-                          className="block mb-2"
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: 600,
-                            color: "#292D32",
-                          }}
-                        >
-                          Service Type <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={serviceForm.serviceType}
-                            onChange={(e) => setServiceForm({ ...serviceForm, serviceType: e.target.value })}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent appearance-none bg-white font-sans"
-                            style={{
-                              fontSize: "16px",
-                              fontWeight: 400,
-                              color: "#292D32",
-                              height: "44px",
-                            }}
-                            required
-                          >
-                            <option value="Standard">Regular</option>
-                            <option value="Premium">Premium</option>
-                            <option value="Bridal">Bridal</option>
-                          </select>
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                            <svg className="w-5 h-5" fill="#CC2B52" viewBox="0 0 24 24">
-                              <path d="M7 10l5 5 5-5z" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
+                      <Select
+                        label="Service Type"
+                        value={serviceForm.serviceType}
+                        onChange={(e) => setServiceForm({ ...serviceForm, serviceType: e.target.value })}
+                        options={[
+                          { value: "Standard", label: "Regular" },
+                          { value: "Premium", label: "Premium" },
+                          { value: "Bridal", label: "Bridal" },
+                          { value: "Classic", label: "Classic" },
+                        ]}
+                        placeholder="Select"
+                        required
+                        height="44px"
+                      />
                     )}
 
-                    {/* Choose Type Of Card */}
-                    <div>
-                      <label
-                        className="block mb-2"
-                        style={{
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          color: "#292D32",
-                        }}
-                      >
-                        Choose Type Of Card
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={serviceForm.cardType}
-                          onChange={(e) => setServiceForm({ ...serviceForm, cardType: e.target.value })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent appearance-none bg-white font-sans"
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: 400,
-                            color: "#292D32",
-                            height: "44px",
-                          }}
-                        >
-                          <option value="Vertical">Vertical</option>
-                          <option value="Horizontal">Horizontal</option>
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg className="w-5 h-5" fill="#CC2B52" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
+                    <Select
+                      label="Choose Type Of Card"
+                      value={serviceForm.cardType}
+                      onChange={(e) => setServiceForm({ ...serviceForm, cardType: e.target.value })}
+                      options={[
+                        { value: "Vertical", label: "Vertical" },
+                        { value: "Horizontal", label: "Horizontal" },
+                      ]}
+                      placeholder="Select"
+                      height="44px"
+                    />
                   </div>
 
                   {/* Right Column */}
@@ -801,35 +714,12 @@ const CreateCategoryService = () => {
                       />
                     </div>
 
-                    {/* Tax Included */}
-                    <div>
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={serviceForm.taxIncluded}
-                          onChange={(e) => setServiceForm({ ...serviceForm, taxIncluded: e.target.checked })}
-                          className="w-5 h-5 rounded border-gray-300 text-[#CC2B52] focus:ring-[#CC2B52] cursor-pointer"
-                        />
-                        <span
-                          className="font-sans"
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: 600,
-                            color: "#292D32",
-                          }}
-                        >
-                          Tax Included
-                        </span>
-                      </label>
-                      <p
-                        className="text-xs text-gray-500 mt-1 ml-8 font-sans"
-                        style={{
-                          fontSize: "14px",
-                        }}
-                      >
-                        Check if the price includes taxes
-                      </p>
-                    </div>
+                    <Checkbox
+                      label="Tax Included"
+                      helperText="Check if the price includes taxes"
+                      checked={serviceForm.taxIncluded}
+                      onChange={(e) => setServiceForm({ ...serviceForm, taxIncluded: e.target.checked })}
+                    />
 
                     {/* Description */}
                     <div>

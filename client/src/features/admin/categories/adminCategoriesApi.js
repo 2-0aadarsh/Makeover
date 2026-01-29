@@ -96,6 +96,16 @@ export const adminCategoriesApi = {
   },
 
   /**
+   * Toggle category active status
+   * @param {string} categoryId - Category ID
+   * @returns {Promise} Updated category data
+   */
+  toggleCategoryActive: (categoryId) => {
+    const id = typeof categoryId === 'string' ? categoryId : String(categoryId);
+    return adminCategoriesApiInstance.patch(`/${id}/toggle-active`);
+  },
+
+  /**
    * Get services in a category
    * @param {string} categoryId - Category ID
    * @param {Object} params - { page, limit, isActive }

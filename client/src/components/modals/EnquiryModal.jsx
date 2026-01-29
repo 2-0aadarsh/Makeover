@@ -22,6 +22,15 @@ import {
  * @param {Object} serviceData - Service details (serviceName, serviceCategory, priceRange, serviceId)
  * @param {String} source - Source of enquiry (e.g., "professional-makeup")
  */
+/** Format price for display: raw number, "Price on request", or string (e.g. "2.5k-4k") without double ₹ */
+const formatPrice = (value) => {
+  if (value == null || value === "") return "";
+  if (value === "Price on request") return value;
+  if (typeof value === "number") return `₹ ${value.toLocaleString("en-IN")}`;
+  if (typeof value === "string" && value.startsWith("₹")) return value;
+  return `₹ ${value}`;
+};
+
 const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
   const modalRef = useRef(null);
   const firstInputRef = useRef(null);
@@ -260,11 +269,11 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                       {serviceData?.serviceCategory}
                     </span>
                   </p>
-                  {serviceData?.priceRange && (
+                  {serviceData?.priceRange != null && serviceData.priceRange !== "" && (
                     <p className="flex justify-between">
                       <span className="font-medium text-gray-600">Price:</span>
                       <span className="text-gray-800 font-semibold">
-                        ₹{serviceData.priceRange}
+                        {formatPrice(serviceData.priceRange)}
                       </span>
                     </p>
                   )}
