@@ -11,6 +11,7 @@ const ServiceList = ({
   onServiceDelete,
   onToggleAvailability,
   onToggleActive,
+  nested = false,
 }) => {
   const getActiveBadge = (isActive) => {
     if (isActive) {
@@ -50,8 +51,12 @@ const ServiceList = ({
     );
   }
 
+  const containerClass = nested
+    ? "overflow-hidden"
+    : "bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden";
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className={containerClass}>
       {services.map((service, index) => {
         const isActive = service.isActive !== false;
         const isAvailable = service.isAvailable !== false;

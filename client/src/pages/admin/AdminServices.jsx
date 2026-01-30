@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import ServiceList from "../../components/admin/services/ServiceList";
+import ServicesListByType from "../../components/admin/services/ServicesListByType";
 import Loader from "../../components/common/Loader/loader.jsx";
 import RemoveServiceModal from "../../components/modals/RemoveServiceModal";
 import Select from "../../components/ui/Select.jsx";
@@ -431,7 +431,7 @@ const AdminServices = () => {
                 <p className="text-gray-500 text-sm">Select a category to view services</p>
               </div>
             ) : (
-              <ServiceList
+              <ServicesListByType
                 services={servicesToDisplay}
                 onServiceEdit={handleServiceEdit}
                 onServiceDelete={handleServiceDelete}
