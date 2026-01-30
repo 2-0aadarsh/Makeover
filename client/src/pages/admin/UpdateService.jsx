@@ -62,7 +62,7 @@ const UpdateService = () => {
         name: service.name || "",
         description: service.description || "",
         bodyContent: service.bodyContent || "",
-        price: service.price?.toString() || "",
+        price: service.priceDisplay || service.price?.toString() || "",
         duration: service.duration || "",
         taxIncluded: service.taxIncluded !== undefined ? service.taxIncluded : true,
         ctaContent: service.ctaContent || "Add",
@@ -123,26 +123,12 @@ const UpdateService = () => {
       if (!serviceForm.description || !serviceForm.description.trim()) {
         throw new Error("Service description is required");
       }
-      if (!serviceForm.price) {
-        throw new Error("Service price is required");
+      if (serviceForm.ctaContent === "Add" && (!serviceForm.price || !String(serviceForm.price).trim())) {
+        throw new Error("Service price is required when CTA Content is Add");
       }
       // Images are optional for update (can keep existing)
       if (serviceForm.images.length === 0 && serviceForm.existingImages.length === 0) {
         throw new Error("At least one service image is required");
-      }
-
-      // Convert price format (e.g., "12K" to 12000)
-      let priceValue = serviceForm.price;
-      if (typeof priceValue === 'string') {
-        priceValue = priceValue.trim().toUpperCase();
-        if (priceValue.endsWith('K')) {
-          priceValue = parseFloat(priceValue.replace('K', '')) * 1000;
-        } else {
-          priceValue = parseFloat(priceValue);
-        }
-        if (isNaN(priceValue)) {
-          throw new Error("Invalid price format. Use numbers or format like '12K'");
-        }
       }
 
       const formData = new FormData();
@@ -155,7 +141,7 @@ const UpdateService = () => {
           : "");
       formData.append("description", descriptionValue);
       formData.append("bodyContent", serviceForm.bodyContent || "");
-      formData.append("price", priceValue.toString());
+      formData.append("price", serviceForm.price != null ? String(serviceForm.price).trim() : "");
       formData.append("duration", serviceForm.duration || "");
       formData.append("taxIncluded", serviceForm.taxIncluded ? "true" : "false");
       formData.append("ctaContent", serviceForm.ctaContent);
@@ -191,13 +177,15 @@ const UpdateService = () => {
     }
   };
 
-  // Format price for preview
+  // Format price for preview (range, "Get in touch for pricing", or single number)
   const formatPriceForPreview = (price) => {
-    if (!price) return "N/A";
-    const numPrice = typeof price === 'string' ? parseFloat(price.replace('K', '')) * (price.includes('K') ? 1000 : 1) : price;
-    if (numPrice >= 1000) {
-      return `${(numPrice / 1000).toFixed(0)}K`;
-    }
+    if (price == null || price === "") return "N/A";
+    const s = String(price).trim();
+    if (s === "Get in touch for pricing" || s === "Price on request") return s;
+    if (s.includes("-")) return s; // range e.g. "2.5k-4k"
+    const numPrice = typeof price === "string" ? parseFloat(s.replace(/k/gi, "")) * (s.toLowerCase().endsWith("k") ? 1000 : 1) : price;
+    if (isNaN(numPrice)) return s;
+    if (numPrice >= 1000) return `${(numPrice / 1000).toFixed(0)}K`;
     return numPrice.toString();
   };
 

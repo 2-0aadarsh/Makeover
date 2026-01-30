@@ -5,6 +5,38 @@ import { validateFile, getFileFromRequest, getMultipleFilesFromRequest } from '.
 import mongoose from 'mongoose';
 
 /**
+ * Parse first number from a string (e.g. "2.5k" -> 2500, "12000" -> 12000)
+ */
+const parseFirstNumber = (str) => {
+  if (str === undefined || str === null || String(str).trim() === '') return NaN;
+  const t = String(str).trim().toLowerCase().replace(/\s/g, '');
+  if (t.endsWith('k')) return parseFloat(t.slice(0, -1)) * 1000;
+  return parseFloat(t);
+};
+
+/**
+ * Parse price input from form: supports range ("2.5k-4k"), "Get in touch for pricing", or single number.
+ * @returns {{ price: number, priceDisplay: string|null }} or null if invalid
+ */
+const parsePriceInput = (priceStr, ctaContent) => {
+  const isEnquire = ctaContent === 'Enquire Now';
+  const empty = priceStr === undefined || priceStr === null || String(priceStr).trim() === '';
+  if (empty && isEnquire) return { price: 0, priceDisplay: 'Get in touch for pricing' };
+  if (empty && !isEnquire) return null;
+  const s = String(priceStr).trim();
+  const lower = s.toLowerCase();
+  if (/get in touch|price on request|enquiry|for pricing/i.test(lower)) return { price: 0, priceDisplay: 'Get in touch for pricing' };
+  if (s.includes('-')) {
+    const firstPart = s.split('-')[0].trim();
+    const num = parseFirstNumber(firstPart);
+    return { price: (isNaN(num) || num < 0) ? 0 : num, priceDisplay: s };
+  }
+  const num = parseFirstNumber(s);
+  if (isNaN(num) || num < 0) return null;
+  return { price: num, priceDisplay: null };
+};
+
+/**
  * @route   POST /api/admin/services
  * @desc    Create a new service with image upload
  * @access  Admin only
@@ -24,11 +56,19 @@ export const createService = async (req, res) => {
       taxIncluded
     } = req.body;
 
-    // Validate required fields
-    if (!name || !description || !price) {
+    // Validate required fields (price optional when CTA is "Enquire Now")
+    const cta = ctaContent || 'Add';
+    if (!name || !description) {
       return res.status(400).json({
         success: false,
-        message: 'Name, description, and price are required'
+        message: 'Name and description are required'
+      });
+    }
+    const parsed = parsePriceInput(price, cta);
+    if (!parsed) {
+      return res.status(400).json({
+        success: false,
+        message: 'Price is required for "Add" services. Use a number, range (e.g. 2.5k-4k), or leave empty for "Enquire Now" to show "Get in touch for pricing".'
       });
     }
 
@@ -93,10 +133,11 @@ export const createService = async (req, res) => {
       name,
       description,
       bodyContent: bodyContent || '',
-      price: parseFloat(price),
+      price: parsed.price,
+      priceDisplay: parsed.priceDisplay || undefined,
       duration: duration || null,
       categoryId: categoryId || null,
-      ctaContent: ctaContent || 'Add',
+      ctaContent: cta,
       cardType: cardType || 'Vertical',
       serviceType: serviceType || 'Standard',
       taxIncluded: taxIncluded !== undefined ? taxIncluded : true,
@@ -124,11 +165,13 @@ export const createService = async (req, res) => {
         description: service.description,
         bodyContent: service.bodyContent,
         price: service.price,
+        priceDisplay: service.priceDisplay || null,
         formattedPrice: service.formattedPrice,
         duration: service.duration,
         category: service.categoryId,
         ctaContent: service.ctaContent,
         cardType: service.cardType,
+        taxIncluded: service.taxIncluded,
         images: service.image,
         isActive: service.isActive,
         isAvailable: service.isAvailable,
@@ -223,12 +266,14 @@ export const getAllServices = async (req, res) => {
       description: service.description,
       bodyContent: service.bodyContent,
       price: service.price,
-      formattedPrice: `₹${service.price.toLocaleString('en-IN')}`,
+      priceDisplay: service.priceDisplay || null,
+      formattedPrice: service.formattedPrice,
       duration: service.duration,
       category: service.categoryId || { name: service.category || 'N/A' },
       ctaContent: service.ctaContent,
       cardType: service.cardType,
       serviceType: service.serviceType,
+      taxIncluded: service.taxIncluded,
       images: service.image,
       isActive: service.isActive,
       isAvailable: service.isAvailable,
@@ -370,7 +415,18 @@ export const updateService = async (req, res) => {
     if (name !== undefined) service.name = name;
     if (description !== undefined) service.description = description;
     if (bodyContent !== undefined) service.bodyContent = bodyContent;
-    if (price !== undefined) service.price = parseFloat(price);
+    if (price !== undefined) {
+      const cta = ctaContent !== undefined ? ctaContent : service.ctaContent;
+      const parsed = parsePriceInput(price, cta);
+      if (!parsed) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid price. Use a number, range (e.g. 2.5k-4k), or leave empty for "Enquire Now" to show "Get in touch for pricing".'
+        });
+      }
+      service.price = parsed.price;
+      service.priceDisplay = parsed.priceDisplay || undefined;
+    }
     if (duration !== undefined) service.duration = duration;
     if (ctaContent !== undefined) service.ctaContent = ctaContent;
     if (cardType !== undefined) service.cardType = cardType;
@@ -435,11 +491,13 @@ export const updateService = async (req, res) => {
         description: service.description,
         bodyContent: service.bodyContent,
         price: service.price,
+        priceDisplay: service.priceDisplay || null,
         formattedPrice: service.formattedPrice,
         duration: service.duration,
         category: service.categoryId,
         ctaContent: service.ctaContent,
         cardType: service.cardType,
+        taxIncluded: service.taxIncluded,
         images: service.image,
         isActive: service.isActive,
         isAvailable: service.isAvailable,
@@ -509,6 +567,54 @@ export const deleteService = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to delete service',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * @route   PATCH /api/admin/services/:id/toggle-active
+ * @desc    Toggle service active status (show/hide on site)
+ * @access  Admin only
+ */
+export const toggleServiceActive = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid service ID'
+      });
+    }
+
+    const service = await Service.findById(id);
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: 'Service not found'
+      });
+    }
+
+    service.isActive = !service.isActive;
+    service.updatedBy = req.user.id;
+    await service.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Service ${service.isActive ? 'activated' : 'deactivated'} successfully`,
+      data: {
+        id: service._id,
+        name: service.name,
+        isActive: service.isActive,
+        updatedAt: service.updatedAt
+      }
+    });
+  } catch (error) {
+    console.error('Error toggling service active:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to toggle service status',
       error: error.message
     });
   }
@@ -630,10 +736,12 @@ export const getServicesByCategory = async (req, res) => {
           description: s.description,
           bodyContent: s.bodyContent,
           price: s.price,
-          formattedPrice: `₹${s.price.toLocaleString('en-IN')}`,
+          priceDisplay: s.priceDisplay || null,
+          formattedPrice: s.priceDisplay || `₹${(s.price || 0).toLocaleString('en-IN')}`,
           duration: s.duration,
           ctaContent: s.ctaContent,
           cardType: s.cardType,
+          taxIncluded: s.taxIncluded,
           images: s.image,
           isActive: s.isActive,
           isAvailable: s.isAvailable

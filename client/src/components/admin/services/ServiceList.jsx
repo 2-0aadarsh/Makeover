@@ -1,10 +1,47 @@
 /* eslint-disable react/prop-types */
+import { Edit2, Trash2, Power, PowerOff, CheckCircle, XCircle } from "lucide-react";
 
 /**
  * ServiceList - List component for displaying services
- * Shows services with edit (eye) and delete (trash) icons
+ * Shows status badges (Active, Available), toggle availability, toggle active, edit, delete
  */
-const ServiceList = ({ services = [], onServiceEdit, onServiceDelete }) => {
+const ServiceList = ({
+  services = [],
+  onServiceEdit,
+  onServiceDelete,
+  onToggleAvailability,
+  onToggleActive,
+}) => {
+  const getActiveBadge = (isActive) => {
+    if (isActive) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          Active
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+        Inactive
+      </span>
+    );
+  };
+
+  const getAvailableBadge = (isAvailable) => {
+    if (isAvailable) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          Available
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+        Not available
+      </span>
+    );
+  };
+
   if (services.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-4">
@@ -15,71 +52,95 @@ const ServiceList = ({ services = [], onServiceEdit, onServiceDelete }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      {services.map((service, index) => (
-        <div
-          key={service.id || service._id || index}
-          className="px-4 py-3 border-b border-gray-200 last:border-b-0 flex items-center justify-between hover:bg-gray-50 transition-colors"
-        >
-          <span
-            className="font-sans"
-            style={{
-              fontSize: '14px',
-              fontWeight: 500,
-              color: '#292D32',
-            }}
+      {services.map((service, index) => {
+        const isActive = service.isActive !== false;
+        const isAvailable = service.isAvailable !== false;
+        const serviceId = service.id || service._id;
+
+        return (
+          <div
+            key={serviceId || index}
+            className="px-4 py-3 border-b border-gray-200 last:border-b-0 flex flex-wrap items-center justify-between gap-2 hover:bg-gray-50 transition-colors"
           >
-            {service.name || 'N/A'}
-          </span>
-          <div className="flex items-center gap-3">
-            {/* Edit/View Icon */}
-            <button
-              onClick={() => onServiceEdit && onServiceEdit(service)}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
-              aria-label="Edit service"
-            >
-              <svg
-                className="w-5 h-5 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+              <span
+                className="font-sans font-medium text-[#292D32] truncate"
+                style={{ fontSize: "14px" }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-            </button>
-            {/* Delete Icon */}
-            <button
-              onClick={() => onServiceDelete && onServiceDelete(service)}
-              className="p-1 hover:bg-red-50 rounded transition-colors"
-              aria-label="Delete service"
-            >
-              <svg
-                className="w-5 h-5 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+                {service.name || "N/A"}
+              </span>
+              {getActiveBadge(isActive)}
+              {getAvailableBadge(isAvailable)}
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {/* Toggle Active (show/hide on site) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleActive?.(service);
+                }}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title={isActive ? "Deactivate (hide from site)" : "Activate (show on site)"}
+                aria-label={isActive ? "Deactivate service" : "Activate service"}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            </button>
+                {isActive ? (
+                  <Power className="w-4 h-4 text-green-600" />
+                ) : (
+                  <PowerOff className="w-4 h-4 text-gray-500" />
+                )}
+              </button>
+              {/* Toggle Availability (available / not at the moment) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleAvailability?.(service);
+                }}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                title={
+                  isAvailable
+                    ? "Mark as not available at the moment"
+                    : "Mark as available"
+                }
+                aria-label={
+                  isAvailable ? "Mark unavailable" : "Mark available"
+                }
+              >
+                {isAvailable ? (
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                ) : (
+                  <XCircle className="w-4 h-4 text-amber-600" />
+                )}
+              </button>
+              {/* Edit */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onServiceEdit?.(service);
+                }}
+                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                aria-label="Edit service"
+              >
+                <Edit2 className="w-4 h-4 text-gray-600" />
+              </button>
+              {/* Delete */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onServiceDelete?.(service);
+                }}
+                className="p-2 hover:bg-red-50 rounded transition-colors"
+                aria-label="Delete service"
+              >
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

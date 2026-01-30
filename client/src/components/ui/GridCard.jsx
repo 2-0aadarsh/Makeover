@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import ServiceCartButton from "./ServiceCartButton";
 
+const isAddButton = (button) => button === "Add" || button === "Add +" || String(button || "").startsWith("Add");
+
 const GridCard = ({ gridCardData, category }) => {
   return (
     <>
@@ -9,6 +11,7 @@ const GridCard = ({ gridCardData, category }) => {
           ...item,
           category: category || "default",
         };
+        const showAsUnavailable = isAddButton(item.button) && item.isAvailable === false;
 
         return (
           <div
@@ -46,11 +49,13 @@ const GridCard = ({ gridCardData, category }) => {
                 <div className="card-pricing flex items-center justify-between gap-[clamp(0.5rem,1.5vw,1rem)] mt-auto pt-2 border-t border-gray-100 flex-wrap">
                   <div className="price-time flex items-center gap-[clamp(0.5rem,1vw,0.75rem)] flex-1 min-w-0">
                     <span className="text-[clamp(0.95rem,1.6vw,1.05rem)] font-bold text-gray-900 whitespace-nowrap">
-                      {typeof item.price === 'number'
-                        ? `₹ ${item.price.toLocaleString('en-IN')}`
-                        : String(item.price || '').startsWith('₹')
-                          ? item.price
-                          : `₹ ${item.price ?? ''}`}
+                      {item.price === 'Get in touch for pricing' || item.price === 'Price on request'
+                        ? item.price
+                        : typeof item.price === 'number'
+                          ? `₹ ${item.price.toLocaleString('en-IN')}`
+                          : String(item.price || '').startsWith('₹')
+                            ? item.price
+                            : `₹ ${item.price ?? ''}`}
                       {item.taxIncluded && (
                         <span className="ml-2 text-[clamp(0.65rem,1.2vw,0.75rem)] font-medium text-gray-500 whitespace-nowrap">
                           Including Taxes
@@ -64,22 +69,48 @@ const GridCard = ({ gridCardData, category }) => {
                 </div>
               </div>
 
-              <div className="button-container hidden lg:flex flex-shrink-0 w-[110px] items-center justify-end lg:ml-2">
-                <ServiceCartButton
-                  serviceData={serviceDataWithCategory}
-                  className="text-xs sm:text-[13px] lg:text-[14px] whitespace-nowrap"
-                  sizeConfig={item?.buttonSize}
-                />
+              <div className="button-container hidden lg:flex flex-shrink-0 w-[110px] flex-col items-end justify-end lg:ml-2">
+                {showAsUnavailable ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled
+                      className="text-xs sm:text-[13px] lg:text-[14px] whitespace-nowrap px-4 py-2 rounded-lg bg-gray-200 text-gray-500 cursor-not-allowed font-semibold"
+                    >
+                      Add +
+                    </button>
+                    <p className="text-[10px] text-amber-600 font-medium mt-1">Not available</p>
+                  </>
+                ) : (
+                  <ServiceCartButton
+                    serviceData={serviceDataWithCategory}
+                    className="text-xs sm:text-[13px] lg:text-[14px] whitespace-nowrap"
+                    sizeConfig={item?.buttonSize}
+                  />
+                )}
               </div>
             </div>
 
             {/* Button Container - Mobile/Tablet: Full width at bottom */}
             <div className="button-container w-full mt-4 lg:hidden">
-              <ServiceCartButton
-                serviceData={serviceDataWithCategory}
-                className="w-full text-xs sm:text-[13px] whitespace-nowrap"
-                sizeConfig={item?.buttonSize}
-              />
+              {showAsUnavailable ? (
+                <div className="w-full text-center">
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full text-xs sm:text-[13px] px-4 py-2 rounded-lg bg-gray-200 text-gray-500 cursor-not-allowed font-semibold"
+                  >
+                    Add +
+                  </button>
+                  <p className="text-[10px] text-amber-600 font-medium mt-1.5">Not available at the moment</p>
+                </div>
+              ) : (
+                <ServiceCartButton
+                  serviceData={serviceDataWithCategory}
+                  className="w-full text-xs sm:text-[13px] whitespace-nowrap"
+                  sizeConfig={item?.buttonSize}
+                />
+              )}
             </div>
           </div>
         );

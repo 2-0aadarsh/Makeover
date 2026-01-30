@@ -1,5 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchAllServices, fetchServicesByCategory, fetchServiceById, deleteServiceThunk } from './adminServicesThunks';
+import {
+  fetchAllServices,
+  fetchServicesByCategory,
+  fetchServiceById,
+  deleteServiceThunk,
+  toggleServiceAvailabilityThunk,
+  toggleServiceActiveThunk,
+} from './adminServicesThunks';
 
 const initialState = {
   services: [],
@@ -109,6 +116,24 @@ const adminServicesSlice = createSlice({
       .addCase(deleteServiceThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;
+      })
+
+      // Toggle Service Availability
+      .addCase(toggleServiceAvailabilityThunk.fulfilled, (state, action) => {
+        const { id, isAvailable } = action.payload?.data || {};
+        if (id && state.servicesByCategory?.length) {
+          const idx = state.servicesByCategory.findIndex((s) => (s.id || s._id) === id);
+          if (idx !== -1) state.servicesByCategory[idx].isAvailable = isAvailable;
+        }
+      })
+
+      // Toggle Service Active
+      .addCase(toggleServiceActiveThunk.fulfilled, (state, action) => {
+        const { id, isActive } = action.payload?.data || {};
+        if (id && state.servicesByCategory?.length) {
+          const idx = state.servicesByCategory.findIndex((s) => (s.id || s._id) === id);
+          if (idx !== -1) state.servicesByCategory[idx].isActive = isActive;
+        }
       });
   },
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchAllCategories } from "../../features/admin/categories/adminCategoriesThunks";
@@ -48,6 +48,7 @@ const CreateCategoryService = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const serviceImageInputRef = useRef(null);
   const { categories } = useSelector((state) => state.adminCategories);
 
   // Fetch categories when service tab is active
@@ -160,25 +161,12 @@ const CreateCategoryService = () => {
       if (!serviceForm.description || !serviceForm.description.trim()) {
         throw new Error("Service description is required");
       }
-      if (!serviceForm.price) {
-        throw new Error("Service price is required");
+      // Price required only when CTA is "Add"; for "Enquire Now" empty price becomes "Get in touch for pricing"
+      if (serviceForm.ctaContent === "Add" && (!serviceForm.price || !String(serviceForm.price).trim())) {
+        throw new Error("Service price is required when CTA Content is Add");
       }
       if (serviceForm.images.length === 0) {
         throw new Error("At least one service image is required");
-      }
-
-      // Convert price format (e.g., "12K" to 12000)
-      let priceValue = serviceForm.price;
-      if (typeof priceValue === 'string') {
-        priceValue = priceValue.trim().toUpperCase();
-        if (priceValue.endsWith('K')) {
-          priceValue = parseFloat(priceValue.replace('K', '')) * 1000;
-        } else {
-          priceValue = parseFloat(priceValue);
-        }
-        if (isNaN(priceValue)) {
-          throw new Error("Invalid price format. Use numbers or format like '12K'");
-        }
       }
 
       const formData = new FormData();
@@ -192,7 +180,8 @@ const CreateCategoryService = () => {
           : "");
       formData.append("description", descriptionValue);
       formData.append("bodyContent", serviceForm.bodyContent || "");
-      formData.append("price", priceValue.toString());
+      // Send price as-is (range e.g. "2.5k-4k", number, or empty for "Get in touch for pricing")
+      formData.append("price", serviceForm.price != null ? String(serviceForm.price).trim() : "");
       formData.append("duration", serviceForm.duration || "");
       formData.append("taxIncluded", serviceForm.taxIncluded ? "true" : "false");
       formData.append("ctaContent", serviceForm.ctaContent);
@@ -229,6 +218,9 @@ const CreateCategoryService = () => {
           images: [],
           imagePreviews: [],
         });
+        if (serviceImageInputRef.current) {
+          serviceImageInputRef.current.value = "";
+        }
         // Refresh categories to get updated service counts
         dispatch(fetchAllCategories({ limit: 100 }));
         setSuccessMessage("Service created successfully!");
@@ -528,6 +520,7 @@ const CreateCategoryService = () => {
                         Upload Image
                       </label>
                       <input
+                        ref={serviceImageInputRef}
                         type="file"
                         accept="image/*"
                         multiple

@@ -7,6 +7,7 @@ import {
   updateService,
   deleteService,
   toggleServiceAvailability,
+  toggleServiceActive,
   getServicesByCategory,
   getServiceStats
 } from '../../controllers/admin/service.admin.controller.js';
@@ -51,6 +52,11 @@ serviceAdminRouter.get('/:id', checkAuth, requireAdmin, getServiceById);
 // @access  Admin only
 // @body    FormData: name, description, bodyContent, price, duration, categoryId, ctaContent, cardType, images (Files, optional)
 serviceAdminRouter.put('/:id', checkAuth, requireAdmin, updateService);
+
+// @route   PATCH /api/admin/services/:id/toggle-active
+// @desc    Toggle service active (show/hide on site)
+// @access  Admin only
+serviceAdminRouter.patch('/:id/toggle-active', checkAuth, requireAdmin, toggleServiceActive);
 
 // @route   PATCH /api/admin/services/:id/toggle
 // @desc    Toggle service availability

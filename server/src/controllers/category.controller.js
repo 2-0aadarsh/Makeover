@@ -119,11 +119,10 @@ export const getCategoryServices = async (req, res) => {
       });
     }
 
-    // Get all active and available services for this category
+    // Get all active services (include both available and "not available" so UI can show "Not available at the moment")
     const services = await Service.find({ 
       categoryId: id,
-      isActive: true,
-      isAvailable: true
+      isActive: true
     })
       .select('-createdBy -updatedBy -bodyContent')
       .sort({ createdAt: -1 })

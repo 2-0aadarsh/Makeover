@@ -106,11 +106,20 @@ export const adminServicesApi = {
   },
 
   /**
-   * Toggle service availability
+   * Toggle service availability (available / not available at the moment)
    * @param {string} serviceId - Service ID
    * @returns {Promise} Updated service data
    */
-  toggleService: (serviceId) => {
+  toggleServiceAvailability: (serviceId) => {
     return adminServicesApiInstance.patch(`/${serviceId}/toggle`);
+  },
+
+  /**
+   * Toggle service active status (show / hide on site)
+   * @param {string} serviceId - Service ID
+   * @returns {Promise} Updated service data
+   */
+  toggleServiceActive: (serviceId) => {
+    return adminServicesApiInstance.patch(`/${serviceId}/toggle-active`);
   },
 };

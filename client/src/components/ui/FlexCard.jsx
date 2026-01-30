@@ -53,7 +53,7 @@ const FlexCard = ({ item, source = "other" }) => {
                     <span className="text-[clamp(0.95rem,2vw,1.05rem)] font-semibold text-[#1F1F1F]">
                       {(() => {
                         const value = item?.Price ?? item?.PriceEstimate;
-                        if (value === 'Price on request') return value;
+                        if (value === 'Price on request' || value === 'Get in touch for pricing') return value;
                         if (typeof value === 'number') return `₹ ${value.toLocaleString('en-IN')}`;
                         if (typeof value === 'string' && value.startsWith('₹')) return value;
                         return `₹ ${value}`;
@@ -82,6 +82,17 @@ const FlexCard = ({ item, source = "other" }) => {
               className={addButtonClassName}
               sizeConfig={item?.buttonSize}
             />
+          ) : item?.originalService?.ctaContent === "Add" && item?.isAvailable === false ? (
+            <div className="w-full text-center">
+              <button
+                type="button"
+                disabled
+                className="button w-full font-semibold text-xs sm:text-sm lg:text-sm flex flex-col items-center justify-center text-gray-500 bg-gray-200 rounded-3xl px-2 sm:px-3 lg:px-3 py-2 sm:py-2 lg:py-2 cursor-not-allowed"
+              >
+                Add +
+              </button>
+              <p className="text-xs text-amber-600 font-medium mt-1.5">Not available at the moment</p>
+            </div>
           ) : (
             <button
               onClick={handleEnquiryClick}

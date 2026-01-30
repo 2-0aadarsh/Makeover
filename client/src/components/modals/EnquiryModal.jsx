@@ -25,7 +25,7 @@ import {
 /** Format price for display: raw number, "Price on request", or string (e.g. "2.5k-4k") without double ₹ */
 const formatPrice = (value) => {
   if (value == null || value === "") return "";
-  if (value === "Price on request") return value;
+  if (value === "Price on request" || value === "Get in touch for pricing") return value;
   if (typeof value === "number") return `₹ ${value.toLocaleString("en-IN")}`;
   if (typeof value === "string" && value.startsWith("₹")) return value;
   return `₹ ${value}`;

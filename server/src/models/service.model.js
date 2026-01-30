@@ -22,7 +22,14 @@ const serviceSchema = new mongoose.Schema({
     required: [true, 'Service price is required'],
     min: [0, 'Price cannot be negative']
   },
-  
+  // Display-only price (e.g. "2.5k-4k", "Get in touch for pricing"). When set, UI shows this instead of formatting price.
+  priceDisplay: {
+    type: String,
+    trim: true,
+    default: null,
+    maxlength: [100, 'Price display cannot exceed 100 characters']
+  },
+
   taxIncluded: {
     type: Boolean,
     default: true
@@ -214,9 +221,10 @@ serviceSchema.statics.findPopularServices = function(limit = 10) {
     .limit(limit);
 };
 
-// Virtual for formatted price
+// Virtual for formatted price (uses priceDisplay when set, else numeric price)
 serviceSchema.virtual('formattedPrice').get(function() {
-  return `₹${this.price.toLocaleString('en-IN')}`;
+  if (this.priceDisplay) return this.priceDisplay;
+  return `₹${(this.price || 0).toLocaleString('en-IN')}`;
 });
 
 // Ensure virtual fields are serialized

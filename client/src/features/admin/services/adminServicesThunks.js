@@ -60,3 +60,33 @@ export const deleteServiceThunk = createAsyncThunk(
     }
   }
 );
+
+/**
+ * Toggle service availability (available / not available at the moment)
+ */
+export const toggleServiceAvailabilityThunk = createAsyncThunk(
+  'adminServices/toggleAvailability',
+  async (serviceId, { rejectWithValue }) => {
+    try {
+      const response = await adminServicesApi.toggleServiceAvailability(serviceId);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to toggle availability');
+    }
+  }
+);
+
+/**
+ * Toggle service active status (show / hide on site)
+ */
+export const toggleServiceActiveThunk = createAsyncThunk(
+  'adminServices/toggleActive',
+  async (serviceId, { rejectWithValue }) => {
+    try {
+      const response = await adminServicesApi.toggleServiceActive(serviceId);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to toggle status');
+    }
+  }
+);

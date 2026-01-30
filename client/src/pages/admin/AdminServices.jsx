@@ -9,7 +9,13 @@ import Select from "../../components/ui/Select.jsx";
 import CategoriesTable from "../../components/admin/categories/CategoriesTable";
 import AdminPagination from "../../components/admin/common/AdminPagination";
 import { fetchAllCategories, fetchCategoryServices } from "../../features/admin/categories/adminCategoriesThunks";
-import { deleteServiceThunk } from "../../features/admin/services/adminServicesThunks";
+import {
+  deleteServiceThunk,
+  toggleServiceAvailabilityThunk,
+  toggleServiceActiveThunk,
+} from "../../features/admin/services/adminServicesThunks";
+import ToggleServiceAvailabilityModal from "../../components/modals/admin/ToggleServiceAvailabilityModal";
+import ToggleServiceActiveModal from "../../components/modals/admin/ToggleServiceActiveModal";
 
 /**
  * AdminServices - Admin page for managing categories and services
@@ -31,6 +37,8 @@ const AdminServices = () => {
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
+  const [serviceToggleAvailability, setServiceToggleAvailability] = useState(null);
+  const [serviceToggleActive, setServiceToggleActive] = useState(null);
 
   // Categories tab state (search, filter, sort)
   const [searchInput, setSearchInput] = useState("");
@@ -163,6 +171,64 @@ const AdminServices = () => {
   const cancelDelete = () => {
     setDeleteModalOpen(false);
     setServiceToDelete(null);
+  };
+
+  // Toggle availability: open modal
+  const handleToggleAvailability = (service) => {
+    setServiceToggleAvailability(service);
+  };
+
+  const confirmToggleAvailability = async () => {
+    if (!serviceToggleAvailability) return;
+    const serviceId = serviceToggleAvailability.id || serviceToggleAvailability._id;
+    const serviceName = serviceToggleAvailability.name || "Service";
+    try {
+      await dispatch(toggleServiceAvailabilityThunk(serviceId)).unwrap();
+      toast.success(
+        serviceToggleAvailability.isAvailable !== false
+          ? `"${serviceName}" marked as not available.`
+          : `"${serviceName}" marked as available.`
+      );
+      setServiceToggleAvailability(null);
+      if (selectedCategoryId) {
+        await dispatch(fetchCategoryServices({ categoryId: selectedCategoryId }));
+      }
+    } catch (error) {
+      toast.error(error || "Failed to update availability");
+    }
+  };
+
+  const cancelToggleAvailability = () => {
+    setServiceToggleAvailability(null);
+  };
+
+  // Toggle active: open modal
+  const handleToggleActive = (service) => {
+    setServiceToggleActive(service);
+  };
+
+  const confirmToggleActive = async () => {
+    if (!serviceToggleActive) return;
+    const serviceId = serviceToggleActive.id || serviceToggleActive._id;
+    const serviceName = serviceToggleActive.name || "Service";
+    try {
+      await dispatch(toggleServiceActiveThunk(serviceId)).unwrap();
+      toast.success(
+        serviceToggleActive.isActive !== false
+          ? `"${serviceName}" deactivated and hidden from the site.`
+          : `"${serviceName}" activated and visible on the site.`
+      );
+      setServiceToggleActive(null);
+      if (selectedCategoryId) {
+        await dispatch(fetchCategoryServices({ categoryId: selectedCategoryId }));
+      }
+    } catch (error) {
+      toast.error(error || "Failed to update status");
+    }
+  };
+
+  const cancelToggleActive = () => {
+    setServiceToggleActive(null);
   };
 
   // Handle create new button click
@@ -369,6 +435,8 @@ const AdminServices = () => {
                 services={servicesToDisplay}
                 onServiceEdit={handleServiceEdit}
                 onServiceDelete={handleServiceDelete}
+                onToggleAvailability={handleToggleAvailability}
+                onToggleActive={handleToggleActive}
               />
             )}
           </div>
@@ -380,6 +448,24 @@ const AdminServices = () => {
           serviceName={serviceToDelete.name || "this service"}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
+        />
+      )}
+
+      {serviceToggleAvailability && (
+        <ToggleServiceAvailabilityModal
+          serviceName={serviceToggleAvailability.name || "Service"}
+          isAvailable={serviceToggleAvailability.isAvailable !== false}
+          onConfirm={confirmToggleAvailability}
+          onCancel={cancelToggleAvailability}
+        />
+      )}
+
+      {serviceToggleActive && (
+        <ToggleServiceActiveModal
+          serviceName={serviceToggleActive.name || "Service"}
+          isActive={serviceToggleActive.isActive !== false}
+          onConfirm={confirmToggleActive}
+          onCancel={cancelToggleActive}
         />
       )}
     </div>

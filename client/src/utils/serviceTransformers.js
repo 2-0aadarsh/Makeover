@@ -1,3 +1,5 @@
+import { SERVICE_TYPE_DISPLAY_ORDER } from '../constants';
+
 /**
  * Utility functions to transform database service/category data
  * to match the modal component's expected format
@@ -9,18 +11,22 @@
  * @returns {Object} Transformed service card
  */
 export const transformServiceToCard = (service) => {
+  // Use priceDisplay when set (e.g. "2.5k-4k", "Get in touch for pricing"); else numeric price
+  const displayPrice = service.priceDisplay != null && String(service.priceDisplay).trim() !== ''
+    ? service.priceDisplay
+    : (service.price != null ? service.price : 'Get in touch for pricing');
+  const isAvailable = service.isAvailable !== false;
   return {
     img: service.image && service.image.length > 0 ? service.image[0] : null,
     cardHeader: service.name || 'Service',
     description: service.description || '',
-    price: service.price?.toString() || '0',
+    price: typeof displayPrice === 'number' ? displayPrice.toString() : displayPrice,
     taxIncluded: service.taxIncluded !== undefined ? service.taxIncluded : true,
     duration: service.duration || 'N/A',
     button: service.ctaContent || 'Add +',
     service_id: service._id?.toString() || service.id?.toString(),
-    // Flag to identify dynamic data
+    isAvailable,
     isDynamic: true,
-    // Store original service data for reference
     originalService: service
   };
 };
@@ -49,8 +55,15 @@ export const transformServicesToGridCard = (services) => {
     return acc;
   }, {});
 
-  // Convert to array format expected by ServiceModal
-  return Object.keys(grouped).map(title => ({
+  // Convert to array in display order (Regular → Classic → Premium → Bridal); unknown types last
+  const orderedTitles = Object.keys(grouped).sort((a, b) => {
+    const i = SERVICE_TYPE_DISPLAY_ORDER.indexOf(a);
+    const j = SERVICE_TYPE_DISPLAY_ORDER.indexOf(b);
+    const orderA = i === -1 ? SERVICE_TYPE_DISPLAY_ORDER.length : i;
+    const orderB = j === -1 ? SERVICE_TYPE_DISPLAY_ORDER.length : j;
+    return orderA - orderB;
+  });
+  return orderedTitles.map(title => ({
     title,
     data: grouped[title]
   }));
@@ -87,19 +100,23 @@ export const transformServicesToFlexCards = (services, categoryName = '') => {
 
   return services.map(service => {
     const isAddService = service.ctaContent === 'Add' || service.ctaContent === 'Add +';
-    
+    // Use priceDisplay when set (e.g. "2.5k-4k", "Get in touch for pricing"); else numeric price or "Price on request"
+    const displayPrice = service.priceDisplay != null && String(service.priceDisplay).trim() !== ''
+      ? service.priceDisplay
+      : (service.price != null && service.price !== '' ? service.price : 'Get in touch for pricing');
+    const isAvailable = service.isAvailable !== false;
     return {
       img: service.image && service.image.length > 0 ? service.image[0] : null,
       cardHeader: service.name || 'Service',
       serviceCategory: categoryName,
       description: service.description || '',
-      // Store raw number so UI adds ₹ once (avoids double rupee symbol)
-      PriceEstimate: service.price != null ? service.price : 'Price on request',
-      Price: service.price != null ? service.price : null,
+      PriceEstimate: displayPrice,
+      Price: typeof displayPrice === 'number' ? displayPrice : null,
+      includingTax: service.taxIncluded !== undefined ? service.taxIncluded : true,
       button: service.ctaContent || 'Enquire Now',
       service_id: service._id?.toString() || service.id?.toString(),
-      // Set enableAddButton to true for "Add" services so ServiceCartButton is used
-      enableAddButton: isAddService,
+      enableAddButton: isAddService && isAvailable,
+      isAvailable,
       isDynamic: true,
       originalService: service
     };

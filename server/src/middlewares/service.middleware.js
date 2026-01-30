@@ -4,18 +4,18 @@ import Service from '../models/service.model.js';
 export const validateServiceCreation = (req, res, next) => {
   const errors = [];
   
-  // Required fields validation
-  const requiredFields = ['name', 'description', 'price', 'image', 'category'];
+  // Required fields validation (price optional when CTA is "Enquire Now")
+  const requiredFields = ['name', 'description', 'image', 'category'];
   requiredFields.forEach(field => {
     if (!req.body[field]) {
       errors.push(`${field} is required`);
     }
   });
-  
-  // Data type validation
-  if (req.body.price && (isNaN(req.body.price) || req.body.price < 0)) {
-    errors.push('Price must be a positive number');
+  const isEnquire = req.body.ctaContent === 'Enquire Now';
+  if (!isEnquire && (req.body.price === undefined || req.body.price === null || String(req.body.price).trim() === '')) {
+    errors.push('Price is required when CTA Content is "Add"');
   }
+  // Price format (range, number, "Get in touch for pricing") is validated in controller
   
   
   if (req.body.name && typeof req.body.name !== 'string') {
@@ -75,8 +75,8 @@ export const validateServiceCreation = (req, res, next) => {
 export const validateServiceUpdate = (req, res, next) => {
   const errors = [];
   
-  // Data type validation for provided fields
-  if (req.body.price !== undefined && (isNaN(req.body.price) || req.body.price < 0)) {
+  // Data type validation for provided fields (price can be string for range / "Get in touch for pricing")
+  if (req.body.price !== undefined && typeof req.body.price === 'number' && (isNaN(req.body.price) || req.body.price < 0)) {
     errors.push('Price must be a positive number');
   }
   
@@ -169,10 +169,8 @@ export const sanitizeServiceData = (req, res, next) => {
   if (req.body.category) req.body.category = req.body.category.trim();
   if (req.body.serviceType) req.body.serviceType = req.body.serviceType.trim();
   
-  // Convert price to number if it's a string
-  if (req.body.price && typeof req.body.price === 'string') {
-    req.body.price = parseFloat(req.body.price);
-  }
+  // Keep price as-is (string or number); controller parses range / "Get in touch for pricing"
+  // Do not convert price to number here
   
   // Trim tags array
   if (req.body.tags && Array.isArray(req.body.tags)) {
