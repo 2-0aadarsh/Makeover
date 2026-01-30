@@ -149,6 +149,7 @@ export const AuthSlice = createSlice({
       // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.status = "loading";
+        state.error = null; // clear previous error so "Logging in..." is visible
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";

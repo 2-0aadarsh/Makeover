@@ -41,13 +41,15 @@ const FormSection = ({
             onChange={onInputChange}
             inputcss={inputcss}
             labelcss={labelcss}
+            disabled={isLoading}
           />
         ))}
 
         {forgetPassword && (
           <button
             type="button"
-            className="text-gray-600 font-inter text-xs font-medium underline flex justify-end -mt-2"
+            disabled={isLoading}
+            className="text-gray-600 font-inter text-xs font-medium underline flex justify-end -mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
             onClick={forgetPassword}
           >
             Forget Password?
@@ -58,10 +60,11 @@ const FormSection = ({
 
         <div className="mt-4">
           <Button
-            content={isLoading ? "Loading..." : buttonText}
+            content={buttonText}
             css="w-full rounded-xl py-3 text-sm font-medium"
             type="submit"
             disabled={isLoading}
+            isLoading={isLoading}
           />
         </div>
       </form>

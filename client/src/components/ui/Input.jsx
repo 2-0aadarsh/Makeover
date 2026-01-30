@@ -11,11 +11,13 @@ const Input = ({
   onChange,
   inputcss,
   labelcss,
+  disabled = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
 
   const togglePasswordVisibility = () => {
+    if (disabled) return;
     setShowPassword((prev) => !prev);
   };
 
@@ -33,7 +35,10 @@ const Input = ({
         id={id}
         value={value}
         onChange={onChange}
-        className={`w-full py-2 sm:py-3 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] text-sm sm:text-base ${inputcss}`}
+        disabled={disabled}
+        className={`w-full py-2 sm:py-3 px-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CC2B52] text-sm sm:text-base ${inputcss} ${
+          disabled ? "bg-gray-50 cursor-not-allowed opacity-90" : ""
+        }`}
         placeholder={placeholder}
       />
 

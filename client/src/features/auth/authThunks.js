@@ -2,13 +2,15 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { checkLoginStatusApi, completeGoogleSignupApi, forgetPassword, googleLoginApi, loginApi, logoutApi, resendOtpApi, resetPasswordApi, signupApi, verifyOtpApi } from "./authApi";
 import { saveCart, getCart } from "../cart/cartThunks";
 
+const MIN_LOGIN_LOADING_MS = 600; // Ensure "Logging in..." is visible
+
 export const loginUser = createAsyncThunk(
-  "auth/login", 
-  
-  async(credentials, { rejectWithValue, dispatch })=>{
+  "auth/login",
+  async (credentials, { rejectWithValue, dispatch }) => {
+    const start = Date.now();
     try {
       const result = await loginApi(credentials);
-      
+
       // After successful login, restore cart data from database
       if (result.success) {
         try {
@@ -17,12 +19,21 @@ export const loginUser = createAsyncThunk(
           console.log('✅ Login - Cart data restored from database successfully');
         } catch (cartError) {
           console.error('❌ Login - Failed to restore cart from database:', cartError);
-          // Continue with login even if cart restoration fails
         }
       }
-      
+
+      // Keep loading state visible for at least MIN_LOGIN_LOADING_MS
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_LOGIN_LOADING_MS) {
+        await new Promise((r) => setTimeout(r, MIN_LOGIN_LOADING_MS - elapsed));
+      }
       return result;
     } catch (error) {
+      // Keep loading state visible before showing error
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_LOGIN_LOADING_MS) {
+        await new Promise((r) => setTimeout(r, MIN_LOGIN_LOADING_MS - elapsed));
+      }
       return rejectWithValue(error.message);
     }
   }
