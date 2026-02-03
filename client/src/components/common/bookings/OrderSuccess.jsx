@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
-import useBodyScrollLock from "../../hooks/useBodyScrollLock";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * OrderSuccess Component
