@@ -48,20 +48,40 @@ const app = express();
 // Middleware
 app.use(helmet());
 
-const allowedOrigins = [process.env.CLIENT_URL, 'https://wemakeover.netlify.app' ,'http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'https://wemakeover.netlify.app',
+  'http://localhost:5173',
+  'http://localhost:5174',
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('CORS not allowed from this origin', origin));
+      callback(new Error('CORS not allowed from this origin'));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
 }));
+
+// Set CORS headers on every response so error responses (5xx) also have them
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 app.use(express.json());  
 app.use(cookieParser());
