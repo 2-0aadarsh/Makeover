@@ -100,6 +100,18 @@ app.use(fileUpload({
   parseNested: true
 }));
 
+// Ensure MongoDB is connected before any /api request (fixes 500 on Vercel cold start)
+const dbReady = connectDB();
+app.use('/api', async (req, res, next) => {
+  try {
+    await dbReady;
+    next();
+  } catch (err) {
+    console.error('API request blocked: MongoDB not connected', err.message);
+    res.status(503).json({ success: false, message: 'Service temporarily unavailable' });
+  }
+});
+
 app.use("/", contactRouter);
 app.use('/auth', authRouter);
 app.use('/api/services', serviceRouter);
@@ -134,7 +146,6 @@ app.use('/api/admin/city-requests', cityRequestAdminRouter);
 
 app.disable('x-powered-by');
 
-connectDB();
 redis.on('connect', () => console.log('Redis connected'));
 redis.on('error', (err) => console.error('Redis connection error:', err));
 connectCloudinary();

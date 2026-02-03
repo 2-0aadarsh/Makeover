@@ -5,36 +5,51 @@ import SiteSettings from '../models/siteSettings.model.js';
  * @desc    Get current site settings (public - for frontend)
  * @access  Public
  */
+const getDefaultPublicSettings = () => ({
+  hero: { mainImage: '', categoryIcons: [] },
+  gallery: { slides: [] },
+  branding: { primaryLogo: '', adminLogo: '' },
+});
+
 export const getPublicSiteSettings = async (req, res) => {
   try {
     const settings = await SiteSettings.getSettings();
+    if (!settings) {
+      return res.status(200).json({
+        success: true,
+        data: getDefaultPublicSettings(),
+      });
+    }
     // Convert to plain object so slide.active is a strict boolean (Mongoose subdocs can break === true)
     const plain = settings?.toObject ? settings.toObject() : settings;
+    if (!plain || typeof plain !== 'object') {
+      return res.status(200).json({
+        success: true,
+        data: getDefaultPublicSettings(),
+      });
+    }
 
     const heroMainUrl = plain.hero?.mainImage?.url ?? '';
-    // Only include slides explicitly marked active (exclude inactive and legacy docs without the field)
+    const categoryIcons = Array.isArray(plain.hero?.categoryIcons)
+      ? plain.hero.categoryIcons.map((icon) => ({
+          categoryName: icon?.categoryName,
+          iconUrl: icon?.iconUrl ?? '',
+          order: icon?.order ?? 0,
+        }))
+      : [];
     const gallerySlides = (plain.gallery?.slides || [])
-      .filter((slide) => Boolean(slide.active) === true)
+      .filter((slide) => Boolean(slide?.active) === true)
       .sort((a, b) => (a.order || 0) - (b.order || 0))
       .map((slide) => ({
-        title: slide.title || '',
-        description: slide.description || '',
-        imageUrl: slide.imageUrl || '',
-        order: slide.order ?? 0,
+        title: slide?.title ?? '',
+        description: slide?.description ?? '',
+        imageUrl: slide?.imageUrl ?? '',
+        order: slide?.order ?? 0,
       }));
 
     const publicSettings = {
-      hero: {
-        mainImage: heroMainUrl,
-        categoryIcons: (plain.hero?.categoryIcons || []).map((icon) => ({
-          categoryName: icon.categoryName,
-          iconUrl: icon.iconUrl,
-          order: icon.order,
-        })),
-      },
-      gallery: {
-        slides: gallerySlides,
-      },
+      hero: { mainImage: heroMainUrl, categoryIcons },
+      gallery: { slides: gallerySlides },
       branding: {
         primaryLogo: plain.branding?.primaryLogo?.url ?? '',
         adminLogo: plain.branding?.adminLogo?.usePrimary
@@ -43,9 +58,7 @@ export const getPublicSiteSettings = async (req, res) => {
       },
     };
 
-    // Avoid caching so gallery/hero/logo updates show immediately after admin saves
     res.set('Cache-Control', 'no-store, max-age=0');
-
     return res.status(200).json({
       success: true,
       data: publicSettings,
