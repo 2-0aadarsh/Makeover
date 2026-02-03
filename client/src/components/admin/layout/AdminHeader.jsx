@@ -21,7 +21,7 @@ const AdminHeader = () => {
     navigate("/admin/dashboard");
   };
 
-  // Admin navigation links (matching Figma design)
+  // Admin navigation links (Site Settings is in profile dropdown)
   const adminNavLinks = [
     { to: "/admin/services", label: "My Services" },
     { to: "/admin/bookings", label: "Bookings & Customers" },

@@ -5,7 +5,7 @@ import { scroller } from "react-scroll";
 import LogoutModal from "./LogoutModal";
 import { HiOutlineLogout } from "react-icons/hi";
 import { RxCross2 } from "react-icons/rx";
-import { HiLocationMarker } from "react-icons/hi";
+import { HiLocationMarker, HiStar } from "react-icons/hi";
 
 const ProfileModal = ({ username, onClose }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -59,6 +59,7 @@ const ProfileModal = ({ username, onClose }) => {
     { type: "scroll", to: "gallery", linkName: "Gallery" },
     { type: "route", to: "/about", linkName: "About us" },
     { type: "route", to: "/myBookings", linkName: "My Bookings" },
+    { type: "route", to: "/my-reviews", linkName: "My Reviews" },
     { type: "scroll", to: "contact-us", linkName: "Contact Us" },
   ];
 
@@ -105,6 +106,19 @@ const ProfileModal = ({ username, onClose }) => {
           >
             <HiLocationMarker className="font-semibold text-[20px]" />
             <span>Add/Update Address</span>
+          </NavLink>
+
+          {/* My Reviews */}
+          <NavLink
+            to="/my-reviews"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="flex items-center gap-2 px-4 pb-4 pt-6 text-md cursor-pointer border-t-[0.5px] border-[#CC2B52] font-semibold hover:bg-gray-100 flex-shrink-0"
+          >
+            <HiStar className="font-semibold text-[20px]" />
+            <span>My Reviews</span>
           </NavLink>
 
           {/* Complaint Link */}

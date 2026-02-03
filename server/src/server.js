@@ -4,6 +4,8 @@ import 'dotenv/config';
 import helmet from 'helmet';
 import cookieParser from "cookie-parser";
 import fileUpload from 'express-fileupload';
+import path from 'path';
+import os from 'os';
 
 import connectDB from './configs/mongodb.config.js';
 import redis from './configs/redis.config.js';
@@ -33,6 +35,12 @@ import serviceAdminRouter from './routes/admin/service.admin.routes.js';
 import reviewAdminRouter from './routes/admin/review.admin.routes.js';
 import adminAdminRouter from './routes/admin/admin.admin.routes.js';
 import onboardingRouter from './routes/admin/onboarding.routes.js';
+import siteSettingsAdminRouter from './routes/admin/siteSettings.admin.routes.js';
+import siteSettingsRouter from './routes/siteSettings.routes.js';
+import reviewRouter from './routes/review.routes.js';
+import notificationRouter from './routes/notification.routes.js';
+import cityRequestRouter from './routes/cityRequest.routes.js';
+import cityRequestAdminRouter from './routes/admin/cityRequest.admin.routes.js';
 import connectCloudinary from './configs/cloudinary.config.js';
 
 const app = express();
@@ -59,12 +67,14 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // File upload middleware (express-fileupload)
+// Use os.tmpdir() so temp dir works on Windows (e.g. C:\Users\...\AppData\Local\Temp) and Linux (/tmp)
+const uploadTempDir = path.join(os.tmpdir(), 'wemakeover-uploads');
 app.use(fileUpload({
   useTempFiles: true,
-  tempFileDir: '/tmp/',
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max file size
-  abortOnLimit: true,
-  responseOnLimit: 'File size limit exceeded (max 5MB)',
+  tempFileDir: uploadTempDir,
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB max file size (must match client ImageUploadZone maxSize)
+  abortOnLimit: false, // send proper 413 response instead of aborting connection (avoids ERR_CONNECTION_ABORTED)
+  responseOnLimit: 'File size limit exceeded (max 25MB)',
   createParentPath: true,
   parseNested: true
 }));
@@ -94,6 +104,12 @@ app.use('/api/admin/services', serviceAdminRouter);
 app.use('/api/admin/reviews', reviewAdminRouter);
 app.use('/api/admin/admins', adminAdminRouter);
 app.use('/api/admin/onboard', onboardingRouter);
+app.use('/api/admin/site-settings', siteSettingsAdminRouter);
+app.use('/api/site-settings', siteSettingsRouter);
+app.use('/api/reviews', reviewRouter);
+app.use('/api/notifications', notificationRouter);
+app.use('/api/city-requests', cityRequestRouter);
+app.use('/api/admin/city-requests', cityRequestAdminRouter);
 
 app.disable('x-powered-by');
 

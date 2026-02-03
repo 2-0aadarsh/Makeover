@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 import polarBear from "../../../assets/modals/profile/polarBear.gif";
 import { logoutUser } from "../../../features/auth/authThunks";
@@ -9,6 +9,8 @@ import { logoutUser } from "../../../features/auth/authThunks";
 const LogoutModal = ({ onCancel }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useBodyScrollLock(true);
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -22,17 +24,10 @@ const LogoutModal = ({ onCancel }) => {
       });
   };
 
-  useEffect(() => {
-    const body = document.querySelector("body");
-    body.style.overflowY = "hidden";
-
-    return () => (body.style.overflowY = "scroll");
-  }, []);
-
   return (
     <div
       onClick={onCancel}
-      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 overflow-hidden overscroll-contain"
     >
       <div
         className="bg-white p-6 rounded-2xl shadow-2xl text-center max-w-sm w-[415px] h-[309px] flex flex-col items-center justify-between"

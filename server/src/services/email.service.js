@@ -1,7 +1,7 @@
 import "dotenv/config"
 
 import transporter from '../configs/nodemailer.config.js';
-import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate, bookingRescheduleAdminEmailTemplate, bookingRescheduleUserEmailTemplate, paymentConfirmationAdminEmailTemplate, paymentConfirmationUserEmailTemplate, adminOnboardingEmailTemplate } from '../uitils/emails/emailTemplate.js';
+import { contactUsEmailTemplate, emailTemplate, passwordResetEmailTemplate, bookingNotificationEmailTemplate, welcomeNewsletterEmailTemplate, enquiryNotificationEmailTemplate, enquiryConfirmationEmailTemplate, bookingCancellationAdminEmailTemplate, bookingCancellationUserEmailTemplate, bookingRescheduleAdminEmailTemplate, bookingRescheduleUserEmailTemplate, paymentConfirmationAdminEmailTemplate, paymentConfirmationUserEmailTemplate, adminOnboardingEmailTemplate, reviewRequestEmailTemplate, complaintResponseEmailTemplate } from '../uitils/emails/emailTemplate.js';
 
 const sendEmailVerification = async (to, subject, htmlContent) => {
   try {
@@ -516,4 +516,119 @@ const sendAdminOnboardingEmail = async (onboardingData) => {
   }
 };
 
-export { sendEmailVerification, sendForgetPassword, sendContactUsMail, sendBookingNotificationToAdmin, sendWelcomeNewsletterEmail, sendEnquiryNotificationToAdmin, sendEnquiryConfirmationToUser, sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser, sendRescheduleNotificationToAdmin, sendRescheduleConfirmationToUser, sendPaymentConfirmationToAdmin, sendPaymentConfirmationToUser, sendAdminOnboardingEmail };
+/**
+ * Send review request email to customer after booking completion/cancellation/no_show
+ * @param {Object} reviewData - Review request data
+ * @param {string} reviewData.customerName - Customer name
+ * @param {string} reviewData.customerEmail - Customer email
+ * @param {string} reviewData.orderNumber - Order number
+ * @param {Array} reviewData.services - Array of booked services
+ * @param {Date} reviewData.bookingDate - Booking date
+ * @param {string} reviewData.reviewToken - Secure token for review link
+ * @param {string} reviewData.bookingStatus - completed, cancelled, or no_show
+ * @returns {Promise} Email send result
+ */
+const sendReviewRequestEmail = async (reviewData) => {
+  try {
+    const { customerEmail, customerName, orderNumber, bookingStatus } = reviewData;
+    
+    if (!customerEmail) {
+      console.warn('⚠️ No customer email provided for review request');
+      return null;
+    }
+    
+    console.log('📧 Preparing to send review request email to:', customerEmail);
+    
+    // Generate HTML template
+    const emailHtml = reviewRequestEmailTemplate(reviewData);
+    
+    // Subject based on booking status
+    const subjectMap = {
+      completed: `How was your WeMakeover experience? - Order #${orderNumber}`,
+      cancelled: `We'd love your feedback - Order #${orderNumber}`,
+      no_show: `We missed you! Share your thoughts - Order #${orderNumber}`,
+    };
+    
+    const subject = subjectMap[bookingStatus] || subjectMap.completed;
+    
+    // Mail options
+    const mailOptions = {
+      from: '"WeMakeover Feedback" <noreply@wemakeover.com>',
+      to: customerEmail,
+      subject: subject,
+      html: emailHtml,
+    };
+    
+    console.log('📧 Sending review request email to:', customerEmail);
+    
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Review request email sent successfully:', info.messageId);
+    
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending review request email:', error);
+    // Don't throw error - we don't want to break the booking flow if email fails
+    return null;
+  }
+};
+
+/**
+ * Send complaint response email to customer when admin replies to their complaint
+ * @param {Object} data - Complaint response data
+ * @param {string} data.customerEmail - Customer email
+ * @param {string} data.customerName - Customer name
+ * @param {string} data.orderNumber - Order number
+ * @param {string} data.serviceName - Service name
+ * @param {string} [data.complaintCategory] - Complaint category
+ * @param {string} data.userComment - User's original complaint text
+ * @param {string} data.adminResponse - Admin's reply
+ * @param {string} data.status - Status (reviewed, resolved, etc.)
+ * @returns {Promise} Email send result or null
+ */
+const sendComplaintResponseEmail = async (data) => {
+  try {
+    const { customerEmail, customerName, orderNumber, serviceName, complaintCategory, userComment, adminResponse, status } = data;
+
+    if (!customerEmail) {
+      console.warn('⚠️ No customer email provided for complaint response');
+      return null;
+    }
+
+    if (!adminResponse || !adminResponse.trim()) {
+      console.warn('⚠️ No admin response text for complaint response email');
+      return null;
+    }
+
+    console.log('📧 Preparing to send complaint response email to:', customerEmail);
+
+    const emailHtml = complaintResponseEmailTemplate({
+      customerName,
+      orderNumber,
+      serviceName,
+      complaintCategory,
+      userComment,
+      adminResponse,
+      status,
+    });
+
+    const subject = `Response to your complaint - Order #${orderNumber || 'WeMakeover'}`;
+
+    const mailOptions = {
+      from: '"WeMakeover Support" <noreply@wemakeover.com>',
+      to: customerEmail,
+      subject,
+      html: emailHtml,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Complaint response email sent successfully:', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('❌ Error sending complaint response email:', error);
+    return null;
+  }
+};
+
+export { sendEmailVerification, sendForgetPassword, sendContactUsMail, sendBookingNotificationToAdmin, sendWelcomeNewsletterEmail, sendEnquiryNotificationToAdmin, sendEnquiryConfirmationToUser, sendCancellationNotificationToAdmin, sendCancellationConfirmationToUser, sendRescheduleNotificationToAdmin, sendRescheduleConfirmationToUser, sendPaymentConfirmationToAdmin, sendPaymentConfirmationToUser, sendAdminOnboardingEmail, sendReviewRequestEmail, sendComplaintResponseEmail };

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 const UpdateCategoryModal = ({ category, onConfirm, onCancel, loading = false }) => {
   const [formData, setFormData] = useState({
@@ -25,11 +26,7 @@ const UpdateCategoryModal = ({ category, onConfirm, onCancel, loading = false })
     }
   }, [category]);
 
-  useEffect(() => {
-    const body = document.querySelector("body");
-    body.style.overflowY = "hidden";
-    return () => (body.style.overflowY = "scroll");
-  }, []);
+  useBodyScrollLock(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -137,7 +134,7 @@ const UpdateCategoryModal = ({ category, onConfirm, onCancel, loading = false })
   return (
     <div
       onClick={onCancel}
-      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4"
+      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4 overflow-hidden overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="update-category-title"

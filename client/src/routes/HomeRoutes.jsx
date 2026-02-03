@@ -45,6 +45,8 @@ const OrderSuccess = lazy(() =>
   import("../components/common/bookings/OrderSuccess")
 );
 const AddressManagement = lazy(() => import("../pages/AddressManagement"));
+const SubmitReviewPage = lazy(() => import("../pages/reviews/SubmitReviewPage"));
+const MyReviewsPage = lazy(() => import("../pages/MyReviewsPage"));
 
 // Admin pages (lazy loaded)
 const AdminLayout = lazy(() => import("../components/layout/AdminLayout"));
@@ -52,6 +54,8 @@ const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const BookingsAndCustomers = lazy(() => import("../pages/admin/BookingsAndCustomers"));
 const AdminBookingDetails = lazy(() => import("../pages/admin/AdminBookingDetails"));
 const AdminEnquiries = lazy(() => import("../pages/admin/AdminEnquiries"));
+const AdminCityRequests = lazy(() => import("../pages/admin/AdminCityRequests"));
+const AdminCitiesPage = lazy(() => import("../pages/admin/AdminCitiesPage"));
 const AdminServices = lazy(() => import("../pages/admin/AdminServices"));
 const CreateCategoryService = lazy(() => import("../pages/admin/CreateCategoryService"));
 const AdminReviews = lazy(() => import("../pages/admin/AdminReviews"));
@@ -59,6 +63,7 @@ const UpdateService = lazy(() => import("../pages/admin/UpdateService"));
 const AdminAdmins = lazy(() => import("../pages/admin/AdminAdmins"));
 const CreateAdmin = lazy(() => import("../pages/admin/CreateAdmin"));
 const UpdateAdmin = lazy(() => import("../pages/admin/UpdateAdmin"));
+const SiteSettingsPage = lazy(() => import("../pages/admin/SiteSettingsPage"));
 
 // Loading wrapper component
 const LazyWrapper = ({ children }) => (
@@ -152,6 +157,18 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "cities",
+            element: (
+              <LazyWrapper>
+                <AdminCitiesPage />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: "city-requests",
+            element: <Navigate to="/admin/cities?tab=requests" replace />,
+          },
+          {
             path: "reviews",
             element: (
               <LazyWrapper>
@@ -180,6 +197,14 @@ export const router = createBrowserRouter([
             element: (
               <LazyWrapper>
                 <UpdateAdmin />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: "site-settings",
+            element: (
+              <LazyWrapper>
+                <SiteSettingsPage />
               </LazyWrapper>
             ),
           },
@@ -252,6 +277,14 @@ export const router = createBrowserRouter([
               </LazyWrapper>
             ),
           },
+          {
+            path: "my-reviews",
+            element: (
+              <LazyWrapper>
+                <MyReviewsPage />
+              </LazyWrapper>
+            ),
+          },
         ],
       },
       {
@@ -275,6 +308,14 @@ export const router = createBrowserRouter([
         element: (
           <LazyWrapper>
             <TermsAndConditionsPage />
+          </LazyWrapper>
+        ),
+      },
+      {
+        path: "reviews/submit",
+        element: (
+          <LazyWrapper>
+            <SubmitReviewPage />
           </LazyWrapper>
         ),
       },

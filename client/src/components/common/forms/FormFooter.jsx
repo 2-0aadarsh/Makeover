@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { completeGoogleSignupThunk, googleLoginThunk } from "../../../features/auth/authThunks";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 const FormFooter = ({ accDetails, switchToButton, switchTo }) => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const FormFooter = ({ accDetails, switchToButton, switchTo }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState("");
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  useBodyScrollLock(showPhoneModal);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -154,7 +156,7 @@ const FormFooter = ({ accDetails, switchToButton, switchTo }) => {
 
       {/* Phone Number Collection Modal */}
       {showPhoneModal && pendingGoogleUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-hidden overscroll-contain">
           <div className="bg-white rounded-lg w-full max-w-md p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">
               Complete Your Signup

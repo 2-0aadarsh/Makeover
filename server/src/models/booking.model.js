@@ -2,6 +2,9 @@ import mongoose from 'mongoose';
 import { sendBookingNotificationToAdmin } from '../services/email.service.js';
 import { combineDateAndSlot } from '../utils/bookingTime.utils.js';
 
+// Note: Review service is imported dynamically to avoid circular dependencies
+// import { triggerReviewRequest } from '../services/review.service.js';
+
 const serviceSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -287,6 +290,31 @@ const bookingSchema = new mongoose.Schema({
       type: String,
       trim: true
     }
+  },
+  // Review tracking fields
+  reviewDetails: {
+    reviewRequestedAt: {
+      type: Date,
+      default: null
+    },
+    reviewSubmittedAt: {
+      type: Date,
+      default: null
+    },
+    reviewToken: {
+      type: String,
+      default: null,
+      select: false // Don't return token by default for security
+    },
+    reviewTokenExpiry: {
+      type: Date,
+      default: null
+    },
+    reviewId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Review',
+      default: null
+    }
   }
 }, {
   timestamps: true,
@@ -301,6 +329,7 @@ bookingSchema.index({ status: 1 });
 bookingSchema.index({ 'bookingDetails.date': 1 });
 bookingSchema.index({ 'paymentStatus': 1 });
 bookingSchema.index({ createdAt: -1 });
+bookingSchema.index({ 'reviewDetails.reviewToken': 1 }); // For review token lookup
 
 // Virtual for total duration
 bookingSchema.virtual('totalDuration').get(function() {
@@ -366,13 +395,51 @@ bookingSchema.virtual('canBeRescheduled').get(function() {
   return hoursUntilBooking > 4; // Can reschedule if more than 4 hours before booking
 });
 
-// Pre-save middleware to generate order number
+// Virtual for canBeReviewed - checks if booking is eligible for review
+bookingSchema.virtual('canBeReviewed').get(function() {
+  // Must be in a terminal state (completed, cancelled, or no_show)
+  if (!['completed', 'cancelled', 'no_show'].includes(this.status)) {
+    return false;
+  }
+  
+  // Must not have already submitted a review
+  if (this.reviewDetails?.reviewSubmittedAt) {
+    return false;
+  }
+  
+  return true;
+});
+
+// Virtual for reviewPending - checks if review has been requested but not submitted
+bookingSchema.virtual('reviewPending').get(function() {
+  return this.canBeReviewed && 
+         this.reviewDetails?.reviewRequestedAt && 
+         !this.reviewDetails?.reviewSubmittedAt;
+});
+
+// Pre-save middleware to generate order number and track document state
 bookingSchema.pre('save', function(next) {
+  // Track if this is a new document (for post-save hook)
+  this.wasNew = this.isNew;
+  
   if (!this.orderNumber) {
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 1000);
     this.orderNumber = `BOOK-${new Date().getFullYear()}-${timestamp}-${random.toString().padStart(4, '0')}`;
   }
+  next();
+});
+
+// Pre-save middleware to track status change to reviewable state
+bookingSchema.pre('save', function(next) {
+  // Track if status changed to a reviewable state
+  const reviewableStatuses = ['completed', 'cancelled', 'no_show'];
+  
+  if (this.isModified('status') && reviewableStatuses.includes(this.status)) {
+    // Store flag to trigger review request in post-save
+    this._statusChangedToReviewable = true;
+  }
+  
   next();
 });
 
@@ -392,25 +459,43 @@ bookingSchema.pre('save', function(next) {
 // Post-save middleware to send email notification to admin after booking is created
 bookingSchema.post('save', async function(doc, next) {
   try {
-    console.log('🔔 Booking saved! Sending notification email to admin...');
+    // Only send admin notification for new bookings
+    if (doc.wasNew) {
+      console.log('🔔 Booking saved! Sending notification email to admin...');
+      
+      // Populate userId to get customer details for email
+      await doc.populate('userId', 'name email phone');
+      
+      // Send email notification to admin (non-blocking)
+      setImmediate(async () => {
+        try {
+          await sendBookingNotificationToAdmin(doc);
+          console.log('✅ Admin notification email queued successfully for order:', doc.orderNumber);
+        } catch (emailError) {
+          console.error('❌ Failed to send admin notification email:', emailError);
+        }
+      });
+    }
     
-    // Populate userId to get customer details for email
-    await doc.populate('userId', 'name email phone');
-    
-    // Send email notification to admin (non-blocking)
-    // Using setImmediate to not block the save operation
-    setImmediate(async () => {
-      try {
-        await sendBookingNotificationToAdmin(doc);
-        console.log('✅ Admin notification email queued successfully for order:', doc.orderNumber);
-      } catch (emailError) {
-        console.error('❌ Failed to send admin notification email:', emailError);
-        // Don't throw - we don't want to fail the booking if email fails
-      }
-    });
+    // Trigger review request if status changed to reviewable state
+    if (doc._statusChangedToReviewable && !doc.reviewDetails?.reviewRequestedAt) {
+      console.log('📝 Status changed to reviewable. Triggering review request for:', doc.orderNumber);
+      
+      // Use dynamic import to avoid circular dependencies
+      setImmediate(async () => {
+        try {
+          const { triggerReviewRequest } = await import('../services/review.service.js');
+          await triggerReviewRequest(doc._id);
+          console.log('✅ Review request triggered for order:', doc.orderNumber);
+        } catch (reviewError) {
+          console.error('❌ Failed to trigger review request:', reviewError);
+          // Don't throw - review request failure shouldn't break the booking flow
+        }
+      });
+    }
   } catch (error) {
-    console.error('⚠️ Error in post-save email notification:', error);
-    // Don't throw error - booking should succeed even if email fails
+    console.error('⚠️ Error in post-save middleware:', error);
+    // Don't throw error - booking should succeed even if email/review fails
   }
   
   if (next) next();
@@ -511,6 +596,27 @@ bookingSchema.statics.findPastBookings = function(userId) {
     'bookingDetails.date': { $lt: now }
   })
   .sort({ 'bookingDetails.date': -1 })
+  .populate('userId', 'name email phone');
+};
+
+// Find bookings that are pending review (completed/cancelled/no_show but not reviewed)
+bookingSchema.statics.findPendingReviewBookings = function(userId) {
+  return this.find({
+    userId,
+    status: { $in: ['completed', 'cancelled', 'no_show'] },
+    'reviewDetails.reviewSubmittedAt': null
+  })
+  .sort({ updatedAt: -1 })
+  .populate('userId', 'name email phone');
+};
+
+// Find booking by review token (for email link verification)
+bookingSchema.statics.findByReviewToken = function(token) {
+  return this.findOne({
+    'reviewDetails.reviewToken': token,
+    'reviewDetails.reviewTokenExpiry': { $gt: new Date() }
+  })
+  .select('+reviewDetails.reviewToken')
   .populate('userId', 'name email phone');
 };
 

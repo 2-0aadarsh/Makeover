@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import PropTypes from "prop-types";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * TimeSlotModal Component
@@ -24,13 +25,7 @@ const TimeSlotModal = ({
     selectedTimeSlot || ""
   );
 
-  // Handle body overflow when modal opens/closes (same as ServiceModal)
-  useEffect(() => {
-    const body = document.querySelector("body");
-    body.style.overflowY = "hidden";
-
-    return () => (body.style.overflowY = "scroll");
-  }, []);
+  useBodyScrollLock(!!isOpen);
 
   // Reset temp selection when modal opens
   useEffect(() => {
@@ -86,7 +81,7 @@ const TimeSlotModal = ({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center ${
+      className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden overscroll-contain ${
         !isOpen ? "hidden" : ""
       }`}
     >

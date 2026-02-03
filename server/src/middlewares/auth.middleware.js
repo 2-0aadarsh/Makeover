@@ -126,6 +126,67 @@ const checkAuth = async (req, res, next) => {
 // Alias for checkAuth to match the expected name
 const authenticateToken = checkAuth;
 
+/**
+ * Optional authentication middleware
+ * Attaches user info if available but doesn't fail if not authenticated
+ * Useful for routes that work both for authenticated and unauthenticated users
+ */
+const optionalAuth = async (req, res, next) => {
+  try {
+    const accessToken = req.cookies?.accessToken;
+    const refreshToken = req.cookies?.refreshToken;
+
+    // No tokens, continue without user
+    if (!accessToken && !refreshToken) {
+      req.user = null;
+      return next();
+    }
+
+    // Try to verify access token
+    if (accessToken) {
+      try {
+        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+        req.user = decoded;
+        return next();
+      } catch (err) {
+        if (err.name !== "TokenExpiredError") {
+          // Invalid token, continue without user
+          req.user = null;
+          return next();
+        }
+      }
+    }
+
+    // Try refresh token if access token missing or expired
+    if (refreshToken) {
+      try {
+        const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        
+        const newAccessToken = generateAccessToken(
+          { id: decodedRefresh.id, name: decodedRefresh.name, role: decodedRefresh.role, email: decodedRefresh.email },
+          "15m"
+        );
+        
+        setAuthAccessCookie(res, newAccessToken);
+        req.user = decodedRefresh;
+        return next();
+      } catch (refreshErr) {
+        // Invalid refresh token, continue without user
+        req.user = null;
+        return next();
+      }
+    }
+
+    // Default: no user
+    req.user = null;
+    next();
+  } catch (err) {
+    // On any error, continue without user
+    req.user = null;
+    next();
+  }
+};
+
 // Admin role middleware
 const requireAdmin = async (req, res, next) => {
   if (!req.user) {
@@ -165,4 +226,4 @@ const requireAdmin = async (req, res, next) => {
   next();
 };
 
-export { validateSignup, validateLogin, checkAuth, authenticateToken, requireAdmin };
+export { validateSignup, validateLogin, checkAuth, authenticateToken, requireAdmin, optionalAuth };

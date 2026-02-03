@@ -42,7 +42,7 @@ const AuthPromptModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 overflow-hidden overscroll-contain">
       <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <button
           onClick={onClose}

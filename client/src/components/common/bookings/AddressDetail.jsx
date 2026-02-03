@@ -426,7 +426,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
 
       {/* Address Form Modal - Responsive */}
       {showAddressForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-hidden overscroll-contain">
           <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 flex justify-between items-center">
@@ -718,7 +718,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
 
       {/* Saved Addresses Modal - Responsive */}
       {showSavedAddresses && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-hidden overscroll-contain">
           <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 flex justify-between items-center">
               <h2 className="text-lg sm:text-xl font-bold text-gray-800">
@@ -845,7 +845,7 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
         </div>
       )}
       {addressPendingDelete && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 overflow-hidden overscroll-contain">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
             <div className="bg-gradient-to-r from-[#CC2B52] to-[#A91D3A] p-5 text-white">
               <h3 className="text-lg font-semibold">Delete Address</h3>

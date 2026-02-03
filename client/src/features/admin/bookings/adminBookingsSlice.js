@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchAllBookings, fetchBookingById } from './adminBookingsThunks';
+import { fetchAllBookings, fetchBookingById, updateBookingStatus } from './adminBookingsThunks';
 
 const initialState = {
   bookings: [],
@@ -26,6 +26,8 @@ const initialState = {
   bookingDetails: null,
   detailsLoading: false,
   detailsError: null,
+  statusUpdateLoading: false,
+  statusUpdateError: null,
   // Search and filter state
   searchQuery: '',
   statusFilter: '',
@@ -107,6 +109,23 @@ const adminBookingsSlice = createSlice({
         state.detailsLoading = false;
         state.detailsError = action.payload || action.error.message;
         state.bookingDetails = null;
+      })
+
+      // Update Booking Status
+      .addCase(updateBookingStatus.pending, (state) => {
+        state.statusUpdateLoading = true;
+        state.statusUpdateError = null;
+      })
+      .addCase(updateBookingStatus.fulfilled, (state, action) => {
+        state.statusUpdateLoading = false;
+        state.statusUpdateError = null;
+        if (action.payload?.data && state.bookingDetails?.id === action.payload.data.id) {
+          state.bookingDetails.status = action.payload.data.status;
+        }
+      })
+      .addCase(updateBookingStatus.rejected, (state, action) => {
+        state.statusUpdateLoading = false;
+        state.statusUpdateError = action.payload || action.error.message;
       });
   },
 });

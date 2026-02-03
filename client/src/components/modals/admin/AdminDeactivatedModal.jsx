@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useCallback } from "react";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * AdminDeactivatedModal - Custom modal for displaying admin deactivation message
@@ -8,18 +9,10 @@ import { useEffect, useRef, useCallback } from "react";
 const AdminDeactivatedModal = ({ isOpen, onClose, onRedirect }) => {
   const okButtonRef = useRef(null);
 
+  useBodyScrollLock(!!isOpen);
+
   useEffect(() => {
-    if (isOpen) {
-      const body = document.querySelector("body");
-      body.style.overflowY = "hidden";
-
-      // Set initial focus to the "OK" button for accessibility
-      okButtonRef.current?.focus();
-
-      return () => {
-        body.style.overflowY = "scroll";
-      };
-    }
+    if (isOpen) okButtonRef.current?.focus();
   }, [isOpen]);
 
   // Handle escape key
@@ -50,7 +43,7 @@ const AdminDeactivatedModal = ({ isOpen, onClose, onRedirect }) => {
   return (
     <div
       onClick={handleRedirect}
-      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-[9999]"
+      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-[9999] overflow-hidden overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="admin-deactivated-title"

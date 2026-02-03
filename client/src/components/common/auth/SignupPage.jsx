@@ -23,6 +23,7 @@ const SignupPage = () => {
     confirmPassword: "",
   });
   const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Input handler
   const handleInputChange = ({ target: { id, value } }) => {
@@ -39,6 +40,7 @@ const SignupPage = () => {
     // Client-side validation
     if (!formData.phoneNumber.trim()) {
       setFormError("Phone number is required.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -48,6 +50,7 @@ const SignupPage = () => {
       setFormError(
         "Phone number must be 10 digits starting with 6, 7, 8, or 9"
       );
+      setIsSubmitting(false);
       return;
     }
 
@@ -59,16 +62,19 @@ const SignupPage = () => {
       setFormError(
         "Password must be at least 8 characters with uppercase, number, and special character"
       );
+      setIsSubmitting(false);
       return;
     }
 
     // Check password match
     if (formData.password !== formData.confirmPassword) {
       setFormError("Passwords do not match");
+      setIsSubmitting(false);
       return;
     }
 
     setFormError("");
+    setIsSubmitting(true); // Set local loading state immediately
     console.log("📝 Submitting signup with data:", {
       ...formData,
       password: "***",
@@ -78,7 +84,7 @@ const SignupPage = () => {
     dispatch(signupUser(formData));
   };
 
-  // react to signup success
+  // react to signup success or failure
   useEffect(() => {
     console.log("🔄 Signup success changed:", signupSuccess);
     if (signupSuccess) {
@@ -91,11 +97,17 @@ const SignupPage = () => {
         confirmPassword: "",
       });
       setFormError("");
+      setIsSubmitting(false); // Clear loading state on success
       navigate("/auth/verify-email");
       console.log("🧭 Navigation to /auth/verify-email initiated");
       // Don't reset auth state here - let the verify-email page handle it on unmount
     }
-  }, [signupSuccess, navigate]);
+    
+    // Clear loading state when there's an error
+    if (status === "failed") {
+      setIsSubmitting(false);
+    }
+  }, [signupSuccess, status, navigate]);
 
   // Static content
   const inputData = [
@@ -147,9 +159,9 @@ const SignupPage = () => {
             formData={formData}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
-            buttonText={status === "loading" ? "Signing Up..." : "Sign Up"}
+            buttonText={isSubmitting ? "Signing Up..." : "Sign Up"}
             error={formError || error}
-            isLoading={status === "loading"}
+            isLoading={isSubmitting}
           />
 
           <div className="mt-6 lg:mt-8">

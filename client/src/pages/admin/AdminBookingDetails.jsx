@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBookingById } from "../../features/admin/bookings/adminBookingsThunks";
+import toast from "react-hot-toast";
+import { fetchBookingById, updateBookingStatus } from "../../features/admin/bookings/adminBookingsThunks";
 import Loader from "../../components/common/Loader/loader.jsx";
+import Select from "../../components/ui/Select.jsx";
 
 /**
  * AdminBookingDetails - Admin page for viewing detailed booking information
@@ -13,9 +15,23 @@ const AdminBookingDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { bookingDetails, detailsLoading, detailsError } = useSelector(
-    (state) => state.adminBookings
-  );
+  const {
+    bookingDetails,
+    detailsLoading,
+    detailsError,
+    statusUpdateLoading,
+    statusUpdateError,
+  } = useSelector((state) => state.adminBookings);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [adminNote, setAdminNote] = useState("");
+
+  // Sync selected status when booking details load
+  useEffect(() => {
+    if (bookingDetails?.status) {
+      setSelectedStatus(bookingDetails.status);
+    }
+  }, [bookingDetails?.status]);
 
   // Fetch booking details on mount
   useEffect(() => {
@@ -60,9 +76,17 @@ const AdminBookingDetails = () => {
         text: "Confirmed",
         className: "bg-blue-500 text-white",
       },
+      in_progress: {
+        text: "In Progress",
+        className: "bg-blue-400 text-white",
+      },
       cancelled: {
         text: "Cancelled",
         className: "bg-red-500 text-white",
+      },
+      no_show: {
+        text: "No Show",
+        className: "bg-orange-500 text-white",
       },
     };
 
@@ -202,6 +226,87 @@ const AdminBookingDetails = () => {
           </div>
           <div>{getStatusBadge(status)}</div>
         </div>
+      </div>
+
+      {/* Update Status Section */}
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h3
+          className="text-xl font-bold mb-4 font-sans"
+          style={{
+            fontSize: "22px",
+            fontWeight: 700,
+            color: "#292D32",
+          }}
+        >
+          Update Booking Status
+        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4 flex-wrap">
+          <div className="flex flex-col gap-1 min-w-[200px] flex-1 sm:flex-initial">
+            <label className="text-sm font-medium text-gray-700 shrink-0">Status</label>
+            <Select
+              showLabel={false}
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              options={[
+                { value: "pending", label: "Pending" },
+                { value: "confirmed", label: "Confirmed" },
+                { value: "in_progress", label: "In Progress" },
+                { value: "completed", label: "Completed" },
+                { value: "cancelled", label: "Cancelled" },
+                { value: "no_show", label: "No Show" },
+              ]}
+              placeholder="Select status"
+              labelClassName="text-sm font-medium text-gray-700"
+            />
+          </div>
+          <div className="flex flex-col gap-1 flex-1 min-w-[200px] max-w-md">
+            <label className="text-sm font-medium text-gray-700 shrink-0">
+              Admin note (optional)
+            </label>
+            <textarea
+              value={adminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
+              placeholder="Add a note for this status change..."
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#CC2B52]/20 focus:border-[#CC2B52] resize-y min-h-[44px]"
+            />
+          </div>
+          <div className="flex flex-col gap-1 shrink-0">
+            <span className="block text-sm font-medium text-gray-700 h-5 shrink-0 invisible select-none" aria-hidden="true">
+              Update
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                if (!selectedStatus) {
+                  toast.error("Please select a status");
+                  return;
+                }
+                dispatch(
+                  updateBookingStatus({
+                    bookingId: bookingDetails.id || id,
+                    status: selectedStatus,
+                    adminNote: adminNote.trim() || undefined,
+                  })
+                ).then((result) => {
+                  if (result.meta?.requestStatus === "fulfilled") {
+                    toast.success("Booking status updated successfully");
+                    setAdminNote("");
+                  } else if (result.meta?.requestStatus === "rejected") {
+                    toast.error(result.payload || "Failed to update status");
+                  }
+                });
+              }}
+              disabled={statusUpdateLoading || !selectedStatus || selectedStatus === status}
+              className="px-6 py-2.5 bg-[#CC2B52] text-white rounded-lg hover:bg-[#CC2B52]/90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm transition-colors whitespace-nowrap h-[44px] flex items-center justify-center"
+            >
+              {statusUpdateLoading ? "Updating..." : "Update Status"}
+            </button>
+          </div>
+        </div>
+        {statusUpdateError && (
+          <p className="mt-3 text-sm text-red-600">{statusUpdateError}</p>
+        )}
       </div>
 
       {/* Booking Details Section */}

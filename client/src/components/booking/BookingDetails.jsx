@@ -590,6 +590,28 @@ const BookingDetails = ({
                   )}
                 </div>
 
+                {/* Review Section - Show if review has been submitted */}
+                {booking.reviewDetails?.reviewSubmittedAt && (
+                  <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-gray-900">
+                          Your Review
+                        </h4>
+                        <button
+                          onClick={() => navigate("/my-reviews")}
+                          className="text-xs text-[#CC2B52] hover:text-[#B02547] font-medium hover:underline"
+                        >
+                          View All Reviews →
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        Thank you for sharing your feedback! You can view and manage all your reviews on the My Reviews page.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Help Information */}
                 <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                   <p className="text-xs text-gray-500 text-center">

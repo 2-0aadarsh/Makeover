@@ -1,6 +1,8 @@
 import Review from '../../models/review.model.js';
 import { User } from '../../models/user.model.js';
 import Booking from '../../models/booking.model.js';
+import Notification from '../../models/notification.model.js';
+import { sendComplaintResponseEmail } from '../../services/email.service.js';
 import mongoose from 'mongoose';
 
 /**
@@ -36,8 +38,8 @@ export const getAllReviews = async (req, res) => {
       }
     }
 
-    // Status filter (for complaints)
-    if (status && ['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
+    // Status filter (reviews: also published/hidden; complaints: pending/reviewed/resolved/dismissed)
+    if (status && ['pending', 'reviewed', 'resolved', 'dismissed', 'published', 'hidden'].includes(status)) {
       query.status = status;
     }
 
@@ -89,18 +91,26 @@ export const getAllReviews = async (req, res) => {
     // Format reviews for response
     const formattedReviews = reviews.map(review => ({
       id: review._id,
+      _id: review._id,
       customerName: review.customerDetails?.name || review.userId?.name || 'N/A',
+      customerEmail: review.customerDetails?.email || review.userId?.email || '',
       customer: review.userId ? {
         name: review.userId.name,
         email: review.userId.email,
         phoneNumber: review.userId.phoneNumber,
       } : null,
       serviceName: review.serviceName || 'N/A',
+      orderNumber: review.orderNumber || review.bookingId?.orderNumber || 'N/A',
       rating: review.rating,
       comment: review.comment || 'No comment',
       feedback: review.comment,
-      type: review.type,
-      status: review.status,
+      type: review.type || 'review',
+      status: review.status || 'pending',
+      complaintCategory: review.complaintCategory,
+      adminResponse: review.adminResponse,
+      respondedAt: review.respondedAt,
+      isEdited: review.isEdited,
+      editedAt: review.editedAt,
       createdAt: review.createdAt,
       submittedAt: review.createdAt,
       booking: review.bookingId ? {
@@ -108,17 +118,38 @@ export const getAllReviews = async (req, res) => {
       } : null,
     }));
 
+    // Calculate filter stats (counts across all reviews/complaints, not filtered)
+    const positiveCount = await Review.countDocuments({ type: 'review', rating: { $gte: 4 } });
+    // Negative: reviews with 1–2 stars OR complaints (complaints have no rating but are negative feedback)
+    const negativeCount = await Review.countDocuments({
+      $or: [
+        { type: 'review', rating: { $gte: 1, $lte: 2 } },
+        { type: 'complaint' },
+      ],
+    });
+    const pendingCount = await Review.countDocuments({ status: 'pending' });
+
     res.status(200).json({
       success: true,
       message: 'Reviews retrieved successfully',
-      data: formattedReviews,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalItems: totalReviews,
-        itemsPerPage: limit,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
+      data: {
+        reviews: formattedReviews,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalReviews,
+          totalItems: totalReviews,
+          limit,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        filters: {
+          totalReviews,
+          positive: positiveCount,
+          negative: negativeCount,
+          pending: pendingCount,
+        },
       },
     });
   } catch (error) {
@@ -177,7 +208,7 @@ export const getReviewById = async (req, res) => {
 
 /**
  * @route   PATCH /api/admin/reviews/:id/status
- * @desc    Update review/complaint status
+ * @desc    Update review/complaint status and optionally respond
  * @access  Admin only
  */
 export const updateReviewStatus = async (req, res) => {
@@ -192,8 +223,20 @@ export const updateReviewStatus = async (req, res) => {
       });
     }
 
+    // Get the review first to check if it's a complaint
+    const existingReview = await Review.findById(id);
+    if (!existingReview) {
+      return res.status(404).json({
+        success: false,
+        message: 'Review not found',
+      });
+    }
+
     const updateData = {};
-    if (status && ['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
+    const complaintStatuses = ['pending', 'reviewed', 'resolved', 'dismissed'];
+    const reviewStatuses = [...complaintStatuses, 'published', 'hidden'];
+    const allowedStatuses = existingReview.type === 'complaint' ? complaintStatuses : reviewStatuses;
+    if (status && allowedStatuses.includes(status)) {
       updateData.status = status;
     }
     if (adminResponse !== undefined) {
@@ -212,11 +255,50 @@ export const updateReviewStatus = async (req, res) => {
       .populate('userId', 'name email phoneNumber')
       .lean();
 
-    if (!review) {
-      return res.status(404).json({
-        success: false,
-        message: 'Review not found',
-      });
+    // Create notification for user if this is a complaint and status changed
+    if (existingReview.type === 'complaint' && existingReview.userId && status) {
+      try {
+        await Notification.createComplaintResponse(
+          existingReview.userId,
+          { ...existingReview.toObject(), ...updateData },
+          status
+        );
+        
+        // Update review to mark user as notified
+        await Review.findByIdAndUpdate(id, {
+          userNotifiedOfResponse: true,
+          userNotifiedAt: new Date(),
+        });
+        
+        console.log(`🔔 Complaint response notification created for user`);
+      } catch (notifError) {
+        console.error('Failed to create complaint response notification:', notifError);
+        // Don't fail the request if notification fails
+      }
+    }
+
+    // Send complaint response email to user when admin has added a reply
+    if (existingReview.type === 'complaint' && review.adminResponse && review.userId) {
+      const customerEmail = review.userId.email || review.userId?.email;
+      if (customerEmail) {
+        setImmediate(async () => {
+          try {
+            await sendComplaintResponseEmail({
+              customerEmail,
+              customerName: review.userId.name || review.userId?.name,
+              orderNumber: review.orderNumber,
+              serviceName: review.serviceName,
+              complaintCategory: review.complaintCategory,
+              userComment: review.comment,
+              adminResponse: review.adminResponse,
+              status: review.status,
+            });
+            console.log(`📧 Complaint response email sent to ${customerEmail}`);
+          } catch (emailErr) {
+            console.error('Failed to send complaint response email:', emailErr);
+          }
+        });
+      }
     }
 
     res.status(200).json({
@@ -229,6 +311,46 @@ export const updateReviewStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'An error occurred while updating review status',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @route   GET /api/admin/reviews/stats
+ * @desc    Get review and complaint statistics
+ * @access  Admin only
+ */
+export const getReviewStats = async (req, res) => {
+  try {
+    const stats = await Review.getReviewStats();
+    
+    // Calculate additional metrics
+    const totalReviews = await Review.countDocuments({ type: 'review' });
+    const totalComplaints = await Review.countDocuments({ type: 'complaint' });
+    const pendingComplaints = await Review.countDocuments({ type: 'complaint', status: 'pending' });
+    const avgRating = await Review.aggregate([
+      { $match: { rating: { $ne: null } } },
+      { $group: { _id: null, avg: { $avg: '$rating' } } }
+    ]);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Review statistics retrieved successfully',
+      data: {
+        totalReviews,
+        totalComplaints,
+        pendingComplaints,
+        averageRating: avgRating[0]?.avg?.toFixed(1) || 0,
+        typeStats: stats.typeStats,
+        complaintStatusStats: stats.complaintStatusStats,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching review stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching review statistics',
       error: error.message,
     });
   }

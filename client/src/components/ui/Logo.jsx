@@ -1,9 +1,28 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 // import LogoImg from "../../assets/Logo/Logo.png";
 import LogoImg from "../../assets/Logo/M1.svg";
+import { fetchPublicSiteSettings } from "../../features/admin/siteSettings/siteSettingsThunks";
 
 const Logo = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { publicSettings } = useSelector((state) => state.adminSiteSettings);
+  
+  const [logoUrl, setLogoUrl] = useState(LogoImg);
+
+  // Fetch site settings for logo
+  useEffect(() => {
+    dispatch(fetchPublicSiteSettings());
+  }, [dispatch]);
+
+  // Update logo when settings are loaded
+  useEffect(() => {
+    if (publicSettings?.branding?.primaryLogo) {
+      setLogoUrl(publicSettings.branding.primaryLogo || LogoImg);
+    }
+  }, [publicSettings]);
 
   const handleLogoClick = () => {
     navigate("/");

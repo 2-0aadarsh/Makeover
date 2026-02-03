@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import GImage1 from "../../../assets/Gallery/quick.svg";
+import GImage1 from "../../../assets/Gallery/GImage1.svg";
 import GImage2 from "../../../assets/Gallery/bridal.svg";
 import GImage3 from "../../../assets/Gallery/Mehendi.svg";
 import SectionTitle from "../../ui/SectionTitle";
 import Button from "../../ui/Button";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { fetchPublicSiteSettings } from "../../../features/admin/siteSettings/siteSettingsThunks";
 
-const tabData = [
+const defaultTabData = [
   {
     title: "Quick Grooming",
     image: GImage1,
@@ -26,35 +28,76 @@ const tabData = [
 ];
 
 const GalleryPage = () => {
+  const dispatch = useDispatch();
+  const { publicSettings } = useSelector((state) => state.adminSiteSettings);
+  
   const [activeIndex, setActiveIndex] = useState(0);
+  // Start empty so we never show inactive/default tabs before API returns; only show API slides
+  const [tabData, setTabData] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Fetch site settings for gallery slides on mount and when page becomes visible
+  useEffect(() => {
+    dispatch(fetchPublicSiteSettings());
+  }, [dispatch]);
 
   useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        dispatch(fetchPublicSiteSettings());
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [dispatch]);
+
+  // Update gallery slides when settings are loaded (dynamic: any number including 0)
+  useEffect(() => {
+    if (publicSettings?.gallery) {
+      setHasLoaded(true);
+      const slides = publicSettings.gallery.slides || [];
+      setTabData(slides.map((slide, index) => ({
+        title: slide.title,
+        image: slide.imageUrl || defaultTabData[index]?.image || GImage1,
+        description: slide.description || defaultTabData[index]?.description || '',
+      })));
+      setActiveIndex(0);
+    }
+  }, [publicSettings]);
+
+  // Auto-rotate only when we have more than one slide
+  useEffect(() => {
+    if (tabData.length <= 1) return;
     const interval = setInterval(() => {
       setActiveIndex((prevIndex) => (prevIndex + 1) % tabData.length);
     }, 5000);
-
     return () => clearInterval(interval);
-  }, []);
+  }, [tabData.length]);
 
   return (
     <section
       id="gallery"
-      className="w-full py-4 sm:py-6 md:py-8 lg:py-[60px] px-4 sm:px-8 md:px-12 lg:px-20"
+      className="w-full py-8 sm:py-12 lg:py-16 px-4 sm:px-6 md:px-10 lg:px-20 flex flex-col gap-8 sm:gap-12 lg:gap-16"
     >
-      <div className="flex flex-col gap-8 sm:gap-12 lg:gap-20 items-start">
-        {/* First Container: Heading Section */}
-        <div className="w-full flex flex-col items-start justify-between gap-3">
-          <SectionTitle title="Wemakeover Gallery" />
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] leading-tight sm:leading-relaxed lg:leading-[62.4px] text-[#212121] font-sans font-normal">
-            We have created amazing stories for our customers!
-          </h2>
-          <p className="text-sm sm:text-base lg:text-[18px] text-[#6E6E6E] font-normal leading-relaxed lg:leading-7 font-sans">
-            100% Satisfaction Rate. We always want you to look fabulous and
-            thrive to be the best.
+      {/* First Container: Section Title */}
+      <SectionTitle title="Stories that inspire us" />
+
+      {/* Loading State */}
+      {!hasLoaded ? (
+        <div className="w-full flex flex-col items-center justify-center py-16 px-6 bg-[#F7EBEE] rounded-xl border border-gray-200 min-h-[400px]">
+          <div className="animate-pulse w-full max-w-[300px] h-[400px] bg-gray-200 rounded-lg" />
+          <p className="text-gray-500 text-sm mt-4">Loading gallery...</p>
+        </div>
+      ) : hasLoaded && tabData.length === 0 ? (
+        /* Empty State */
+        <div className="w-full flex flex-col items-center justify-center py-16 px-6 bg-[#F7EBEE] rounded-xl border border-gray-200">
+          <p className="text-gray-600 text-center text-lg font-medium">No gallery images at the moment.</p>
+          <p className="text-gray-500 text-sm mt-2 text-center max-w-md">
+            Check back soon for our latest work and stories.
           </p>
         </div>
-
-        {/* Second Container: Split Section - Responsive Layout */}
+      ) : (
+        /* Gallery Content */
         <div className="w-full min-h-[400px] sm:min-h-[500px] lg:h-[847px] flex flex-col lg:flex-row gap-6 lg:gap-6">
           {/* Left Section - Mobile: Full width, Desktop: 1/3 */}
           <div className="flex flex-col items-center justify-between w-full lg:w-1/3 gap-8 sm:gap-12 lg:gap-20">
@@ -75,14 +118,14 @@ const GalleryPage = () => {
               ))}
             </div>
 
-            {/* Content and Button - Responsive - Hidden on mobile, shown on desktop */}
+            {/* Content and Button - Hidden on mobile, shown on desktop */}
             <div className="hidden lg:flex flex-col justify-between gap-16">
               <div className="font-normal font-sans text-[18px] leading-[36px]">
                 <p>
                   Transform your look and boost your confidence with our premium
                   at home. Wemakeover and makeup services. Whether it&#39;s a
-                  glam evening look, bridal makeup, or a flawless everyday glow
-                  , our professional artists bring the salon experience to your
+                  glam evening look, bridal makeup, or a flawless everyday glow,
+                  our professional artists bring the salon experience to your
                   doorstep, using top-quality products and personalized
                   technique. Ready to feel your best without stepping out? Tap
                   the button above to enquire now.
@@ -105,57 +148,45 @@ const GalleryPage = () => {
           <div className="w-full lg:w-2/3 bg-[#F7EBEE] p-4 sm:p-6 md:p-8 lg:p-12 flex items-center justify-center">
             <div className="w-full max-w-[500px] lg:max-w-none h-full relative overflow-hidden shadow-lg">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={tabData[activeIndex].title}
-                  className="w-full h-full flex items-center justify-center"
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.8, ease: "easeInOut" }}
-                >
-                  {/* Consistent Portrait Image Container */}
-                  <div className="w-full aspect-[3/4] max-h-[500px] lg:max-h-[600px] xl:max-h-[700px] relative overflow-hidden">
-                    <img
-                      src={tabData[activeIndex].image}
-                      alt={tabData[activeIndex].title}
-                      className="w-full h-full object-cover object-center"
-                      // Force portrait orientation for all images
-                      style={{
-                        objectPosition: "center top", // Adjust this based on your images
-                      }}
-                    />
-                  </div>
-                </motion.div>
+                {tabData.length > 0 && tabData[activeIndex] && (
+                  <motion.div
+                    key={tabData[activeIndex].title}
+                    className="w-full h-full flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                  >
+                    {/* Consistent Portrait Image Container */}
+                    <div className="w-full aspect-[3/4] max-h-[500px] lg:max-h-[600px] xl:max-h-[700px] relative overflow-hidden">
+                      <img
+                        src={tabData[activeIndex].image}
+                        alt={tabData[activeIndex].title}
+                        className="w-full h-full object-cover object-center"
+                        onError={(e) => {
+                          const defaultImage = defaultTabData[activeIndex]?.image || GImage1;
+                          e.target.src = defaultImage;
+                        }}
+                        style={{ objectPosition: "center top" }}
+                      />
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
           </div>
-        </div>
 
-        {/* Mobile/Tablet: Content and Button Section - Shows below image on small screens */}
-        <div className="flex lg:hidden flex-col gap-8 sm:gap-12">
-          <div className="font-normal font-sans text-sm sm:text-base leading-relaxed">
-            <p>
-              Transform your look and boost your confidence with our premium
-              at-home Wemakeover and makeup services. Whether it&#39;s a glam
-              evening look, bridal makeup, or a flawless everyday glow, our
-              professional artists bring the salon experience to your doorstep,
-              using top-quality products and personalized technique. Ready to
-              feel your best without stepping out? Tap the button above to
-              enquire now.
-              <span className="font-semibold ml-1">
-                Your perfect Wemakeover is just a click away!
-              </span>
-            </p>
+          {/* Mobile CTA Button */}
+          <div className="lg:hidden w-full flex justify-center">
+            <Button
+              css="font-semibold text-xs sm:text-sm w-full sm:w-[85%]"
+              content="Get In Touch For Personal Assistance"
+              icon={<FaArrowRightLong />}
+              scrollTo="contact-us"
+            />
           </div>
-
-          <Button
-            css="font-semibold text-xs sm:text-sm w-full sm:w-[85%]"
-            content="Get In Touch For Personal Assistance"
-            icon={<FaArrowRightLong />}
-            scrollTo="contact-us"
-          />
         </div>
-      </div>
+      )}
     </section>
   );
 };

@@ -58,4 +58,16 @@ export const adminBookingsApi = {
   getBookingById: (bookingId) => {
     return adminBookingsApiInstance.get(`/${bookingId}`);
   },
+
+  /**
+   * Update booking status (admin only)
+   * @param {string} bookingId - Booking ID
+   * @param {Object} payload - { status, adminNote? }
+   * @param {string} payload.status - One of: pending, confirmed, in_progress, completed, cancelled, no_show
+   * @param {string} [payload.adminNote] - Optional admin note
+   * @returns {Promise} Updated booking data
+   */
+  updateBookingStatus: (bookingId, payload) => {
+    return adminBookingsApiInstance.patch(`/${bookingId}/status`, payload);
+  },
 };

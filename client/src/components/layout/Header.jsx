@@ -6,6 +6,7 @@ import Button from "../ui/Button";
 import ProfileButton from "../ui/ProfileButton";
 import CartButton from "../ui/CartButton";
 import LocationDisplay from "../ui/LocationDisplay";
+import NotificationBell from "../ui/NotificationBell";
 
 const Header = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -86,6 +87,9 @@ const Header = () => {
         {/* Cart Button - Always visible */}
         <CartButton />
 
+        {/* Notification Bell - Only for authenticated users */}
+        {isAuthenticated && <NotificationBell />}
+
         {/* Location Display + Profile/Login Button as single unit */}
         <div className="flex items-center gap-4">
           <LocationDisplay />
@@ -105,6 +109,9 @@ const Header = () => {
         {/* Cart Button - Always visible */}
         <CartButton />
 
+        {/* Notification Bell - Only for authenticated users */}
+        {isAuthenticated && <NotificationBell />}
+
         {/* Profile Button */}
         {isAuthenticated ? (
           <ProfileButton username={user.name} />
@@ -120,6 +127,9 @@ const Header = () => {
 
         {/* Cart Button - Always visible */}
         <CartButton />
+
+        {/* Notification Bell - Only for authenticated users */}
+        {isAuthenticated && <NotificationBell />}
 
         {/* Profile Button */}
         {isAuthenticated ? (

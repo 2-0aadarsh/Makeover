@@ -39,6 +39,10 @@ const BookingsTable = ({ bookings = [], onBookingClick }) => {
         text: "In Progress",
         className: "bg-blue-400 text-white",
       },
+      no_show: {
+        text: "No Show",
+        className: "bg-orange-500 text-white",
+      },
     };
 
     const config = statusConfig[status?.toLowerCase()] || statusConfig.pending;

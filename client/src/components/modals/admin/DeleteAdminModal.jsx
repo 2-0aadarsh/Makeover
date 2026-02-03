@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useCallback } from "react";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * DeleteAdminModal - Custom confirmation modal for deleting admins
@@ -9,14 +10,10 @@ const DeleteAdminModal = ({ adminName, onConfirm, onCancel }) => {
   const noButtonRef = useRef(null);
   const yesButtonRef = useRef(null);
 
+  useBodyScrollLock(true);
+
   useEffect(() => {
-    const body = document.querySelector("body");
-    body.style.overflowY = "hidden";
-
-    // Set initial focus to the "No" button for accessibility
     noButtonRef.current?.focus();
-
-    return () => (body.style.overflowY = "scroll");
   }, []);
 
   // Trap focus between No and Yes buttons with Tab/Shift+Tab
@@ -55,7 +52,7 @@ const DeleteAdminModal = ({ adminName, onConfirm, onCancel }) => {
   return (
     <div
       onClick={onCancel}
-      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 overflow-hidden overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-admin-title"

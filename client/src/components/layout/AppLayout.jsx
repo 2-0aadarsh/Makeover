@@ -5,6 +5,7 @@ import ScrollToTop from "../../provider/ScrollToTop";
 import Footer from "./Footer";
 import Header from "./Header";
 import { Outlet, ScrollRestoration } from "react-router-dom";
+import ReviewToast from "../notifications/ReviewToast";
 
 /**
  * AppLayout - Layout for user-facing pages
@@ -51,6 +52,9 @@ const AppLayout = () => {
         <Outlet />
       </main>
       <Footer />
+
+      {/* Toast notifications for pending reviews - only for authenticated users */}
+      {isAuthenticated && <ReviewToast />}
 
       <ScrollRestoration />
     </div>

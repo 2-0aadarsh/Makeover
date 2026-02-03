@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import PropTypes from "prop-types";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * Calendar Component
@@ -21,13 +22,7 @@ const Calendar = ({
   availableDates = [], // Array of available dates in 'YYYY-MM-DD' format
   unavailableDates = [], // Array of unavailable dates in 'YYYY-MM-DD' format
 }) => {
-  // Handle body overflow when modal opens/closes (same as ServiceModal)
-  useEffect(() => {
-    const body = document.querySelector("body");
-    body.style.overflowY = "hidden";
-
-    return () => (body.style.overflowY = "scroll");
-  }, []);
+  useBodyScrollLock(!!isOpen);
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -178,7 +173,7 @@ const Calendar = ({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center ${
+      className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden overscroll-contain ${
         !isOpen ? "hidden" : ""
       }`}
     >

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
+import useBodyScrollLock from '../hooks/useBodyScrollLock';
 import { 
   getUserAddresses, 
   createAddress, 
@@ -29,6 +30,8 @@ const AddressManagement = () => {
     addressType: 'home',
     isDefault: false
   });
+
+  useBodyScrollLock(isLoading);
 
   // Load addresses on component mount
   useEffect(() => {
@@ -437,7 +440,7 @@ const AddressManagement = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden overscroll-contain">
             <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
               <div className="w-6 h-6 border-2 border-[#CC2B52] border-t-transparent rounded-full animate-spin"></div>
               <span className="text-gray-700">Loading addresses...</span>

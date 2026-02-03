@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEnquiry from "../../hooks/useEnquiry";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 import {
   X,
   CheckCircle,
@@ -88,20 +89,10 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
     },
   };
 
-  // Lock body scroll when modal is open
+  useBodyScrollLock(!!isOpen);
   useEffect(() => {
     if (isOpen) {
-      const body = document.querySelector("body");
-      body.style.overflowY = "hidden";
-
-      // Focus first input when modal opens
-      setTimeout(() => {
-        firstInputRef.current?.focus();
-      }, 100);
-
-      return () => {
-        body.style.overflowY = "scroll";
-      };
+      setTimeout(() => firstInputRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
@@ -154,7 +145,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
       <motion.div
         key="enquiry-modal-overlay"
         onClick={handleBackdropClick}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[60] p-4"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[60] p-4 overflow-hidden overscroll-contain"
         role="dialog"
         aria-modal="true"
         aria-labelledby="enquiry-modal-title"

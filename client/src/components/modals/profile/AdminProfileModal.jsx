@@ -47,7 +47,9 @@ const AdminProfileModal = ({ username, onClose }) => {
 
   // Additional links that only appear in profile modal (not in header)
   const profileOnlyLinks = [
+    { to: "/admin/cities", label: "Cities" },
     { to: "/admin/admins", label: "Admin Management" },
+    { to: "/admin/site-settings", label: "Site Settings" },
   ];
 
   const displayName = (() => {

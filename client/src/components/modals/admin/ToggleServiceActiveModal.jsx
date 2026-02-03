@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useCallback } from "react";
+import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * ToggleServiceActiveModal - Confirmation modal for toggling service active status
@@ -9,11 +10,9 @@ const ToggleServiceActiveModal = ({ serviceName, isActive, onConfirm, onCancel }
   const noButtonRef = useRef(null);
   const yesButtonRef = useRef(null);
 
+  useBodyScrollLock(true);
   useEffect(() => {
-    const body = document.querySelector("body");
-    body.style.overflowY = "hidden";
     noButtonRef.current?.focus();
-    return () => (body.style.overflowY = "scroll");
   }, []);
 
   const handleKeyDown = useCallback((e) => {
@@ -48,7 +47,7 @@ const ToggleServiceActiveModal = ({ serviceName, isActive, onConfirm, onCancel }
   return (
     <div
       onClick={onCancel}
-      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 overflow-hidden overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="toggle-service-active-title"

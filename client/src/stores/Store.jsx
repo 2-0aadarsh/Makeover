@@ -18,6 +18,10 @@ import AdminCategoriesReducer from "../features/admin/categories/adminCategories
 import AdminServicesReducer from "../features/admin/services/adminServicesSlice";
 import AdminReviewsReducer from "../features/admin/reviews/adminReviewsSlice";
 import AdminAdminsReducer from "../features/admin/admins/adminAdminsSlice";
+import AdminSiteSettingsReducer from "../features/admin/siteSettings/siteSettingsSlice";
+import ReviewsReducer from "../features/reviews/reviewsSlice";
+import NotificationsReducer from "../features/notifications/notificationsSlice";
+import TestimonialsReducer from "../features/testimonials/testimonialsSlice";
 
 // Redux Persist Configuration
 const persistConfig = {
@@ -35,6 +39,9 @@ const rootReducer = combineReducers({
   address: AddressReducer,
   booking: BookingReducer,
   serviceability: ServiceabilityReducer,
+  reviews: ReviewsReducer,
+  notifications: NotificationsReducer,
+  testimonials: TestimonialsReducer,
   adminDashboard: AdminDashboardReducer,
   adminBookings: AdminBookingsReducer,
   adminCustomers: AdminCustomersReducer,
@@ -43,6 +50,7 @@ const rootReducer = combineReducers({
   adminServices: AdminServicesReducer,
   adminReviews: AdminReviewsReducer,
   adminAdmins: AdminAdminsReducer,
+  adminSiteSettings: AdminSiteSettingsReducer,
 });
 
 // Persisted reducer

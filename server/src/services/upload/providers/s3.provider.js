@@ -56,6 +56,7 @@ class S3Provider extends ImageUploadService {
       '.png': 'image/png',
       '.gif': 'image/gif',
       '.webp': 'image/webp',
+      '.svg': 'image/svg+xml',
       '.pdf': 'application/pdf',
       '.mp4': 'video/mp4',
       '.mov': 'video/quicktime',

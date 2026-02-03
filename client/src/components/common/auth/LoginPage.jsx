@@ -21,6 +21,7 @@ const LoginPage = () => {
   );
 
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = ({ target: { id, value } }) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -28,6 +29,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true); // Set local loading state immediately
     dispatch(loginUser(formData));
   };
 
@@ -43,6 +45,7 @@ const LoginPage = () => {
       if (user.role) {
         toast.success("Login successful");
         setFormData({ email: "", password: "" });
+        setIsSubmitting(false); // Clear loading state on success
 
         // Check user role and redirect accordingly
         if (user.role === "admin") {
@@ -56,8 +59,11 @@ const LoginPage = () => {
         console.log("⏳ Waiting for user role to be loaded...");
       }
     }
-    // Removed toast.error here - error is already displayed inline in FormSection
-    // This prevents duplicate error messages
+    
+    // Clear loading state when there's an error
+    if (status === "failed") {
+      setIsSubmitting(false);
+    }
   }, [status, error, isAuthenticated, user, navigate]);
 
   // Clear auth error when navigating away from login page
@@ -98,10 +104,10 @@ const LoginPage = () => {
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
             forgetPassword={handleForgotPassword}
-            buttonText={status === "loading" ? "Logging in..." : "Log in"}
-            disabled={status === "loading"}
+            buttonText={isSubmitting ? "Logging in..." : "Log in"}
+            disabled={isSubmitting}
             error={error}
-            isLoading={status === "loading"}
+            isLoading={isSubmitting}
           />
 
           <FormFooter

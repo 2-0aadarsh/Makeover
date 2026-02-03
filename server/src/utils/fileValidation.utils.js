@@ -7,8 +7,8 @@
  * - File extension validation
  */
 
-// Maximum file size: 5MB
-const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024; // 5MB in bytes
+// Maximum file size: 25MB
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE) || 25 * 1024 * 1024; // 25MB in bytes
 
 // Allowed image mimetypes
 const ALLOWED_MIMETYPES = [

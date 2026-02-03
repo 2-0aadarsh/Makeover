@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Star } from "lucide-react";
 
-const BookingCard = ({ booking, onClick }) => {
+const BookingCard = ({ booking, onClick, onWriteReview }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "Date not set";
     const date = new Date(dateString);
@@ -41,6 +42,11 @@ const BookingCard = ({ booking, onClick }) => {
   const isCancelled = booking.status === "cancelled";
   const isCompleted = booking.status === "completed";
   const isNoShow = booking.status === "no_show";
+  
+  // Check review status
+  const canBeReviewed = ["completed", "cancelled", "no_show"].includes(booking.status);
+  const hasReviewed = booking.reviewDetails?.reviewSubmittedAt != null;
+  const isPendingReview = canBeReviewed && !hasReviewed;
 
   return (
     <div
@@ -201,10 +207,45 @@ const BookingCard = ({ booking, onClick }) => {
             </div>
           </div>
 
-          {/* View Details Button */}
-          <div className="flex justify-end">
+          {/* Review Status Badge - Show only for completed/cancelled/no_show bookings */}
+          {canBeReviewed && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">Review:</span>
+                {hasReviewed ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <Star className="w-3 h-3 fill-current" />
+                    Reviewed
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                    <Star className="w-3 h-3" />
+                    Pending Review
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-2">
+            {/* Write Review Button - Only show if pending review */}
+            {isPendingReview && onWriteReview && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onWriteReview(booking);
+                }}
+                className="px-3 py-1 text-xs font-medium text-white bg-[#CC2B52] rounded-md hover:bg-[#B02547] focus:outline-none focus:ring-1 focus:ring-pink-500 flex items-center gap-1 transition-colors"
+              >
+                <Star className="w-3 h-3" />
+                Write Review
+              </button>
+            )}
+            
+            {/* View Details Button */}
             <button className="px-3 py-1 text-xs font-medium text-pink-600 border border-pink-300 rounded-md hover:bg-pink-50 focus:outline-none focus:ring-1 focus:ring-pink-500">
-              View Booking Details
+              View Details
             </button>
           </div>
         </div>
@@ -216,6 +257,7 @@ const BookingCard = ({ booking, onClick }) => {
 BookingCard.propTypes = {
   booking: PropTypes.object.isRequired,
   onClick: PropTypes.func,
+  onWriteReview: PropTypes.func,
 };
 
 export default BookingCard;

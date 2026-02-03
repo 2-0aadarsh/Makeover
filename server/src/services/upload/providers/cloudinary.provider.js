@@ -55,7 +55,7 @@ class CloudinaryProvider extends ImageUploadService {
       const result = await cloudinary.uploader.upload(tempFilePath, {
         folder: `wemakeover/${folder}`,
         resource_type: 'image',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'svg'],
         transformation: [
           { quality: 'auto', fetch_format: 'auto' }
         ]

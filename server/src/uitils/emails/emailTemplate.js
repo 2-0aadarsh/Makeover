@@ -2984,6 +2984,352 @@ const adminOnboardingEmailTemplate = (data) => {
 </html>`;
 };
 
+/**
+ * Review Request Email Template
+ * Sent to customers after their booking is completed/cancelled/no_show
+ * @param {Object} data - Review request data
+ * @param {string} data.customerName - Customer name
+ * @param {string} data.orderNumber - Order number
+ * @param {Array} data.services - Array of booked services
+ * @param {Date} data.bookingDate - Booking date
+ * @param {string} data.reviewToken - Secure token for review link
+ * @param {string} data.bookingStatus - completed, cancelled, or no_show
+ * @returns {string} HTML email template
+ */
+const reviewRequestEmailTemplate = (data) => {
+  const { customerName, orderNumber, services, bookingDate, reviewToken, bookingStatus } = data;
+  
+  const formattedDate = new Date(bookingDate).toLocaleDateString('en-IN', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  const servicesList = services.map(s => s.name).join(', ');
+  
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const reviewUrl = `${frontendUrl}/reviews/submit?token=${reviewToken}&type=review`;
+  const complaintUrl = `${frontendUrl}/reviews/submit?token=${reviewToken}&type=complaint`;
+  
+  // Status-specific messaging
+  const statusMessages = {
+    completed: {
+      header: 'How was your experience?',
+      subheader: 'We hope you loved your service!',
+      intro: 'Thank you for choosing WeMakeover! We hope our beautician provided you with an amazing experience.',
+    },
+    cancelled: {
+      header: 'We\'d still like to hear from you',
+      subheader: 'Your feedback matters to us',
+      intro: 'We noticed your booking was cancelled. We\'d love to understand your experience and how we can improve.',
+    },
+    no_show: {
+      header: 'We missed you!',
+      subheader: 'Let us know what happened',
+      intro: 'We\'re sorry we couldn\'t serve you. If there was an issue, we\'d love to hear about it so we can make things right.',
+    },
+  };
+  
+  const statusContent = statusMessages[bookingStatus] || statusMessages.completed;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Share Your Feedback - WeMakeover</title>
+  ${baseStyles}
+  <style>
+    .rating-stars {
+      font-size: 40px;
+      text-align: center;
+      margin: 20px 0;
+      letter-spacing: 8px;
+    }
+    .cta-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .cta-button {
+      display: inline-block;
+      padding: 16px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      text-align: center;
+      min-width: 180px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+    }
+    .cta-review {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    .cta-complaint {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+    }
+    .booking-summary {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      padding: 25px;
+      border-radius: 12px;
+      margin: 25px 0;
+      border: 2px solid #fbbf24;
+    }
+    .booking-summary h3 {
+      margin: 0 0 15px 0;
+      color: #92400e;
+      font-size: 16px;
+    }
+    .booking-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed #d97706;
+    }
+    .booking-row:last-child {
+      border-bottom: none;
+    }
+    .booking-label {
+      color: #78350f;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .booking-value {
+      color: #92400e;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: right;
+      max-width: 60%;
+    }
+    .benefits-box {
+      background: #eff6ff;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 25px 0;
+      border-left: 4px solid #3b82f6;
+    }
+    .benefits-box h4 {
+      margin: 0 0 12px 0;
+      color: #1e40af;
+      font-size: 15px;
+    }
+    .benefits-list {
+      margin: 0;
+      padding-left: 20px;
+      color: #1e3a8a;
+      line-height: 1.8;
+    }
+    .expiry-notice {
+      background: #fef3f3;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+      border: 1px solid #fecaca;
+    }
+    .expiry-notice p {
+      margin: 0;
+      color: #991b1b;
+      font-size: 13px;
+    }
+    @media only screen and (max-width: 600px) {
+      .cta-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .cta-button {
+        width: 100%;
+        max-width: 280px;
+      }
+      .booking-row {
+        flex-direction: column;
+      }
+      .booking-value {
+        text-align: left;
+        max-width: 100%;
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h1>${statusContent.header}</h1>
+      <p>${statusContent.subheader}</p>
+    </div>
+
+    <div class="content">
+      <p style="font-size: 17px; margin-bottom: 20px; color: #1f2937;">
+        Hi <strong>${customerName}</strong>,
+      </p>
+
+      <p style="margin-bottom: 25px; color: #4b5563; line-height: 1.7;">
+        ${statusContent.intro}
+      </p>
+
+      <div class="rating-stars">
+        ⭐⭐⭐⭐⭐
+      </div>
+
+      <p style="text-align: center; color: #6b7280; margin-bottom: 25px;">
+        Your feedback helps us improve and serve you better!
+      </p>
+
+      <div class="booking-summary">
+        <h3>📋 Booking Details</h3>
+        <div class="booking-row">
+          <span class="booking-label">Order Number:</span>
+          <span class="booking-value">${orderNumber}</span>
+        </div>
+        <div class="booking-row">
+          <span class="booking-label">Service Date:</span>
+          <span class="booking-value">${formattedDate}</span>
+        </div>
+        <div class="booking-row">
+          <span class="booking-label">Services:</span>
+          <span class="booking-value">${servicesList}</span>
+        </div>
+      </div>
+
+      <div class="cta-container">
+        <a href="${reviewUrl}" class="cta-button cta-review">
+          ⭐ Leave a Review
+        </a>
+        <a href="${complaintUrl}" class="cta-button cta-complaint">
+          📝 File a Complaint
+        </a>
+      </div>
+
+      <div class="benefits-box">
+        <h4>💡 Why share your feedback?</h4>
+        <ul class="benefits-list">
+          <li>Help other customers make informed decisions</li>
+          <li>Let our beauticians know they did a great job</li>
+          <li>Help us improve our services for you</li>
+          <li>It only takes 2 minutes!</li>
+        </ul>
+      </div>
+
+      <div class="expiry-notice">
+        <p>⏰ This feedback link is valid for <strong>90 days</strong>. Review at your convenience!</p>
+      </div>
+
+      <p style="margin: 25px 0 0 0; font-size: 14px; color: #6b7280; text-align: center;">
+        Both reviews and complaints are completely optional. We appreciate any feedback you'd like to share!
+      </p>
+    </div>
+
+    <div class="footer">
+      <p style="margin: 0 0 10px 0; font-weight: 600;">WeMakeover - Beauty Services at Your Doorstep</p>
+      <p style="margin: 0;">
+        Need help? Contact us at <a href="mailto:${process.env.ADMIN_EMAIL || 'support@wemakeover.com'}" style="color: #CC2B52; text-decoration: none;">${process.env.ADMIN_EMAIL || 'support@wemakeover.com'}</a>
+      </p>
+      <p style="margin: 15px 0 0 0; font-size: 11px; color: #9ca3af;">
+        You're receiving this email because your booking with WeMakeover has been ${bookingStatus === 'completed' ? 'completed' : bookingStatus === 'cancelled' ? 'cancelled' : 'marked as no-show'}.<br/>
+        © ${new Date().getFullYear()} WeMakeover. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+};
+
+/**
+ * Complaint response email - sent to user when admin replies to their complaint
+ * @param {Object} data - Complaint response data
+ * @param {string} data.customerName - Customer name
+ * @param {string} data.orderNumber - Order number
+ * @param {string} data.serviceName - Service name
+ * @param {string} [data.complaintCategory] - Complaint category
+ * @param {string} data.userComment - User's original complaint text
+ * @param {string} data.adminResponse - Admin's reply
+ * @param {string} data.status - Status (reviewed, resolved, etc.)
+ * @returns {string} HTML email template
+ */
+const complaintResponseEmailTemplate = (data) => {
+  const { customerName, orderNumber, serviceName, complaintCategory, userComment, adminResponse, status } = data;
+  const statusLabel = status === 'resolved' ? 'Resolved' : status === 'reviewed' ? 'Reviewed' : status === 'pending' ? 'Pending' : status || 'Updated';
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Response to Your Complaint - WeMakeover</title>
+  ${baseStyles}
+  <style>
+    .complaint-box {
+      background: #fef2f2;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border-left: 4px solid #dc2626;
+    }
+    .response-box {
+      background: #f0fdf4;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border-left: 4px solid #16a34a;
+    }
+    .response-box h4 { color: #15803d; margin: 0 0 10px 0; font-size: 16px; }
+    .complaint-box h4 { color: #b91c1c; margin: 0 0 10px 0; font-size: 16px; }
+    .meta { color: #6b7280; font-size: 14px; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h1>Response to Your Complaint</h1>
+      <p>We've reviewed your feedback and here's our response</p>
+    </div>
+    <div class="content">
+      <p>Dear ${customerName || 'Customer'},</p>
+      <p>Thank you for reaching out to us. We've looked into your complaint and our team has prepared a response below.</p>
+      
+      <div class="info-card">
+        <p><strong>Order:</strong> ${orderNumber || 'N/A'}</p>
+        <p><strong>Service:</strong> ${serviceName || 'N/A'}</p>
+        ${complaintCategory ? `<p><strong>Category:</strong> ${complaintCategory}</p>` : ''}
+      </div>
+
+      <div class="complaint-box">
+        <h4>Your complaint</h4>
+        <p class="meta">What you shared with us:</p>
+        <p style="margin: 0; white-space: pre-wrap;">${(userComment || 'No details provided').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+      </div>
+
+      <div class="response-box">
+        <h4>Our response (Status: ${statusLabel})</h4>
+        <p style="margin: 0; white-space: pre-wrap;">${(adminResponse || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+      </div>
+
+      <p>If you have any further concerns, please reply to this email or contact our support team.</p>
+      <p>Thank you for your patience.</p>
+      <p><strong>The WeMakeover Team</strong></p>
+    </div>
+    <div class="footer">
+      <p style="margin: 0 0 10px 0;">
+        Need help? Contact us at <a href="mailto:${process.env.ADMIN_EMAIL || 'support@wemakeover.com'}" style="color: #CC2B52;">${process.env.ADMIN_EMAIL || 'support@wemakeover.com'}</a>
+      </p>
+      <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+        © ${new Date().getFullYear()} WeMakeover. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+};
+
 export { 
   emailTemplate, 
   passwordResetEmailTemplate, 
@@ -2998,5 +3344,7 @@ export {
   bookingRescheduleUserEmailTemplate,
   paymentConfirmationAdminEmailTemplate,
   paymentConfirmationUserEmailTemplate,
-  adminOnboardingEmailTemplate
+  adminOnboardingEmailTemplate,
+  reviewRequestEmailTemplate,
+  complaintResponseEmailTemplate
 };

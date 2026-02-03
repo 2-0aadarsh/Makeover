@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
+import useBodyScrollLock from "../../hooks/useBodyScrollLock";
 
 /**
  * OrderSuccess Component
@@ -13,6 +14,7 @@ const OrderSuccess = ({ orderData: propOrderData, onGoHome }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  useBodyScrollLock(showPaymentModal);
 
   // Get orderData from navigation state or props (for backward compatibility)
   const orderData = location.state?.orderData || propOrderData;
@@ -171,7 +173,7 @@ const OrderSuccess = ({ orderData: propOrderData, onGoHome }) => {
 
       {/* Payment Modal */}
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden overscroll-contain">
           <div className="bg-white rounded-lg max-w-md w-full">
             <Checkout
               totalAmount={orderData.totalAmount}

@@ -30,3 +30,22 @@ export const fetchBookingById = createAsyncThunk(
     }
   }
 );
+
+/**
+ * Update booking status (admin only)
+ * @param {Object} payload - { bookingId, status, adminNote? }
+ */
+export const updateBookingStatus = createAsyncThunk(
+  'adminBookings/updateStatus',
+  async ({ bookingId, status, adminNote }, { rejectWithValue }) => {
+    try {
+      const response = await adminBookingsApi.updateBookingStatus(bookingId, {
+        status,
+        ...(adminNote && { adminNote }),
+      });
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to update status');
+    }
+  }
+);

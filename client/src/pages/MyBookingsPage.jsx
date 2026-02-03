@@ -22,6 +22,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
 import ErrorMessage from '../components/common/ErrorMessage.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import Pagination from '../components/common/Pagination.jsx';
+import ReviewModal from '../components/modals/ReviewModal.jsx';
 
 const MyBookingsPage = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,8 @@ const MyBookingsPage = () => {
   // Local state
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
 
   // Initialize filters from URL params
   useEffect(() => {
@@ -168,6 +171,24 @@ const MyBookingsPage = () => {
     dispatch(fetchUserBookings(params));
   };
 
+  // Handle write review
+  const handleWriteReview = (booking) => {
+    setSelectedBookingForReview(booking);
+    setReviewModalOpen(true);
+  };
+
+  // Handle review modal close
+  const handleReviewModalClose = () => {
+    setReviewModalOpen(false);
+    setSelectedBookingForReview(null);
+    // Refresh bookings to update review status
+    dispatch(fetchUserBookings({
+      ...filters,
+      page: pagination.page,
+      limit: pagination.limit
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -276,6 +297,7 @@ const MyBookingsPage = () => {
                   key={booking._id}
                   booking={booking}
                   onClick={() => handleBookingClick(booking._id)}
+                  onWriteReview={handleWriteReview}
                 />
               ))}
             </div>
@@ -309,6 +331,13 @@ const MyBookingsPage = () => {
             </button>
           </div>
         )}
+
+        {/* Review Modal */}
+        <ReviewModal
+          isOpen={reviewModalOpen}
+          onClose={handleReviewModalClose}
+          booking={selectedBookingForReview}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import {
   getAllReviews,
   getReviewById,
   updateReviewStatus,
+  getReviewStats,
 } from '../../controllers/admin/review.admin.controller.js';
 
 const reviewAdminRouter = express.Router();
@@ -12,6 +13,11 @@ const reviewAdminRouter = express.Router();
  * All routes are protected with checkAuth (JWT verification) 
  * and requireAdmin (role check) middleware
  */
+
+// @route   GET /api/admin/reviews/stats
+// @desc    Get review and complaint statistics
+// @access  Admin only
+reviewAdminRouter.get('/stats', checkAuth, requireAdmin, getReviewStats);
 
 // @route   GET /api/admin/reviews
 // @desc    Get all reviews/complaints with filters, search, and pagination
@@ -25,7 +31,7 @@ reviewAdminRouter.get('/', checkAuth, requireAdmin, getAllReviews);
 reviewAdminRouter.get('/:id', checkAuth, requireAdmin, getReviewById);
 
 // @route   PATCH /api/admin/reviews/:id/status
-// @desc    Update review/complaint status
+// @desc    Update review/complaint status and respond to complaint
 // @access  Admin only
 // @body    { status, adminResponse }
 reviewAdminRouter.patch('/:id/status', checkAuth, requireAdmin, updateReviewStatus);

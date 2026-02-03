@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import heroImg from "../../../assets/hero/Hero.jpg";
 import artistImg from "../../../assets/hero/artist.png";
 import faceFoundationImg from "../../../assets/hero/faceFoundation.png";
@@ -7,6 +8,7 @@ import naturalIngridentsImg from "../../../assets/hero/naturalIngridents.png";
 import primerImg from "../../../assets/hero/primer.png";
 import makeupImg from "../../../assets/hero/makeup.png";
 import { backendurl } from "../../../constants";
+import { fetchPublicSiteSettings } from "../../../features/admin/siteSettings/siteSettingsThunks";
 
 import ProfessionalMakeup from "../../modals/heroModals/ProfessionalMakeup";
 import CleanupAndFacialModal from "../../modals/heroModals/CleanupAndFacialModal";
@@ -16,9 +18,15 @@ import ManicureAndPedicureModal from "../../modals/heroModals/ManicureAndPedicur
 import BleachAndDeTanModal from "../../modals/heroModals/BleachAndDeTanModal";
 
 const Hero = () => {
+  const dispatch = useDispatch();
+  const { publicSettings, loading: siteSettingsLoading } = useSelector((state) => state.adminSiteSettings);
+  
   const [activeModalId, setActiveModalId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Use API image when available; avoid showing hardcoded image first (no flash)
+  const heroImageUrl = publicSettings?.hero?.mainImage || heroImg;
+  const showHeroPlaceholder = siteSettingsLoading && !publicSettings;
 
   const closeModal = () => setActiveModalId(null);
 
@@ -75,6 +83,11 @@ const Hero = () => {
       modal: <BleachAndDeTanModal onClose={closeModal} services={servicesList} currentServiceId={6} onServiceChange={handleServiceChange} />,
     },
   ];
+
+  // Fetch site settings for hero image (public API)
+  useEffect(() => {
+    dispatch(fetchPublicSiteSettings());
+  }, [dispatch]);
 
   // Fetch categories from API
   useEffect(() => {
@@ -171,13 +184,20 @@ const Hero = () => {
       id="hero"
       className="w-full flex flex-col lg:flex-row min-h-[350px] sm:min-h-[450px] md:min-h-[550px] lg:h-[700px] lg:items-center lg:justify-between"
     >
-      {/* Hero Image Section */}
-      <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:w-1/2 lg:h-full flex items-center justify-center order-1 lg:order-1">
-        <img
-          src={heroImg}
-          alt="Hero"
-          className="w-full h-full object-cover object-center"
-        />
+      {/* Hero Image Section - placeholder until site settings load to avoid flash of wrong image */}
+      <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:w-1/2 lg:h-full flex items-center justify-center order-1 lg:order-1 bg-gray-100">
+        {showHeroPlaceholder ? (
+          <div className="w-full h-full animate-pulse bg-gray-200" aria-hidden />
+        ) : (
+          <img
+            src={heroImageUrl}
+            alt="Hero"
+            className="w-full h-full object-cover object-center"
+            onError={(e) => {
+              e.target.src = heroImg;
+            }}
+          />
+        )}
       </div>
 
       {/* Content Section - Mobile/Tablet: Full width, Desktop: Right half */}
