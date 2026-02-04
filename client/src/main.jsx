@@ -1,7 +1,14 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-
+import faviconUrl from "./assets/favicon/Default.png";
 import React from "react";
+
+// Use favicon from assets (so one source of truth, no copy in public needed)
+const faviconEl = document.querySelector('link[rel="icon"]');
+if (faviconEl && faviconUrl) {
+  faviconEl.href = faviconUrl;
+  faviconEl.type = "image/png";
+}
 import App from "./App.jsx";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/es/integration/react";
