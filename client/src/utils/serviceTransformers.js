@@ -11,16 +11,24 @@ import { SERVICE_TYPE_DISPLAY_ORDER } from '../constants';
  * @returns {Object} Transformed service card
  */
 export const transformServiceToCard = (service) => {
-  // Use priceDisplay when set (e.g. "2.5k-4k", "Get in touch for pricing"); else numeric price
-  const displayPrice = service.priceDisplay != null && String(service.priceDisplay).trim() !== ''
-    ? service.priceDisplay
-    : (service.price != null ? service.price : 'Get in touch for pricing');
+  const hasOptions = service.options && service.options.length > 0;
+  const firstOption = hasOptions ? service.options[0] : null;
+  const displayPrice = firstOption
+    ? (firstOption.priceDisplay != null && String(firstOption.priceDisplay).trim() !== ''
+      ? firstOption.priceDisplay
+      : (firstOption.price != null ? firstOption.price : 'Get in touch for pricing'))
+    : (service.priceDisplay != null && String(service.priceDisplay).trim() !== ''
+      ? service.priceDisplay
+      : (service.price != null ? service.price : 'Get in touch for pricing'));
   const isAvailable = service.isAvailable !== false;
   return {
     img: service.image && service.image.length > 0 ? service.image[0] : null,
     cardHeader: service.name || 'Service',
     description: service.description || '',
     price: typeof displayPrice === 'number' ? displayPrice.toString() : displayPrice,
+    service: firstOption ? firstOption.label : null,
+    options: service.options || [],
+    optionIndex: 0,
     taxIncluded: service.taxIncluded !== undefined ? service.taxIncluded : true,
     duration: service.duration || 'N/A',
     button: service.ctaContent || 'Add +',
@@ -100,18 +108,30 @@ export const transformServicesToFlexCards = (services, categoryName = '') => {
 
   return services.map(service => {
     const isAddService = service.ctaContent === 'Add' || service.ctaContent === 'Add +';
-    // Use priceDisplay when set (e.g. "2.5k-4k", "Get in touch for pricing"); else numeric price or "Price on request"
-    const displayPrice = service.priceDisplay != null && String(service.priceDisplay).trim() !== ''
-      ? service.priceDisplay
-      : (service.price != null && service.price !== '' ? service.price : 'Get in touch for pricing');
+    const hasOptions = service.options && service.options.length > 0;
+    const firstOption = hasOptions ? service.options[0] : null;
+    const displayPrice = firstOption
+      ? (firstOption.priceDisplay != null && String(firstOption.priceDisplay).trim() !== ''
+        ? firstOption.priceDisplay
+        : (firstOption.price != null ? firstOption.price : 'Get in touch for pricing'))
+      : (service.priceDisplay != null && String(service.priceDisplay).trim() !== ''
+        ? service.priceDisplay
+        : (service.price != null && service.price !== '' ? service.price : 'Get in touch for pricing'));
     const isAvailable = service.isAvailable !== false;
+    const priceForCart = firstOption ? firstOption.price : (typeof service.price === 'number' ? service.price : 0);
+    // Use priceDisplay for UI when it's a string (e.g. "2.5k-11k"); only set numeric Price when it's a plain number
+    const hasDisplayString = typeof displayPrice === 'string' && String(displayPrice).trim() !== '';
     return {
       img: service.image && service.image.length > 0 ? service.image[0] : null,
       cardHeader: service.name || 'Service',
       serviceCategory: categoryName,
       description: service.description || '',
+      service: firstOption ? firstOption.label : null,
+      options: service.options || [],
+      optionIndex: 0,
+      price: priceForCart,
       PriceEstimate: displayPrice,
-      Price: typeof displayPrice === 'number' ? displayPrice : null,
+      Price: hasDisplayString ? null : (typeof displayPrice === 'number' ? displayPrice : (firstOption?.price ?? service.price ?? null)),
       includingTax: service.taxIncluded !== undefined ? service.taxIncluded : true,
       button: service.ctaContent || 'Enquire Now',
       service_id: service._id?.toString() || service.id?.toString(),

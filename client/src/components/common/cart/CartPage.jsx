@@ -35,14 +35,17 @@ const CartPage = () => {
     taxAmount: summary.taxAmount,
     total: summary.total,
   });
-  // Transform cart items to match OrderSummary expected format
+  // Transform cart items to match OrderSummary expected format (include optionLabel for variants)
   const services = cartItems.map((item) => ({
     name: item.cardHeader,
     description: item.description,
     price: parseFloat(item.price),
     quantity: item.quantity,
     image: item.img,
-    id: item.id, // Add cart item ID for updates
+    id: item.id,
+    category: item.category || 'Regular',
+    duration: item.duration || 60,
+    optionLabel: item.optionLabel || null,
   }));
 
   // Handle quantity changes from OrderSummary

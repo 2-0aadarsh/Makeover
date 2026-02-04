@@ -41,6 +41,20 @@ const parsePriceInput = (priceStr, ctaContent) => {
  * @desc    Create a new service with image upload
  * @access  Admin only
  */
+const parseOptionsFromBody = (raw) => {
+  if (raw === undefined || raw === null) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 export const createService = async (req, res) => {
   try {
     const {
@@ -56,7 +70,9 @@ export const createService = async (req, res) => {
       taxIncluded
     } = req.body;
 
-    // Validate required fields (price optional when CTA is "Enquire Now")
+    const options = parseOptionsFromBody(req.body.options);
+
+    // Validate required fields (price optional when CTA is "Enquire Now" or when options provided)
     const cta = ctaContent || 'Add';
     if (!name || !description) {
       return res.status(400).json({
@@ -64,12 +80,38 @@ export const createService = async (req, res) => {
         message: 'Name and description are required'
       });
     }
-    const parsed = parsePriceInput(price, cta);
-    if (!parsed) {
-      return res.status(400).json({
-        success: false,
-        message: 'Price is required for "Add" services. Use a number, range (e.g. 2.5k-4k), or leave empty for "Enquire Now" to show "Get in touch for pricing".'
+    let parsed = null;
+    if (options.length > 0) {
+      const validOptions = options.filter(o => o && typeof o.label === 'string' && o.label.trim());
+      if (validOptions.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'When providing options, each option must have a label'
+        });
+      }
+      const normalizedOptions = validOptions.map((o) => {
+        const label = String(o.label).trim();
+        const optPriceStr = o.priceDisplay || (o.price != null ? String(o.price) : '');
+        const optParsed = parsePriceInput(optPriceStr, cta);
+        return {
+          label,
+          price: optParsed ? optParsed.price : 0,
+          priceDisplay: optParsed && optParsed.priceDisplay ? optParsed.priceDisplay : null
+        };
       });
+      parsed = {
+        price: normalizedOptions[0].price,
+        priceDisplay: normalizedOptions[0].priceDisplay || undefined,
+        options: normalizedOptions
+      };
+    } else {
+      parsed = parsePriceInput(price, cta);
+      if (!parsed) {
+        return res.status(400).json({
+          success: false,
+          message: 'Price is required for "Add" services. Use a number, range (e.g. 2.5k-4k), or leave empty for "Enquire Now" to show "Get in touch for pricing".'
+        });
+      }
     }
 
     // Validate categoryId if provided
@@ -135,6 +177,7 @@ export const createService = async (req, res) => {
       bodyContent: bodyContent || '',
       price: parsed.price,
       priceDisplay: parsed.priceDisplay || undefined,
+      options: parsed.options || undefined,
       duration: duration || null,
       categoryId: categoryId || null,
       ctaContent: cta,
@@ -166,6 +209,7 @@ export const createService = async (req, res) => {
         bodyContent: service.bodyContent,
         price: service.price,
         priceDisplay: service.priceDisplay || null,
+        options: service.options || [],
         formattedPrice: service.formattedPrice,
         duration: service.duration,
         category: service.categoryId,
@@ -267,6 +311,7 @@ export const getAllServices = async (req, res) => {
       bodyContent: service.bodyContent,
       price: service.price,
       priceDisplay: service.priceDisplay || null,
+      options: service.options || [],
       formattedPrice: service.formattedPrice,
       duration: service.duration,
       category: service.categoryId || { name: service.category || 'N/A' },
@@ -375,6 +420,7 @@ export const updateService = async (req, res) => {
       isActive,
       isAvailable
     } = req.body;
+    const optionsRaw = parseOptionsFromBody(req.body.options);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -435,6 +481,29 @@ export const updateService = async (req, res) => {
     if (isActive !== undefined) service.isActive = isActive;
     if (isAvailable !== undefined) service.isAvailable = isAvailable;
 
+    if (optionsRaw.length > 0) {
+      const cta = ctaContent !== undefined ? ctaContent : service.ctaContent;
+      const validOptions = optionsRaw.filter(o => o && typeof o.label === 'string' && o.label.trim());
+      if (validOptions.length > 0) {
+        service.options = validOptions.map((o) => {
+          const label = String(o.label).trim();
+          const optPriceStr = o.priceDisplay || (o.price != null ? String(o.price) : '');
+          const optParsed = parsePriceInput(optPriceStr, cta);
+          return {
+            label,
+            price: optParsed ? optParsed.price : 0,
+            priceDisplay: optParsed && optParsed.priceDisplay ? optParsed.priceDisplay : null
+          };
+        });
+        service.markModified('options');
+        service.price = service.options[0].price;
+        service.priceDisplay = service.options[0].priceDisplay || undefined;
+      }
+    } else if (optionsRaw.length === 0 && req.body.hasOwnProperty('options')) {
+      service.options = [];
+      service.markModified('options');
+    }
+
     // Handle image update if new images are provided
     const files = getMultipleFilesFromRequest(req, 'images');
     
@@ -492,6 +561,7 @@ export const updateService = async (req, res) => {
         bodyContent: service.bodyContent,
         price: service.price,
         priceDisplay: service.priceDisplay || null,
+        options: service.options || [],
         formattedPrice: service.formattedPrice,
         duration: service.duration,
         category: service.categoryId,

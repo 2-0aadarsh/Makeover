@@ -65,6 +65,9 @@ const cartItemSchema = new mongoose.Schema({
       message: 'Service type must be one of: Standard, Premium, Deluxe, Bridal, Classic'
     }
   },
+
+  optionLabel: { type: String, trim: true, default: null },
+  optionIndex: { type: Number, default: null },
   
   // Cart-specific fields
   quantity: {

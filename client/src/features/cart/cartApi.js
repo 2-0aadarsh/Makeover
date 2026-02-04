@@ -33,9 +33,13 @@ const normalizeServiceId = (item) => {
 const transformCartItem = (item, overrideQuantity) => {
   const price = parseFloat(item?.price ?? 0);
   const quantity = overrideQuantity ?? item?.quantity ?? 1;
+  const baseId = normalizeServiceId(item);
+  const serviceId = (item?.optionIndex !== undefined && item?.optionIndex !== null)
+    ? `${baseId}_opt_${item.optionIndex}`
+    : baseId;
 
   return {
-    serviceId: normalizeServiceId(item),
+    serviceId,
     cardHeader: item?.cardHeader ?? item?.name ?? "",
     description: item?.description ?? "",
     price,
@@ -45,6 +49,8 @@ const transformCartItem = (item, overrideQuantity) => {
     taxIncluded: Boolean(item?.taxIncluded),
     category: item?.category ?? "default",
     serviceType: item?.serviceType ?? "Standard",
+    optionLabel: item?.optionLabel ?? null,
+    optionIndex: item?.optionIndex ?? null,
     subtotal: price * quantity,
   };
 };

@@ -11,6 +11,15 @@ const adminServicesApiInstance = axios.create({
   withCredentials: true, // Include cookies in requests
 });
 
+// When sending FormData, do NOT set Content-Type so axios adds multipart/form-data with boundary.
+// Otherwise the server cannot parse the body and req.body.options (and other fields) are missing.
+adminServicesApiInstance.interceptors.request.use((config) => {
+  if (config.data && typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  return config;
+});
+
 // Response interceptor for error handling
 adminServicesApiInstance.interceptors.response.use(
   (response) => {
@@ -75,11 +84,7 @@ export const adminServicesApi = {
    * @returns {Promise} Created service data
    */
   createService: (formData) => {
-    return adminServicesApiInstance.post('/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return adminServicesApiInstance.post('/', formData);
   },
 
   /**
@@ -89,11 +94,7 @@ export const adminServicesApi = {
    * @returns {Promise} Updated service data
    */
   updateService: (serviceId, formData) => {
-    return adminServicesApiInstance.put(`/${serviceId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return adminServicesApiInstance.put(`/${serviceId}`, formData);
   },
 
   /**

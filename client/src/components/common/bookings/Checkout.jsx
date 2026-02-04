@@ -554,7 +554,7 @@ const Checkout = ({
         providedTotalAmount: totalAmount,
       });
 
-      // Ensure services have all required fields according to server schema
+      // Ensure services have all required fields according to server schema (include optionLabel for variants)
       const servicesWithRequiredFields = services.map((service) => ({
         serviceId:
           service.id || service._id || `service-${Date.now()}-${Math.random()}`,
@@ -564,9 +564,10 @@ const Checkout = ({
           `${service.name} - Professional beauty service`,
         price: service.price,
         quantity: service.quantity,
-        image: service.image || "/src/assets/images/default-service.jpg", // Required field
-        category: service.category || "Regular", // Required field with enum values
-        duration: service.duration || "60", // Duration in minutes
+        image: service.image || "/src/assets/images/default-service.jpg",
+        category: service.category || "Regular",
+        duration: service.duration || "60",
+        optionLabel: service.optionLabel || null,
       }));
 
       // Ensure address has phone and all required fields

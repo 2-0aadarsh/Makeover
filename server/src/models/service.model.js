@@ -16,11 +16,12 @@ const serviceSchema = new mongoose.Schema({
     maxlength: [500, 'Description cannot exceed 500 characters']
   },
   
-  // Pricing Information
+  // Pricing Information (optional when options array is non-empty)
   price: {
     type: Number,
-    required: [true, 'Service price is required'],
-    min: [0, 'Price cannot be negative']
+    required: false,
+    min: [0, 'Price cannot be negative'],
+    default: 0
   },
   // Display-only price (e.g. "2.5k-4k", "Get in touch for pricing"). When set, UI shows this instead of formatting price.
   priceDisplay: {
@@ -29,6 +30,13 @@ const serviceSchema = new mongoose.Schema({
     default: null,
     maxlength: [100, 'Price display cannot exceed 100 characters']
   },
+
+  // Service options/variants (e.g. "Both Hands", "Both Hands & Legs") with per-option price
+  options: [{
+    label: { type: String, required: true, trim: true, maxlength: [80, 'Option label cannot exceed 80 characters'] },
+    price: { type: Number, required: true, min: 0, default: 0 },
+    priceDisplay: { type: String, trim: true, default: null, maxlength: [100, 'Price display cannot exceed 100 characters'] }
+  }],
 
   taxIncluded: {
     type: Boolean,
@@ -172,13 +180,23 @@ serviceSchema.index({ popularity: -1 });
 serviceSchema.index({ ctaContent: 1 }); // NEW: Index for filtering by CTA type
 serviceSchema.index({ cardType: 1 }); // NEW: Index for filtering by card type
 
-// Pre-save middleware to validate category
+// Pre-save middleware to validate category and price/options
 serviceSchema.pre('save', function(next) {
-  // Ensure either categoryId (new) or category (legacy) is provided
   if (!this.categoryId && !this.category) {
     return next(new Error('Either categoryId or category is required'));
   }
-  
+  // When no options: price is required. When options exist: derive price from first option if not set
+  const hasOptions = this.options && this.options.length > 0;
+  if (hasOptions) {
+    if (this.price === undefined || this.price === null) {
+      this.price = this.options[0].price;
+    }
+    if (!this.priceDisplay && this.options[0].priceDisplay) {
+      this.priceDisplay = this.options[0].priceDisplay;
+    }
+  } else if (!hasOptions && (this.price === undefined || this.price === null)) {
+    return next(new Error('Service price is required when no options are provided'));
+  }
   this.updatedAt = new Date();
   next();
 });

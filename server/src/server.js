@@ -9,6 +9,10 @@ import os from 'os';
 
 import connectDB from './configs/mongodb.config.js';
 import redis from './configs/redis.config.js';
+import { requestContext } from './middlewares/requestContext.js';
+import { readinessGate } from './middlewares/readinessGate.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import healthRouter from './routes/health.routes.js';
 import { initializeSlotGenerationJobs } from './jobs/slotGeneration.job.js';
 import contactRouter from './routes/contactUs.routes.js';
 import authRouter from './routes/auth.routes.js';
@@ -53,7 +57,7 @@ const allowedOrigins = [
   'https://wemakeover.netlify.app',
   'http://localhost:5173',
   'http://localhost:5174',
-].filter(Boolean);
+];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -100,17 +104,15 @@ app.use(fileUpload({
   parseNested: true
 }));
 
-// Ensure MongoDB is connected before any /api request (fixes 500 on Vercel cold start)
-const dbReady = connectDB();
-app.use('/api', async (req, res, next) => {
-  try {
-    await dbReady;
-    next();
-  } catch (err) {
-    console.error('API request blocked: MongoDB not connected', err.message);
-    res.status(503).json({ success: false, message: 'Service temporarily unavailable' });
-  }
-});
+// Request correlation (requestId + req.log)
+app.use(requestContext);
+
+// Health endpoints (no DB gate)
+app.use('/health', healthRouter);
+
+// Start DB connection; /api routes wait for readiness via readinessGate
+connectDB();
+app.use('/api', readinessGate);
 
 app.use("/", contactRouter);
 app.use('/auth', authRouter);
@@ -156,6 +158,17 @@ initializeSlotGenerationJobs();
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+// 404 so errorHandler can format it
+app.use((req, res, next) => {
+  const err = new Error('Not found');
+  err.statusCode = 404;
+  err.code = 'NOT_FOUND';
+  next(err);
+});
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 // Export for Vercel instead of listen
 export default app;

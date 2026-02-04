@@ -35,7 +35,8 @@ const serviceSchema = new mongoose.Schema({
   duration: {
     type: Number, // Duration in minutes
     default: 45
-  }
+  },
+  optionLabel: { type: String, trim: true, default: null }
 }, { _id: false });
 
 const addressSchema = new mongoose.Schema({

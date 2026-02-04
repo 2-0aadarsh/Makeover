@@ -1,12 +1,18 @@
 /* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import ServiceModal from "../ServiceModal";
+import { categoriesApi } from "../../../features/categories/categoriesApi";
+import { transformServicesToFlexCards, findCategoryByIdentifier } from "../../../utils/serviceTransformers";
 
 import BridalMehendi from "../../../assets/modals/Professional Mehendi/BridalMehendi.png";
 import MehendiForAll from "../../../assets/modals/Professional Mehendi/MehendiForAll.png";
 import CustomDesigns from "../../../assets/modals/Professional Mehendi/CustomDesigns.png";
 
 const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
-  const mehendiCard = [
+  const [dynamicCards, setDynamicCards] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const hardcodedMehendiCard = [
     {
       img: BridalMehendi,
       cardHeader: "Bridal Mehendi",
@@ -26,7 +32,7 @@ const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = n
       serviceCategory: "Professional Mehendi",
       description:
         "From casual charm to festive flair—mehendi that suits every style",
-      Price: "499",
+      Price: 499,
       PriceEstimate: null,
       includingTax: true,
       service: "Both Hands",
@@ -44,10 +50,43 @@ const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = n
       service_id: "custom_designs_mehendi",
     },
   ];
+
+  useEffect(() => {
+    const fetchDynamicData = async () => {
+      try {
+        setLoading(true);
+        const categoriesResponse = await categoriesApi.getAllCategories();
+        const categories = categoriesResponse.data || [];
+        const category = findCategoryByIdentifier(categories, "professional-mehendi") ||
+          findCategoryByIdentifier(categories, "Professional Mehendi");
+        if (category && category._id) {
+          const servicesResponse = await categoriesApi.getCategoryServices(category._id);
+          const categoryServices = servicesResponse.data?.services || [];
+          if (categoryServices.length > 0) {
+            const transformedCards = transformServicesToFlexCards(categoryServices, category.name);
+            setDynamicCards(transformedCards);
+          } else {
+            setDynamicCards([]);
+          }
+        } else {
+          setDynamicCards([]);
+        }
+      } catch (error) {
+        console.error("Error fetching Professional Mehendi services:", error);
+        setDynamicCards([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDynamicData();
+  }, []);
+
+  const displayCards = dynamicCards.length > 0 ? dynamicCards : hardcodedMehendiCard;
+
   return (
     <ServiceModal
       title="Professional Mehendi"
-      cards={mehendiCard}
+      cards={displayCards}
       onClose={onClose}
       services={services}
       currentServiceId={currentServiceId}

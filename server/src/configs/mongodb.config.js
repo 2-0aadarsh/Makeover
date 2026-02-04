@@ -1,19 +1,9 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-dotenv.config();
-const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) {
-  throw new Error('MONGODB_URI is not defined in the environment variables');
-}
+/**
+ * MongoDB config: re-exports from platform layer for backward compatibility.
+ */
 
-const connectDB = async () => {
-  console.log(MONGODB_URI);
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('MongoDB connected successfully');
-  } catch (error) {
-    console.error('MongoDB connection failed:', error.message);
-    process.exit(1); // Exit process with failure
-  }
-}
-export default connectDB;
+import 'dotenv/config';
+import { connect, getConnectionPromise, status, isConnected, READY_STATE, ensureConnected } from '../platform/db/mongo.js';
+
+export default connect;
+export { getConnectionPromise, status, isConnected, READY_STATE, ensureConnected };

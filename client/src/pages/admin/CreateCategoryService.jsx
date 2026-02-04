@@ -37,12 +37,13 @@ const CreateCategoryService = () => {
     bodyContent: "",
     price: "",
     duration: "",
-    taxIncluded: true, // Default to true
+    taxIncluded: true,
     ctaContent: "Add",
-    serviceType: "Standard", // Default to "Standard" (maps to "Regular" tab)
+    serviceType: "Standard",
     cardType: "Vertical",
     images: [],
     imagePreviews: [],
+    options: [], // e.g. [{ label: "Both Hands", priceDisplay: "499" }, { label: "Both Hands & Legs", priceDisplay: "2.5k-11k" }]
   });
 
   const [loading, setLoading] = useState(false);
@@ -161,9 +162,10 @@ const CreateCategoryService = () => {
       if (!serviceForm.description || !serviceForm.description.trim()) {
         throw new Error("Service description is required");
       }
-      // Price required only when CTA is "Add"; for "Enquire Now" empty price becomes "Get in touch for pricing"
-      if (serviceForm.ctaContent === "Add" && (!serviceForm.price || !String(serviceForm.price).trim())) {
-        throw new Error("Service price is required when CTA Content is Add");
+      const hasOptions = serviceForm.options && serviceForm.options.length > 0 && serviceForm.options.some(o => o && o.label && String(o.label).trim());
+      // Price required when CTA is "Add" and no options; if options provided, first option drives price
+      if (serviceForm.ctaContent === "Add" && !hasOptions && (!serviceForm.price || !String(serviceForm.price).trim())) {
+        throw new Error("Service price is required when CTA Content is Add (or add at least one option with label)");
       }
       if (serviceForm.images.length === 0) {
         throw new Error("At least one service image is required");
@@ -190,7 +192,15 @@ const CreateCategoryService = () => {
         formData.append("serviceType", serviceForm.serviceType || "Standard");
       }
       formData.append("cardType", serviceForm.cardType);
-      
+      if (serviceForm.options && serviceForm.options.length > 0) {
+        const validOptions = serviceForm.options
+          .filter(o => o && o.label && String(o.label).trim())
+          .map(o => ({ label: String(o.label).trim(), price: o.price ?? "", priceDisplay: o.priceDisplay ?? String(o.price ?? "").trim() }));
+        if (validOptions.length > 0) {
+          formData.append("options", JSON.stringify(validOptions));
+        }
+      }
+
       // Append all images
       serviceForm.images.forEach((image) => {
         formData.append("images", image);
@@ -217,6 +227,7 @@ const CreateCategoryService = () => {
           cardType: "Vertical",
           images: [],
           imagePreviews: [],
+          options: [],
         });
         if (serviceImageInputRef.current) {
           serviceImageInputRef.current.value = "";
@@ -654,7 +665,7 @@ const CreateCategoryService = () => {
                       />
                     </div>
 
-                    {/* Price */}
+                    {/* Price (optional when options are set) */}
                     <div>
                       <label
                         className="block mb-2"
@@ -670,15 +681,73 @@ const CreateCategoryService = () => {
                         type="text"
                         value={serviceForm.price}
                         onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
-                        placeholder="12K or 12000"
+                        placeholder="12K, 2.5k-11k, or leave empty for Enquire Now"
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CC2B52] focus:border-transparent font-sans"
                         style={{
                           fontSize: "16px",
                           fontWeight: 400,
                           color: "#292D32",
                         }}
-                        required
+                        required={serviceForm.ctaContent === "Add" && (!serviceForm.options || serviceForm.options.length === 0)}
                       />
+                      <p className="mt-1 text-xs text-gray-500">Or add options below (e.g. Both Hands, Both Hands & Legs) with per-option price.</p>
+                    </div>
+
+                    {/* Service options (variants) */}
+                    <div className="md:col-span-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <label
+                          className="block"
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            color: "#292D32",
+                          }}
+                        >
+                          Service options (e.g. Both Hands, Both Hands & Legs)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setServiceForm({ ...serviceForm, options: [...(serviceForm.options || []), { label: "", priceDisplay: "" }] })}
+                          className="px-3 py-1.5 text-sm bg-[#CC2B52] text-white rounded-lg hover:bg-[#CC2B52]/90"
+                        >
+                          + Add option
+                        </button>
+                      </div>
+                      {(serviceForm.options || []).map((opt, idx) => (
+                        <div key={idx} className="flex flex-wrap gap-2 mb-2 items-center">
+                          <input
+                            type="text"
+                            value={opt.label || ""}
+                            onChange={(e) => {
+                              const next = [...(serviceForm.options || [])];
+                              next[idx] = { ...next[idx], label: e.target.value };
+                              setServiceForm({ ...serviceForm, options: next });
+                            }}
+                            placeholder="Option label (e.g. Both Hands & Legs)"
+                            className="flex-1 min-w-[140px] px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#CC2B52] text-sm"
+                          />
+                          <input
+                            type="text"
+                            value={opt.priceDisplay ?? opt.price ?? ""}
+                            onChange={(e) => {
+                              const next = [...(serviceForm.options || [])];
+                              next[idx] = { ...next[idx], priceDisplay: e.target.value, price: e.target.value };
+                              setServiceForm({ ...serviceForm, options: next });
+                            }}
+                            placeholder="Price (e.g. 499 or 2.5k-11k)"
+                            className="w-32 px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#CC2B52] text-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setServiceForm({ ...serviceForm, options: serviceForm.options.filter((_, i) => i !== idx) })}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            aria-label="Remove option"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
                     </div>
 
                     {/* Duration Of Service */}

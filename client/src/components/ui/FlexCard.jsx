@@ -6,12 +6,21 @@ import ServiceCartButton from "./ServiceCartButton";
 const FlexCard = ({ item, source = "other" }) => {
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
 
-  // Prepare service data for enquiry modal
+  // Prepare service data for enquiry modal and cart (include option for services with variants)
   const serviceData = {
     serviceName: item.cardHeader || "Service",
     serviceCategory: item.serviceCategory || "Beauty Service",
     priceRange: item.PriceEstimate || item.Price || null,
     serviceId: item.service_id || null,
+    service_id: item.service_id || null,
+    cardHeader: item.cardHeader,
+    description: item.description,
+    price: item.price ?? item.Price ?? 0,
+    img: item.img ?? (item.originalService?.image?.[0]),
+    category: item.originalService?.categoryId?.name ?? item.serviceCategory ?? "default",
+    taxIncluded: item.includingTax !== false,
+    optionIndex: item.optionIndex,
+    optionLabel: item.service ?? (item.options?.[item.optionIndex]?.label),
   };
 
   const handleEnquiryClick = () => {
@@ -52,11 +61,12 @@ const FlexCard = ({ item, source = "other" }) => {
                   <div className="flex items-baseline gap-2">
                     <span className="text-[clamp(0.95rem,2vw,1.05rem)] font-semibold text-[#1F1F1F]">
                       {(() => {
-                        const value = item?.Price ?? item?.PriceEstimate;
+                        // Prefer priceDisplay (PriceEstimate) so "2.5k-11k" etc. show as saved
+                        const value = item?.PriceEstimate ?? item?.Price;
+                        if (value == null) return '';
                         if (value === 'Price on request' || value === 'Get in touch for pricing') return value;
-                        if (typeof value === 'number') return `₹ ${value.toLocaleString('en-IN')}`;
-                        if (typeof value === 'string' && value.startsWith('₹')) return value;
-                        return `₹ ${value}`;
+                        if (typeof value === 'string') return value.startsWith('₹') ? value : `₹ ${value}`;
+                        return `₹ ${Number(value).toLocaleString('en-IN')}`;
                       })()}
                     </span>
                     {item?.includingTax && (

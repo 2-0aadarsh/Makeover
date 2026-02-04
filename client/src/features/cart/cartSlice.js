@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Helper function to get cart item ID (use service_id if available, otherwise generate)
+// Helper function to get cart item ID (use service_id + optionIndex when present)
 const getCartItemId = (serviceData) => {
-  // If service has a unique service_id, use it
-  if (serviceData.service_id) {
-    return serviceData.service_id;
+  const baseId = serviceData.service_id || serviceData.serviceId;
+  if (baseId && (serviceData.optionIndex !== undefined && serviceData.optionIndex !== null)) {
+    return `${baseId}_opt_${serviceData.optionIndex}`;
   }
-  // Fallback to generated ID for backward compatibility
+  if (baseId) return baseId;
   return `${serviceData.cardHeader}_${serviceData.price}_${serviceData.category || 'default'}`;
 };
 
@@ -93,11 +93,13 @@ const cartSlice = createSlice({
         // If item doesn't exist, add new item with detailed information
         const newCartItem = {
           id: cartItemId,
-          service_id: serviceData.service_id, // Store the original service_id
+          service_id: serviceData.service_id || serviceData.serviceId,
           cardHeader: serviceData.cardHeader,
           description: serviceData.description,
           price: parseFloat(serviceData.price) || 0,
           img: serviceData.img,
+          optionIndex: serviceData.optionIndex,
+          optionLabel: serviceData.optionLabel,
           quantity: 1,
           duration: serviceData.duration,
           taxIncluded: serviceData.taxIncluded,
