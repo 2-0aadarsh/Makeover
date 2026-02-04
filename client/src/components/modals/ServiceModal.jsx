@@ -102,6 +102,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
 import FlexCardContainer from "../../components/ui/FlexCardContainer";
 import GridCardContainer from "../ui/GridCardContainer";
+import { SkeletonTabs, ServiceModalGridSkeleton, ServiceModalFlexSkeleton } from "../ui/ServiceModalSkeleton";
 
 const getIsDesktop = () =>
   typeof window !== "undefined" && window.innerWidth >= 1024;
@@ -115,6 +116,8 @@ const ServiceModal = ({
   services = [],
   currentServiceId = null,
   onServiceChange = null,
+  loading = false,
+  loadingLayout = "grid",
 }) => {
   const navigate = useNavigate();
   const { totalServices } = useCart();
@@ -122,6 +125,7 @@ const ServiceModal = ({
   const contentRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const tabs = gridCard.map((item) => item?.title);
+  const showTabsRow = gridCard.length > 0 || (loading && loadingLayout === "grid");
   const [currentTab, setCurrentTab] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -574,11 +578,14 @@ const ServiceModal = ({
 
             {/* ======================================== */}
             {/* SECTION 3.2: TABS ROW */}
-            {/* ✅ Tabs render here automatically */}
+            {/* ✅ Tabs render here automatically (or skeleton when loading) */}
             {/* ✅ Info icon at extreme right */}
             {/* ======================================== */}
-            {gridCard.length > 0 && (
+            {showTabsRow && (
               <div className="relative w-full  pb-2 overflow-visible">
+                {loading && loadingLayout === "grid" ? (
+                  <SkeletonTabs count={3} />
+                ) : (
                 <motion.div
                   className="tabs flex flex-row items-center justify-between pr-2 gap-[clamp(1rem,3vw,2rem)] text-[clamp(0.875rem,1.5vw,1.25rem)] leading-[clamp(1.5rem,2vw,2rem)] font-inter pb-2 overflow-visible"
                   initial={{ opacity: 0, y: -5 }}
@@ -736,6 +743,7 @@ const ServiceModal = ({
                     </div>
                   )}
                 </motion.div>
+                )}
               </div>
             )}
           </div>
@@ -765,43 +773,50 @@ const ServiceModal = ({
               {/* ✅ Add new content sections here */}
               {/* ======================================== */}
               <motion.div
-                key={currentTab}
+                key={loading ? "skeleton" : currentTab}
                 variants={tabContentVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
                 transition={{ duration: 0.2 }}
               >
-                {/* ======================================== */}
-                {/* SECTION 4.1.1: FLEX CARDS SECTION */}
-                {/* ✅ Modify FlexCards here */}
-                {/* ======================================== */}
-                {cards.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <FlexCardContainer cards={cards} />
-                  </motion.div>
-                )}
+                {loading ? (
+                  <>
+                    {loadingLayout === "grid" && <ServiceModalGridSkeleton rows={6} />}
+                    {loadingLayout === "cards" && <ServiceModalFlexSkeleton cards={6} />}
+                  </>
+                ) : (
+                  <>
+                    {/* ======================================== */}
+                    {/* SECTION 4.1.1: FLEX CARDS SECTION */}
+                    {/* ======================================== */}
+                    {cards.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <FlexCardContainer cards={cards} />
+                      </motion.div>
+                    )}
 
-                {/* ======================================== */}
-                {/* SECTION 4.1.2: GRID CARDS SECTION */}
-                {/* ✅ Modify GridCards here */}
-                {/* ======================================== */}
-                {gridCard.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                  >
-                    <GridCardContainer
-                      gridCard={gridCard[currentTab].data}
-                      category={gridCard[currentTab].title}
-                      currentTab={currentTab}
-                    />
-                  </motion.div>
+                    {/* ======================================== */}
+                    {/* SECTION 4.1.2: GRID CARDS SECTION */}
+                    {/* ======================================== */}
+                    {gridCard.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                      >
+                        <GridCardContainer
+                          gridCard={gridCard[currentTab].data}
+                          category={gridCard[currentTab].title}
+                          currentTab={currentTab}
+                        />
+                      </motion.div>
+                    )}
+                  </>
                 )}
               </motion.div>
             </AnimatePresence>

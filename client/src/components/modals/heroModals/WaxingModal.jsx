@@ -1,130 +1,55 @@
 /* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import ServiceModal from "../ServiceModal";
+import { categoriesApi } from "../../../features/categories/categoriesApi";
+import { transformServicesToGridCard, findCategoryByIdentifier } from "../../../utils/serviceTransformers";
 
-// classic images
-import fullBodyClassic from "../../../assets/modals/waxing/classic/fullBody-classic.png";
-import handsAndLegsClassic from "../../../assets/modals/waxing/classic/handsAndLegs-classic.png";
-import underarmsClassic from "../../../assets/modals/waxing/classic/Underarm.png";
-import faceWaxClassic from "../../../assets/modals/waxing/classic/Face Wax.png";
-import threadingClassic from "../../../assets/modals/waxing/classic/Threading.png";
-
-// premium images
-import bikiniWaxingPremium from "../../../assets/modals/waxing/premium/bikiniWaxing-premium.png";
-import fullBodyPremium from "../../../assets/modals/waxing/premium/fullBody-premium.png";
-import handsAndLegsPremium from "../../../assets/modals/waxing/premium/handsAndLegs-premium.png";
+// Hardcoded data - commented out; only dynamic services from DB are shown
+// import fullBodyClassic from "../../../assets/modals/waxing/classic/fullBody-classic.png";
+// import handsAndLegsClassic from "../../../assets/modals/waxing/classic/handsAndLegs-classic.png";
+// import underarmsClassic from "../../../assets/modals/waxing/classic/Underarm.png";
+// import faceWaxClassic from "../../../assets/modals/waxing/classic/Face Wax.png";
+// import threadingClassic from "../../../assets/modals/waxing/classic/Threading.png";
+// import bikiniWaxingPremium from "../../../assets/modals/waxing/premium/bikiniWaxing-premium.png";
+// import fullBodyPremium from "../../../assets/modals/waxing/premium/fullBody-premium.png";
+// import handsAndLegsPremium from "../../../assets/modals/waxing/premium/handsAndLegs-premium.png";
+// const card = [ { title: "Classic", data: [ ... ] }, { title: "Premium", data: [ ... ] } ];
 
 const WaxingModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
-  const card = [
-    {
-      title: "Classic",
-      data: [
-        {
-          img: fullBodyClassic,
-          cardHeader: "Full Body Wax",
-          description:
-            "Reveal silky, radiant skin all over with our expert full body waxing",
-          price: "899",
-          taxIncluded: true,
-          duration: "1hr 45mins",
-          button: "Add +",
-          service_id: "full_body_waxing_classic",
-        },
-        {
-          img: handsAndLegsClassic,
-          cardHeader: "Hand & Leg Wax",
-          description:
-            "Effortless elegance begins with clean, silky hands and legs, Underarms Included here",
-          price: "499",
-          taxIncluded: true,
-          duration: "1hr 5mins",
-          button: "Add +",
-          service_id: "hands_and_legs_waxing_classic",
-        },
-        {
-          img: underarmsClassic,
-          cardHeader: "Underarms Wax",
-          description:
-            "Effortless elegance begins with clean, silky hands and legs, Underarms Included here",
-          price: "149",
-          taxIncluded: true,
-          duration: "25mins",
-          button: "Add +",
-          service_id: "underarms_wax_classic",
-        },
-        {
-          img: faceWaxClassic,
-          cardHeader: "Face Wax",
-          description:
-            "Gently removes facial hair for smooth, clear, and even-toned skin with a fresh, polished look.",
-          price: "249",
-          taxIncluded: true,
-          duration: "25 mins",
-          button: "Add +",
-          service_id: "face_wax_classic",
-        },
-        {
-          img: threadingClassic,
-          cardHeader: "Threading",
-          description:
-            "Effortless elegance begins with clean, silky hands and legs, Underarms Included here",
-          price: "49",
-          taxIncluded: true,
-          duration: "5 mins",
-          button: "Add +",
-          service_id: "threading_classic",
-        },
-      ],
-    },
-    {
-      title: "Premium",
-      data: [
-        {
-          img: bikiniWaxingPremium,
-          cardHeader: "Underarms Rica Wax",
-          description:
-            "Effortless elegance begins with clean, silky hands and legs, Underarms Included here",
-          price: "249",
-          taxIncluded: true,
-          duration: "25mins",
-          button: "Add +",
-          service_id: "underarms_rica_wax_premium",
-        },
-        {
-          img: fullBodyPremium,
-          cardHeader: "Full Body O3+ Wax",
-          description:
-            "Reveal silky, radiant skin all over with our expert full body waxing",
-          price: "1999",
-          taxIncluded: true,
-          duration: " 1hr 45mins",
-          button: "Add +",
-          service_id: "full_body_o3_plus_wax_premium",
-        },
-        {
-          img: fullBodyPremium,
-          cardHeader: "Full Body Rica Wax",
-          description:
-            "Reveal silky, radiant skin all over with our expert full body waxing",
-          price: "1599",
-          taxIncluded: true,
-          duration: "1hr 45mins",
-          button: "Add +",
-          service_id: "full_body_rica_wax_premium",
-        },
-        {
-          img: handsAndLegsPremium,
-          cardHeader: "Hand & Leg Rica Wax",
-          description:
-            "Step into softness with our expertly done hand and leg premium waxing treatment.",
-          price: "799",
-          taxIncluded: true,
-          duration: "45mins",
-          button: "Add +",
-          service_id: "hands_and_legs_waxing_premium",
-        },
-      ],
-    },
-  ];
+  const [dynamicGridCard, setDynamicGridCard] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDynamicData = async () => {
+      try {
+        setLoading(true);
+        const categoriesResponse = await categoriesApi.getAllCategories();
+        const categories = categoriesResponse.data || [];
+        const category = findCategoryByIdentifier(categories, "waxing") ||
+                        findCategoryByIdentifier(categories, "Waxing");
+        if (category && category._id) {
+          const servicesResponse = await categoriesApi.getCategoryServices(category._id);
+          const categoryServices = servicesResponse.data?.services || [];
+          if (categoryServices.length > 0) {
+            const transformedGridCard = transformServicesToGridCard(categoryServices);
+            setDynamicGridCard(transformedGridCard);
+          } else {
+            setDynamicGridCard([]);
+          }
+        } else {
+          setDynamicGridCard([]);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching dynamic data for Waxing:", error);
+        setDynamicGridCard([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDynamicData();
+  }, []);
+
+  const displayGridCard = dynamicGridCard;
 
   const waxingInfo = {
     items: [
@@ -139,13 +64,15 @@ const WaxingModal = ({ onClose, services = [], currentServiceId = null, onServic
   return (
     <ServiceModal
       title="Waxing"
-      gridCard={card}
+      gridCard={displayGridCard}
       infoContent={waxingInfo}
       onClose={onClose}
       services={services}
       currentServiceId={currentServiceId}
       onServiceChange={onServiceChange}
       onConfirm={() => alert("Waxing Booking Confirmed!")}
+      loading={loading}
+      loadingLayout="grid"
     />
   );
 };

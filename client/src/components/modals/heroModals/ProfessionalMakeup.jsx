@@ -3,46 +3,20 @@ import ServiceModal from "../ServiceModal";
 import { categoriesApi } from "../../../features/categories/categoriesApi";
 import { transformServicesToFlexCards, findCategoryByIdentifier } from "../../../utils/serviceTransformers";
 
-// Hardcoded data - kept for fallback
-import BridalMakeup from "../../../assets/modals/professional makeup/BridalMakeup.png";
-import EngagementMakeup from "../../../assets/modals/professional makeup/EngagementMakeup2.png";
-import PartyMakeup from "../../../assets/modals/professional makeup/PartyMakeup.png";
+// Hardcoded data - commented out; only dynamic services from DB are shown
+// import BridalMakeup from "../../../assets/modals/professional makeup/BridalMakeup.png";
+// import EngagementMakeup from "../../../assets/modals/professional makeup/EngagementMakeup2.png";
+// import PartyMakeup from "../../../assets/modals/professional makeup/PartyMakeup.png";
+// const hardcodedMakeupCard = [
+//   { img: BridalMakeup, cardHeader: "Bridal Makeup", serviceCategory: "Professional Makeup", description: "We create the most elegant bridal looks! Contact us to book yours today.", PriceEstimate: "12k-28k", button: "Enquire Now" },
+//   { img: PartyMakeup, cardHeader: "Party Makeup", serviceCategory: "Professional Makeup", description: "A flawless look crafted to enhance your features and keep you glowing", PriceEstimate: "2.5k-4k", button: "Enquire Now" },
+//   { img: EngagementMakeup, cardHeader: "Engagement/Reception", serviceCategory: "Professional Makeup", description: "Seamless looks by our professionals! Contact us to book yours today.", PriceEstimate: "10k-16k", button: "Enquire Now" },
+// ];
 
 const ProfessionalMakeup = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const [dynamicCards, setDynamicCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryId, setCategoryId] = useState(null);
-
-  // Hardcoded data - kept intact for fallback
-  const hardcodedMakeupCard = [
-    {
-      img: BridalMakeup,
-      cardHeader: "Bridal Makeup",
-      serviceCategory: "Professional Makeup",
-      description:
-        "We create the most elegant bridal looks! Contact us to book yours today.",
-      PriceEstimate: "12k-28k",
-      button: "Enquire Now",
-    },
-    {
-      img: PartyMakeup,
-      cardHeader: "Party Makeup",
-      serviceCategory: "Professional Makeup",
-      description:
-        "A flawless look crafted to enhance your features and keep you glowing",
-      PriceEstimate: "2.5k-4k",
-      button: "Enquire Now",
-    },
-    {
-      img: EngagementMakeup,
-      cardHeader: "Engagement/Reception",
-      serviceCategory: "Professional Makeup",
-      description:
-        "Seamless looks by our professionals! Contact us to book yours today.",
-      PriceEstimate: "10k-16k",
-      button: "Enquire Now",
-    },
-  ];
 
   // Fetch dynamic data
   useEffect(() => {
@@ -92,8 +66,8 @@ const ProfessionalMakeup = ({ onClose, services = [], currentServiceId = null, o
     fetchDynamicData();
   }, []);
 
-  // Use dynamic data if available, otherwise fallback to hardcoded
-  const displayCards = dynamicCards.length > 0 ? dynamicCards : hardcodedMakeupCard;
+  // Only dynamic services from database (no hardcoded fallback)
+  const displayCards = dynamicCards;
 
   return (
     <ServiceModal
@@ -106,6 +80,8 @@ const ProfessionalMakeup = ({ onClose, services = [], currentServiceId = null, o
       onServiceChange={onServiceChange}
       onConfirm={() => alert("Professional Makeup Booking Confirmed!")}
       source="professional-makeup"
+      loading={loading}
+      loadingLayout="cards"
     />
   );
 };

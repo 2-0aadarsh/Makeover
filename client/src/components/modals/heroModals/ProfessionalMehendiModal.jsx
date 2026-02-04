@@ -4,52 +4,19 @@ import ServiceModal from "../ServiceModal";
 import { categoriesApi } from "../../../features/categories/categoriesApi";
 import { transformServicesToFlexCards, findCategoryByIdentifier } from "../../../utils/serviceTransformers";
 
-import BridalMehendi from "../../../assets/modals/Professional Mehendi/BridalMehendi.png";
-import MehendiForAll from "../../../assets/modals/Professional Mehendi/MehendiForAll.png";
-import CustomDesigns from "../../../assets/modals/Professional Mehendi/CustomDesigns.png";
+// Hardcoded data - commented out; only dynamic services from DB are shown
+// import BridalMehendi from "../../../assets/modals/Professional Mehendi/BridalMehendi.png";
+// import MehendiForAll from "../../../assets/modals/Professional Mehendi/MehendiForAll.png";
+// import CustomDesigns from "../../../assets/modals/Professional Mehendi/CustomDesigns.png";
+// const hardcodedMehendiCard = [
+//   { img: BridalMehendi, cardHeader: "Bridal Mehendi", serviceCategory: "Professional Mehendi", description: "Let your hands tell a love story with our bespoke Bridal Mehendi designs", Price: null, PriceEstimate: "2.5k-11k", includingTax: true, service: "Both Hands & Legs", button: "Add +", service_id: "bridal_mehendi" },
+//   { img: MehendiForAll, cardHeader: "Mehendi For All", serviceCategory: "Professional Mehendi", description: "From casual charm to festive flair—mehendi that suits every style", Price: 499, PriceEstimate: null, includingTax: true, service: "Both Hands", button: "Enquiry Now", service_id: "mehendi_for_all" },
+//   { img: CustomDesigns, cardHeader: "Custom Designs", serviceCategory: "Professional Mehendi", description: "From names to motifs—custom mehendi that's as unique as you are ", pricingNote: "Get in touch for pricing", button: "Add +", service_id: "custom_designs_mehendi" },
+// ];
 
 const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = null, onServiceChange = null }) => {
   const [dynamicCards, setDynamicCards] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const hardcodedMehendiCard = [
-    {
-      img: BridalMehendi,
-      cardHeader: "Bridal Mehendi",
-      serviceCategory: "Professional Mehendi",
-      description:
-        "Let your hands tell a love story with our bespoke Bridal Mehendi designs",
-      Price: null,
-      PriceEstimate: "2.5k-11k",
-      includingTax: true,
-      service: "Both Hands & Legs",
-      button: "Add +",
-      service_id: "bridal_mehendi",
-    },
-    {
-      img: MehendiForAll,
-      cardHeader: "Mehendi For All",
-      serviceCategory: "Professional Mehendi",
-      description:
-        "From casual charm to festive flair—mehendi that suits every style",
-      Price: 499,
-      PriceEstimate: null,
-      includingTax: true,
-      service: "Both Hands",
-      button: "Enquiry Now",
-      service_id: "mehendi_for_all",
-    },
-    {
-      img: CustomDesigns,
-      cardHeader: "Custom Designs",
-      serviceCategory: "Professional Mehendi",
-      description:
-        "From names to motifs—custom mehendi that's as unique as you are ",
-      pricingNote: "Get in touch for pricing",
-      button: "Add +",
-      service_id: "custom_designs_mehendi",
-    },
-  ];
 
   useEffect(() => {
     const fetchDynamicData = async () => {
@@ -81,7 +48,8 @@ const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = n
     fetchDynamicData();
   }, []);
 
-  const displayCards = dynamicCards.length > 0 ? dynamicCards : hardcodedMehendiCard;
+  // Only dynamic services from database (no hardcoded fallback)
+  const displayCards = dynamicCards;
 
   return (
     <ServiceModal
@@ -93,6 +61,8 @@ const ProfessionalMehendiModal = ({ onClose, services = [], currentServiceId = n
       onServiceChange={onServiceChange}
       onConfirm={() => alert("Professional Mehendi Booking Confirmed!")}
       source="professional-mehendi"
+      loading={loading}
+      loadingLayout="cards"
     />
   );
 };
