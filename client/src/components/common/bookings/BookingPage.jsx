@@ -510,7 +510,7 @@ const BookingPage = () => {
         {!loading && bookings.length > 0 && (
           <div className="mt-8 text-center">
             <button
-              onClick={() => navigate("/services")}
+              onClick={() => navigate("/")}
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
             >
               <svg

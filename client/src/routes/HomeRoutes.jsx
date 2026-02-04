@@ -227,6 +227,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "services",
+        element: <Navigate to="/" replace />,
+      },
+      {
         path: "about",
         element: (
           <LazyWrapper>

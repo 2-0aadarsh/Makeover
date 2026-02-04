@@ -284,7 +284,7 @@ const MyBookingsPage = () => {
                 : "You haven't made any bookings yet. Book your first beauty service today!"
             }
             actionText={filters.status !== 'all' || filters.searchQuery || filters.dateFrom || filters.dateTo ? "Clear Filters" : "Book Now"}
-            onAction={filters.status !== 'all' || filters.searchQuery || filters.dateFrom || filters.dateTo ? handleClearFilters : () => navigate('/services')}
+            onAction={filters.status !== 'all' || filters.searchQuery || filters.dateFrom || filters.dateTo ? handleClearFilters : () => navigate('/')}
           />
         )}
 
@@ -321,7 +321,7 @@ const MyBookingsPage = () => {
         {false && !loading && bookings.length > 0 && (
           <div className="mt-8 text-center">
             <button
-              onClick={() => navigate('/services')}
+              onClick={() => navigate('/')}
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -617,7 +617,6 @@ const AddressDetail = ({ currentAddress = "", onAddressUpdate = null }) => {
                     </div>
                     <input
                       type="tel"
-                      placeholder="9876543210"
                       value={formData.phone}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, ""); // Only allow digits

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Checkout from "./Checkout";
 import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
+import orderSuccessSvg from "../../../assets/Order/orderSuccess.svg";
 
 /**
  * OrderSuccess Component
@@ -104,9 +105,10 @@ const OrderSuccess = ({ orderData: propOrderData, onGoHome }) => {
         {/* Animation/Image */}
         <div className="w-28 h-24 sm:w-36 sm:h-32 md:w-40 md:h-40 lg:w-[160px] lg:h-[150px] flex items-center justify-center mb-6 sm:mb-8">
           <img
-            src="/src/assets/order/orderSuccess.svg"
+            src={orderSuccessSvg}
             alt="Success Animation"
             className="w-full h-full object-contain rounded-full"
+            loading="lazy"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "https://via.placeholder.com/150";
