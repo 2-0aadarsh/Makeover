@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { backendurl } from "../../constants";
+const backendurl = import.meta.env.VITE_BACKEND_URL;
 
 export const sendContactData = createAsyncThunk(
   "contact/sendContactData",

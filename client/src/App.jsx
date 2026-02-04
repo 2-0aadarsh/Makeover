@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { router } from "./routes/HomeRoutes.jsx";
 import { checkLoginStatus } from "./features/auth/authThunks.js";
 import { useCartAutoSave } from "./hooks/useCartAutoSave.js";
-import { GOOGLE_CLIENT_ID } from "./constants.js";
 import AdminDeactivatedModal from "./components/modals/admin/AdminDeactivatedModal.jsx";
 import { logoutApi } from "./features/auth/authApi.js";
 
@@ -61,7 +60,7 @@ function App() {
   };
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <div className="app w-full">
         <RouterProvider router={router} />
         <Toaster position="top-center" />

@@ -1,4 +1,4 @@
-import { backendurl } from "../../../constants";
+const backendurl = import.meta.env.VITE_BACKEND_URL;
 
 /**
  * Fetch site settings (admin view)

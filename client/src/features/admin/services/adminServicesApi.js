@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { backendurl } from '../../../constants';
+const backendurl = import.meta.env.VITE_BACKEND_URL;
 
 // Create axios instance with default config
 const adminServicesApiInstance = axios.create({

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { backendurl } from "../../constants";
+const backendurl = import.meta.env.VITE_BACKEND_URL;
 
 /**
  * Reviews API - User-facing endpoints for review management

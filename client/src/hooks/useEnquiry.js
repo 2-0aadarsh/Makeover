@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { backendurl } from '../constants';
+const backendurl = import.meta.env.VITE_BACKEND_URL;
 import { useSelector } from 'react-redux';
 
 /**

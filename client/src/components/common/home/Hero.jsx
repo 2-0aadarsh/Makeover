@@ -6,7 +6,6 @@ import tattooImg from "../../../assets/hero/tattoo.png";
 import naturalIngridentsImg from "../../../assets/hero/naturalIngridents.png";
 import primerImg from "../../../assets/hero/primer.png";
 import makeupImg from "../../../assets/hero/makeup.png";
-import { backendurl } from "../../../constants";
 
 // Neutral placeholder when hero image is missing or fails to load (no hardcoded hero asset)
 const HERO_PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -97,7 +96,7 @@ const Hero = () => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${backendurl}/api/categories`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/categories`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
