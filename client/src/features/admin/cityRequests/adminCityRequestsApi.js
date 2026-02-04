@@ -20,6 +20,6 @@ export const adminCityRequestsApi = {
   getAll: (params) => api.get("/", { params }),
   getAnalytics: () => api.get("/analytics"),
   updateStatus: (id, payload) => api.patch(`/${id}/status`, payload),
-  /** Add the requested city to serviceable cities and set request status to 'added' */
-  addToServiceable: (id) => api.post(`/${id}/add-to-serviceable`),
+  /** Add the requested city to serviceable cities. Body: { coveragePincodes: string[] } (required) */
+  addToServiceable: (id, body) => api.post(`/${id}/add-to-serviceable`, body),
 };

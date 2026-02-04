@@ -149,6 +149,25 @@ export const getServiceableCityById = async (req, res) => {
   }
 };
 
+const PINCODE_REGEX = /^[1-9][0-9]{5}$/;
+
+function normalizeAndValidatePincodes(value) {
+  if (value == null) return { valid: [], invalid: [] };
+  const raw = Array.isArray(value) ? value : [value];
+  const valid = [];
+  const invalid = [];
+  const seen = new Set();
+  for (const v of raw) {
+    const p = String(v).trim();
+    if (!p) continue;
+    if (seen.has(p)) continue;
+    seen.add(p);
+    if (PINCODE_REGEX.test(p)) valid.push(p);
+    else invalid.push(p);
+  }
+  return { valid, invalid };
+}
+
 /**
  * @route   POST /api/admin/serviceable-cities
  * @desc    Create a new serviceable city
@@ -176,6 +195,20 @@ export const createServiceableCity = async (req, res) => {
         message: 'City and state are required'
       });
     }
+
+    const { valid: validPincodes, invalid: invalidPincodes } = normalizeAndValidatePincodes(coveragePincodes);
+    if (validPincodes.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one valid 6-digit coverage pincode is required (e.g. 823001)'
+      });
+    }
+    if (invalidPincodes.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid pincodes (must be 6 digits, 1-9 first): ${invalidPincodes.join(', ')}`
+      });
+    }
     
     // Check if city already exists
     const existingCity = await ServiceableCity.findOne({
@@ -197,7 +230,7 @@ export const createServiceableCity = async (req, res) => {
       state,
       displayName,
       priority: priority || 0,
-      coveragePincodes: coveragePincodes || [],
+      coveragePincodes: validPincodes,
       description,
       notes,
       launchDate: launchDate || Date.now(),
@@ -245,6 +278,24 @@ export const updateServiceableCity = async (req, res) => {
     const updateData = { ...req.body };
     
     console.log('✏️ [Admin - Update City] Updating city:', id);
+    
+    // Validate coveragePincodes if provided
+    if (Object.prototype.hasOwnProperty.call(updateData, 'coveragePincodes')) {
+      const { valid: validPincodes, invalid: invalidPincodes } = normalizeAndValidatePincodes(updateData.coveragePincodes);
+      if (validPincodes.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'At least one valid 6-digit coverage pincode is required'
+        });
+      }
+      if (invalidPincodes.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid pincodes (must be 6 digits): ${invalidPincodes.join(', ')}`
+        });
+      }
+      updateData.coveragePincodes = validPincodes;
+    }
     
     // Remove fields that shouldn't be updated directly
     delete updateData._id;

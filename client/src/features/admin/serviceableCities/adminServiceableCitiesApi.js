@@ -19,8 +19,12 @@ api.interceptors.response.use(
 export const adminServiceableCitiesApi = {
   getAll: (params) => api.get("/", { params }),
   getStats: () => api.get("/stats"),
-  /** Create a new serviceable city. Body: { city, state, displayName? } */
+  /** Get one city by id */
+  getById: (id) => api.get(`/${id}`),
+  /** Create a new serviceable city. Body: { city, state, displayName?, coveragePincodes } */
   create: (body) => api.post("/", body),
+  /** Update a serviceable city. Body: { city?, state?, displayName?, coveragePincodes? } */
+  update: (id, body) => api.put(`/${id}`, body),
   /** Toggle active/inactive status of a serviceable city */
   toggle: (id) => api.patch(`/${id}/toggle`),
 };

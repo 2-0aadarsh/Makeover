@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import heroImg from "../../../assets/hero/Hero.jpg";
 import artistImg from "../../../assets/hero/artist.png";
 import faceFoundationImg from "../../../assets/hero/faceFoundation.png";
 import tattooImg from "../../../assets/hero/tattoo.png";
@@ -8,6 +7,9 @@ import naturalIngridentsImg from "../../../assets/hero/naturalIngridents.png";
 import primerImg from "../../../assets/hero/primer.png";
 import makeupImg from "../../../assets/hero/makeup.png";
 import { backendurl } from "../../../constants";
+
+// Neutral placeholder when hero image is missing or fails to load (no hardcoded hero asset)
+const HERO_PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 import { fetchPublicSiteSettings } from "../../../features/admin/siteSettings/siteSettingsThunks";
 
 import ProfessionalMakeup from "../../modals/heroModals/ProfessionalMakeup";
@@ -24,9 +26,10 @@ const Hero = () => {
   const [activeModalId, setActiveModalId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Use API image when available; avoid showing hardcoded image first (no flash)
-  const heroImageUrl = publicSettings?.hero?.mainImage || heroImg;
-  const showHeroPlaceholder = siteSettingsLoading && !publicSettings;
+  // Hero image: dynamic only (from site settings), no hardcoded fallback
+  const heroImageUrl = publicSettings?.hero?.mainImage ?? "";
+  const showHeroLoading = siteSettingsLoading && !publicSettings;
+  const hasHeroImage = Boolean(heroImageUrl && heroImageUrl.trim());
 
   const closeModal = () => setActiveModalId(null);
 
@@ -184,19 +187,43 @@ const Hero = () => {
       id="hero"
       className="w-full flex flex-col lg:flex-row min-h-[350px] sm:min-h-[450px] md:min-h-[550px] lg:h-[700px] lg:items-center lg:justify-between"
     >
-      {/* Hero Image Section - placeholder until site settings load to avoid flash of wrong image */}
+      {/* Hero Image Section – dynamic only (Admin → Site Settings → Hero); no hardcoded image */}
       <div className="w-full h-[300px] sm:h-[350px] md:h-[400px] lg:w-1/2 lg:h-full flex items-center justify-center order-1 lg:order-1 bg-gray-100">
-        {showHeroPlaceholder ? (
+        {showHeroLoading ? (
           <div className="w-full h-full animate-pulse bg-gray-200" aria-hidden />
-        ) : (
+        ) : hasHeroImage ? (
           <img
             src={heroImageUrl}
             alt="Hero"
             className="w-full h-full object-cover object-center"
             onError={(e) => {
-              e.target.src = heroImg;
+              e.target.src = HERO_PLACEHOLDER;
             }}
           />
+        ) : (
+          <div
+            className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, #FDF2F4 0%, #FCE7EB 40%, #F7EBEE 100%)",
+            }}
+            aria-hidden
+          >
+            {/* Subtle decorative circles */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-[70%] h-[70%] rounded-full bg-[#CC2B52]/[0.04] blur-2xl" />
+              <div className="absolute w-[50%] h-[50%] rounded-full bg-[#CC2B52]/[0.06] blur-xl -translate-y-1/4" />
+            </div>
+            <div className="relative flex flex-col items-center justify-center gap-3 px-6 text-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#CC2B52]/10 flex items-center justify-center">
+                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-[#CC2B52]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="text-[#CC2B52]/70 font-medium text-sm sm:text-base max-w-[220px]">
+                Your look, our passion
+              </p>
+            </div>
+          </div>
         )}
       </div>
 

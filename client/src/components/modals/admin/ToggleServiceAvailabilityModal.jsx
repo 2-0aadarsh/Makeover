@@ -4,7 +4,7 @@ import useBodyScrollLock from "../../../hooks/useBodyScrollLock";
 
 /**
  * ToggleServiceAvailabilityModal - Confirmation modal for toggling service availability
- * "Available" = shown as bookable; "Unavailable" = shown as "Not available at the moment"
+ * "Available" = shown as bookable; "Unavailable" = shown as "Currently unavailable"
  */
 const ToggleServiceAvailabilityModal = ({ serviceName, isAvailable, onConfirm, onCancel }) => {
   const noButtonRef = useRef(null);
@@ -84,7 +84,7 @@ const ToggleServiceAvailabilityModal = ({ serviceName, isAvailable, onConfirm, o
         </p>
         <p className="text-sm text-gray-600 mb-6">
           {isAvailable
-            ? "This service will show as &quot;Not available at the moment&quot; on the site. Customers can still see it but cannot add it to cart."
+            ? "This service will show as &quot;Currently unavailable&quot; on the site. Customers can still see it but cannot add it to cart."
             : "This service will be available for booking again."}
         </p>
 

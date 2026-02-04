@@ -1,31 +1,13 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import GImage1 from "../../../assets/Gallery/GImage1.svg";
-import GImage2 from "../../../assets/Gallery/bridal.svg";
-import GImage3 from "../../../assets/Gallery/Mehendi.svg";
 import SectionTitle from "../../ui/SectionTitle";
 import Button from "../../ui/Button";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { fetchPublicSiteSettings } from "../../../features/admin/siteSettings/siteSettingsThunks";
 
-const defaultTabData = [
-  {
-    title: "Quick Grooming",
-    image: GImage1,
-    description: "Quick grooming to enhance your look in minutes.",
-  },
-  {
-    title: "Bridal Makeup",
-    image: GImage2,
-    description: "Elegant bridal makeup for your special day.",
-  },
-  {
-    title: "Mehendi Stories",
-    image: GImage3,
-    description: "Beautiful mehendi designs to complete your look.",
-  },
-];
+// 1x1 transparent pixel – used only when dynamic image fails to load (no hardcoded gallery assets)
+const PLACEHOLDER_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 const GalleryPage = () => {
   const dispatch = useDispatch();
@@ -51,15 +33,15 @@ const GalleryPage = () => {
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
   }, [dispatch]);
 
-  // Update gallery slides when settings are loaded (dynamic: any number including 0)
+  // Update gallery slides when settings are loaded – dynamic only (no hardcoded slides)
   useEffect(() => {
-    if (publicSettings?.gallery) {
+    if (publicSettings?.gallery !== undefined) {
       setHasLoaded(true);
-      const slides = publicSettings.gallery.slides || [];
-      setTabData(slides.map((slide, index) => ({
-        title: slide.title,
-        image: slide.imageUrl || defaultTabData[index]?.image || GImage1,
-        description: slide.description || defaultTabData[index]?.description || '',
+      const slides = publicSettings.gallery?.slides || [];
+      setTabData(slides.map((slide) => ({
+        title: slide.title ?? '',
+        image: slide.imageUrl ?? '',
+        description: slide.description ?? '',
       })));
       setActiveIndex(0);
     }
@@ -160,12 +142,11 @@ const GalleryPage = () => {
                     {/* Consistent Portrait Image Container */}
                     <div className="w-full aspect-[3/4] max-h-[500px] lg:max-h-[600px] xl:max-h-[700px] relative overflow-hidden">
                       <img
-                        src={tabData[activeIndex].image}
-                        alt={tabData[activeIndex].title}
+                        src={tabData[activeIndex].image || PLACEHOLDER_IMAGE}
+                        alt={tabData[activeIndex].title || "Gallery"}
                         className="w-full h-full object-cover object-center"
                         onError={(e) => {
-                          const defaultImage = defaultTabData[activeIndex]?.image || GImage1;
-                          e.target.src = defaultImage;
+                          e.target.src = PLACEHOLDER_IMAGE;
                         }}
                         style={{ objectPosition: "center top" }}
                       />

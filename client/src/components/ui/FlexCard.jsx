@@ -101,7 +101,7 @@ const FlexCard = ({ item, source = "other" }) => {
               >
                 Add +
               </button>
-              <p className="text-xs text-amber-600 font-medium mt-1.5">Not available at the moment</p>
+              <p className="text-xs text-amber-600 font-medium mt-1.5 break-words">Currently unavailable</p>
             </div>
           ) : (
             <button

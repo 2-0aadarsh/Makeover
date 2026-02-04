@@ -62,20 +62,26 @@ const Footer = () => {
                   {item.title}
                 </Link>
               ))}
-              {!loading && !error && cities.length > 0 && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="hover:underline text-[#313957] font-medium whitespace-nowrap flex items-center gap-1.5 group"
-                >
-                  <svg className="w-3 h-3 text-[#CC2B52]" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                  <span>Service areas</span>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="hover:underline text-[#313957] font-medium whitespace-nowrap flex items-center gap-1.5 group"
+              >
+                <svg className="w-3 h-3 text-[#CC2B52] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+                <span>Service areas</span>
+                {loading && (
+                  <span className="text-[10px] text-gray-400">Loading…</span>
+                )}
+                {!loading && error && (
+                  <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">View</span>
+                )}
+                {!loading && !error && cities.length > 0 && (
                   <span className="text-[10px] text-[#CC2B52] bg-red-50/80 px-1.5 py-0.5 rounded-full">
                     {cityCountText}
                   </span>
-                </button>
-              )}
+                )}
+              </button>
             </div>
           </div>
           <div className="text-[#313957] bg-white rounded px-2 sm:px-3 sm:py-2 flex items-center gap-1 whitespace-nowrap">

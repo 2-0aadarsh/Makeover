@@ -79,7 +79,7 @@ const GridCard = ({ gridCardData, category }) => {
                     >
                       Add +
                     </button>
-                    <p className="text-[10px] text-amber-600 font-medium mt-1">Not available</p>
+                    <p className="text-[10px] text-amber-600 font-medium mt-1 text-left">Currently unavailable</p>
                   </>
                 ) : (
                   <ServiceCartButton
@@ -102,7 +102,7 @@ const GridCard = ({ gridCardData, category }) => {
                   >
                     Add +
                   </button>
-                  <p className="text-[10px] text-amber-600 font-medium mt-1.5">Not available at the moment</p>
+                  <p className="text-[10px] text-amber-600 font-medium mt-1.5 text-center break-words">Currently unavailable</p>
                 </div>
               ) : (
                 <ServiceCartButton

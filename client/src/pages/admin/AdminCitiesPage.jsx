@@ -32,12 +32,33 @@ const AdminCitiesPage = () => {
   const [page, setPage] = useState(1);
   const [togglingId, setTogglingId] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [addForm, setAddForm] = useState({ city: "", state: "", displayName: "" });
+  const [addForm, setAddForm] = useState({ city: "", state: "", displayName: "", coveragePincodes: "" });
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ city: "", state: "", displayName: "", coveragePincodes: "" });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editFetchLoading, setEditFetchLoading] = useState(false);
+  const [editError, setEditError] = useState(null);
   const limit = 20;
 
-  useBodyScrollLock(addModalOpen);
+  const PINCODE_REGEX = /^[1-9][0-9]{5}$/;
+  const parsePincodes = (str) => {
+    if (!str || typeof str !== "string") return [];
+    return str
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  };
+  const validatePincodes = (str) => {
+    const arr = parsePincodes(str);
+    const valid = arr.filter((p) => PINCODE_REGEX.test(p));
+    const invalid = arr.filter((p) => !PINCODE_REGEX.test(p));
+    return { valid, invalid };
+  };
+
+  useBodyScrollLock(addModalOpen || editModalOpen);
 
   const loadCities = async () => {
     if (tab !== "serviceable") return;
@@ -96,6 +117,15 @@ const AdminCitiesPage = () => {
       setAddError("City and state are required.");
       return;
     }
+    const { valid: validPincodes, invalid: invalidPincodes } = validatePincodes(addForm.coveragePincodes);
+    if (validPincodes.length === 0) {
+      setAddError("At least one valid 6-digit coverage pincode is required (e.g. 823001).");
+      return;
+    }
+    if (invalidPincodes.length > 0) {
+      setAddError(`Invalid pincodes (must be 6 digits): ${invalidPincodes.join(", ")}`);
+      return;
+    }
     setAddError(null);
     setAddLoading(true);
     try {
@@ -103,10 +133,11 @@ const AdminCitiesPage = () => {
         city,
         state,
         displayName: addForm.displayName?.trim() || undefined,
+        coveragePincodes: validPincodes,
       });
       toast.success(`${city}, ${state} added to serviceable cities`);
       setAddModalOpen(false);
-      setAddForm({ city: "", state: "", displayName: "" });
+      setAddForm({ city: "", state: "", displayName: "", coveragePincodes: "" });
       await loadCities();
       await loadStats();
     } catch (e) {
@@ -114,6 +145,80 @@ const AdminCitiesPage = () => {
       toast.error(typeof e === "string" ? e : "Failed to add city");
     } finally {
       setAddLoading(false);
+    }
+  };
+
+  const openEditModal = async (c) => {
+    setEditId(c._id);
+    setEditForm({
+      city: c.city || "",
+      state: c.state || "",
+      displayName: c.displayName || "",
+      coveragePincodes: (c.coveragePincodes && c.coveragePincodes.length) ? c.coveragePincodes.join("\n") : "",
+    });
+    setEditError(null);
+    setEditModalOpen(true);
+  };
+
+  const loadEditCity = async () => {
+    if (!editId) return;
+    setEditFetchLoading(true);
+    try {
+      const res = await adminServiceableCitiesApi.getById(editId);
+      const d = res?.data ?? res;
+      setEditForm({
+        city: d.city || "",
+        state: d.state || "",
+        displayName: d.displayName || "",
+        coveragePincodes: (d.coveragePincodes && d.coveragePincodes.length) ? d.coveragePincodes.join("\n") : "",
+      });
+    } catch (_) {
+      setEditError("Failed to load city.");
+    } finally {
+      setEditFetchLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (editModalOpen && editId) loadEditCity();
+  }, [editModalOpen, editId]);
+
+  const handleEditCity = async (e) => {
+    e.preventDefault();
+    const city = editForm.city?.trim();
+    const state = editForm.state?.trim();
+    if (!city || !state) {
+      setEditError("City and state are required.");
+      return;
+    }
+    const { valid: validPincodes, invalid: invalidPincodes } = validatePincodes(editForm.coveragePincodes);
+    if (validPincodes.length === 0) {
+      setEditError("At least one valid 6-digit coverage pincode is required.");
+      return;
+    }
+    if (invalidPincodes.length > 0) {
+      setEditError(`Invalid pincodes (must be 6 digits): ${invalidPincodes.join(", ")}`);
+      return;
+    }
+    setEditError(null);
+    setEditLoading(true);
+    try {
+      await adminServiceableCitiesApi.update(editId, {
+        city,
+        state,
+        displayName: editForm.displayName?.trim() || undefined,
+        coveragePincodes: validPincodes,
+      });
+      toast.success("City updated");
+      setEditModalOpen(false);
+      setEditId(null);
+      await loadCities();
+      await loadStats();
+    } catch (e) {
+      setEditError(typeof e === "string" ? e : "Failed to update city.");
+      toast.error(typeof e === "string" ? e : "Failed to update city");
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -184,7 +289,7 @@ const AdminCitiesPage = () => {
                 onClick={() => {
                   setAddModalOpen(true);
                   setAddError(null);
-                  setAddForm({ city: "", state: "", displayName: "" });
+                  setAddForm({ city: "", state: "", displayName: "", coveragePincodes: "" });
                 }}
                 className="ml-auto px-4 py-2 rounded-lg text-sm font-medium bg-[#CC2B52] text-white hover:bg-[#CC2B52]/90 transition-colors"
               >
@@ -206,6 +311,7 @@ const AdminCitiesPage = () => {
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">City</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">State</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Display name</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Pincodes</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                     </tr>
@@ -216,6 +322,9 @@ const AdminCitiesPage = () => {
                         <td className="py-3 px-4 font-medium">{c.city}</td>
                         <td className="py-3 px-4 text-gray-600">{c.state}</td>
                         <td className="py-3 px-4 text-gray-600">{c.displayName || "—"}</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">
+                          {c.coveragePincodes?.length ? `${c.coveragePincodes.length} pincodes` : "—"}
+                        </td>
                         <td className="py-3 px-4">
                           <span
                             className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
@@ -225,7 +334,14 @@ const AdminCitiesPage = () => {
                             {c.isActive ? "Active" : "Inactive"}
                           </span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(c)}
+                            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+                          >
+                            Edit
+                          </button>
                           <button
                             type="button"
                             onClick={() => handleToggleStatus(c._id)}
@@ -311,6 +427,17 @@ const AdminCitiesPage = () => {
                   className={inputClass}
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Coverage pincodes *</label>
+                <textarea
+                  value={addForm.coveragePincodes}
+                  onChange={(e) => setAddForm((p) => ({ ...p, coveragePincodes: e.target.value }))}
+                  placeholder="One per line or comma-separated (e.g. 823001, 823002)"
+                  rows={3}
+                  className={inputClass}
+                />
+                <p className="text-xs text-gray-500 mt-0.5">At least one 6-digit Indian pincode required.</p>
+              </div>
               {addError && (
                 <p className="text-sm text-red-600">{addError}</p>
               )}
@@ -332,6 +459,106 @@ const AdminCitiesPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit serviceable city modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden overscroll-contain">
+          <div
+            className="absolute inset-0 bg-black/50"
+            aria-hidden="true"
+            onClick={() => !editLoading && !editFetchLoading && setEditModalOpen(false)}
+          />
+          <div
+            className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-city-modal-title"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 id="edit-city-modal-title" className="text-lg font-semibold text-gray-900">
+                Edit serviceable city
+              </h2>
+              <button
+                type="button"
+                onClick={() => !editLoading && !editFetchLoading && setEditModalOpen(false)}
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {editFetchLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader size="medium" />
+              </div>
+            ) : (
+              <form onSubmit={handleEditCity} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                  <input
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm((p) => ({ ...p, city: e.target.value }))}
+                    placeholder="e.g. Mumbai"
+                    className={inputClass}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                  <input
+                    type="text"
+                    value={editForm.state}
+                    onChange={(e) => setEditForm((p) => ({ ...p, state: e.target.value }))}
+                    placeholder="e.g. Maharashtra"
+                    className={inputClass}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Display name (optional)</label>
+                  <input
+                    type="text"
+                    value={editForm.displayName}
+                    onChange={(e) => setEditForm((p) => ({ ...p, displayName: e.target.value }))}
+                    placeholder="e.g. Mumbai, Maharashtra"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Coverage pincodes *</label>
+                  <textarea
+                    value={editForm.coveragePincodes}
+                    onChange={(e) => setEditForm((p) => ({ ...p, coveragePincodes: e.target.value }))}
+                    placeholder="One per line or comma-separated (e.g. 823001, 823002)"
+                    rows={3}
+                    className={inputClass}
+                  />
+                  <p className="text-xs text-gray-500 mt-0.5">At least one 6-digit Indian pincode required.</p>
+                </div>
+                {editError && <p className="text-sm text-red-600">{editError}</p>}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditModalOpen(false)}
+                    disabled={editLoading}
+                    className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-[#CC2B52] hover:bg-[#CC2B52]/90 disabled:opacity-60"
+                  >
+                    {editLoading ? "Saving…" : "Save"}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

@@ -148,6 +148,18 @@ const GallerySettingsTab = ({ onSave, onHasChangesChange, saveTrigger = 0 }) => 
         </div>
       </div>
 
+      {slides.length > 0 && slides.every((s) => !s.active) && (
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 flex items-start gap-3">
+          <EyeOff className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-semibold text-amber-800">All slides are inactive</p>
+            <p className="text-amber-700 mt-0.5">
+              The gallery on your site shows only <strong>Active</strong> slides. Click the &quot;Inactive&quot; button on each slide to turn it to <strong>Active</strong>, then save — your images will then appear in the &quot;Stories that inspire us&quot; section.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-gray-900">Slides ({slides.length})</h3>
         <button
@@ -213,6 +225,7 @@ const GallerySettingsTab = ({ onSave, onHasChangesChange, saveTrigger = 0 }) => 
               <button
                 type="button"
                 onClick={() => handleToggleActive(index)}
+                title={slide.active ? 'Slide is shown on the site' : 'Slide is hidden on the site — click to show it'}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   slide.active ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}

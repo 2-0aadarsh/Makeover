@@ -1,51 +1,50 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import LogoImg from "../../assets/Logo/Logo.png";
-import LogoImg from "../../assets/Logo/M1.svg";
 import { fetchPublicSiteSettings } from "../../features/admin/siteSettings/siteSettingsThunks";
 
 const Logo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { publicSettings } = useSelector((state) => state.adminSiteSettings);
-  
-  const [logoUrl, setLogoUrl] = useState(LogoImg);
+  const prevLogoUrlRef = useRef("");
 
-  // Fetch site settings for logo
+  const [logoUrl, setLogoUrl] = useState("");
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   useEffect(() => {
     dispatch(fetchPublicSiteSettings());
   }, [dispatch]);
 
-  // Update logo when settings are loaded
   useEffect(() => {
-    if (publicSettings?.branding?.primaryLogo) {
-      setLogoUrl(publicSettings.branding.primaryLogo || LogoImg);
-    }
+    const url = publicSettings?.branding?.primaryLogo ?? "";
+    const next = typeof url === "string" ? url : "";
+    const urlChanged = prevLogoUrlRef.current !== next;
+    prevLogoUrlRef.current = next;
+    setLogoUrl(next);
+    if (urlChanged) setImageLoaded(false);
   }, [publicSettings]);
 
   const handleLogoClick = () => {
     navigate("/");
   };
 
+  const showImage = logoUrl && logoUrl.trim();
+
   return (
-    // <h1
-    //   className="logo text-[#CC2B52] font-syncopate font-bold text-[25px] leading-[26px] w-[171px] h-[26px] uppercase cursor-pointer"
-    //   tabIndex={0}
-    //   onClick={handleLogoClick}
-    //   // role="button"
-    // >
-    //   MakeOver
-    // </h1>
     <div
       onClick={handleLogoClick}
-      className="w-[120px] sm:w-[150px] lg:w-[171px] h-[24px] sm:h-[30px] lg:h-[36px] cursor-pointer"
+      className="w-[120px] sm:w-[150px] lg:w-[171px] h-[24px] sm:h-[30px] lg:h-[36px] cursor-pointer flex items-center"
     >
-      <img
-        src={LogoImg}
-        alt="Logo"
-        className="w-full h-full object-contain object-center"
-      />
+      {showImage ? (
+        <img
+          src={logoUrl}
+          alt=""
+          className={`w-full h-full object-contain object-left transition-opacity duration-150 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageLoaded(true)}
+        />
+      ) : null}
     </div>
   );
 };

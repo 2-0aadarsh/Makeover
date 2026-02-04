@@ -248,9 +248,22 @@ export const addRequestToServiceable = async (req, res) => {
       });
     }
 
+    const coveragePincodesRaw = req.body?.coveragePincodes;
+    const pinRegex = /^[1-9][0-9]{5}$/;
+    const pincodes = Array.isArray(coveragePincodesRaw)
+      ? coveragePincodesRaw.map((p) => String(p).trim()).filter((p) => pinRegex.test(p))
+      : [];
+    if (pincodes.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one valid 6-digit coverage pincode is required when adding a city to serviceable areas',
+      });
+    }
+
     await ServiceableCity.create({
       city,
       state,
+      coveragePincodes: pincodes,
       isActive: true,
       createdBy: req.user?.id || req.user?._id,
     });

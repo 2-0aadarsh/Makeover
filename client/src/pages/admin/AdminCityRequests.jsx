@@ -137,16 +137,15 @@ const AdminCityRequests = ({ hideTitle = false }) => {
     }
   };
 
-  const handleAddCityConfirm = async () => {
-    if (!addCityModal?.id) return;
+  const handleAddCityConfirm = async (coveragePincodes) => {
+    if (!addCityModal?.id || !Array.isArray(coveragePincodes) || coveragePincodes.length === 0) return;
     setAddCityModalLoading(true);
     try {
-      await adminCityRequestsApi.addToServiceable(addCityModal.id);
+      await adminCityRequestsApi.addToServiceable(addCityModal.id, { coveragePincodes });
       setAddCityModal(null);
       setStatusFilter("");
       setPage(1);
       await loadAnalytics();
-      // List refetches via useEffect when statusFilter/page update
       await loadList();
     } catch (e) {
       // optional: toast
