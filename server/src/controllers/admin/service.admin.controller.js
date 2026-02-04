@@ -499,7 +499,7 @@ export const updateService = async (req, res) => {
         service.price = service.options[0].price;
         service.priceDisplay = service.options[0].priceDisplay || undefined;
       }
-    } else if (optionsRaw.length === 0 && req.body.hasOwnProperty('options')) {
+    } else if (optionsRaw.length === 0 && req.body && Object.prototype.hasOwnProperty.call(req.body, 'options')) {
       service.options = [];
       service.markModified('options');
     }
