@@ -108,6 +108,15 @@ const baseStyles = `
   </style>
 `;
 
+// Consistent date/time display in emails (IST by default, configurable via DISPLAY_TIMEZONE)
+const DISPLAY_TIMEZONE = process.env.DISPLAY_TIMEZONE || 'Asia/Kolkata';
+
+function formatInDisplayTZ(date, options = {}) {
+  const d = date instanceof Date ? date : new Date(date);
+  const opts = Object.keys(options).length ? options : { dateStyle: 'full', timeStyle: 'short' };
+  return new Intl.DateTimeFormat('en-IN', { ...opts, timeZone: DISPLAY_TIMEZONE }).format(d);
+}
+
 const emailTemplate = (otp) => `
 <!DOCTYPE html>
 <html>
@@ -261,6 +270,7 @@ const passwordResetEmailTemplate = (resetLink) => `
 </html>`;
 
 const contactUsEmailTemplate = (userName, userEmail, message) => {
+  const formattedContactDate = formatInDisplayTZ(new Date());
   return `
 <!DOCTYPE html>
 <html>
@@ -344,7 +354,7 @@ const contactUsEmailTemplate = (userName, userEmail, message) => {
         </div>
         <div class="info-row">
           <span class="info-label">Date:</span>
-          <span class="info-value">${new Date().toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' })}</span>
+          <span class="info-value">${formattedContactDate}</span>
         </div>
       </div>
       
@@ -852,11 +862,7 @@ const enquiryNotificationEmailTemplate = (enquiryData) => {
   };
   
   const statusColor = statusColors[status] || statusColors.pending;
-  
-  const formattedDate = new Date(createdAt).toLocaleString('en-IN', {
-    dateStyle: 'full',
-    timeStyle: 'short',
-  });
+  const formattedDate = formatInDisplayTZ(createdAt);
 
   return `
 <!DOCTYPE html>
@@ -1044,7 +1050,7 @@ const enquiryNotificationEmailTemplate = (enquiryData) => {
         ${enquiryDetails.preferredDate ? `
         <div class="info-row">
           <span class="info-label">Preferred Date:</span>
-          <span class="info-value">${new Date(enquiryDetails.preferredDate).toLocaleDateString('en-IN', { dateStyle: 'long' })}</span>
+          <span class="info-value">${formatInDisplayTZ(enquiryDetails.preferredDate, { dateStyle: 'long' })}</span>
         </div>
         ` : ''}
         ${enquiryDetails.preferredTimeSlot ? `
@@ -1097,10 +1103,7 @@ const enquiryConfirmationEmailTemplate = (enquiryData) => {
     createdAt,
   } = enquiryData;
 
-  const formattedDate = new Date(createdAt).toLocaleString('en-IN', {
-    dateStyle: 'full',
-    timeStyle: 'short',
-  });
+  const formattedDate = formatInDisplayTZ(createdAt);
 
   return `
 <!DOCTYPE html>
@@ -1280,7 +1283,7 @@ const enquiryConfirmationEmailTemplate = (enquiryData) => {
         ${enquiryDetails?.preferredDate ? `
         <div class="service-row">
           <span class="service-label">Preferred Date:</span>
-          <span class="service-value">${new Date(enquiryDetails.preferredDate).toLocaleDateString('en-IN', { dateStyle: 'long' })}</span>
+          <span class="service-value">${formatInDisplayTZ(enquiryDetails.preferredDate, { dateStyle: 'long' })}</span>
         </div>
         ` : ''}
         <div class="service-row">
@@ -1858,6 +1861,11 @@ const bookingRescheduleAdminEmailTemplate = (rescheduleData) => {
     </tr>
   `).join('');
 
+  const dateOpts = { day: 'numeric', month: 'long', year: 'numeric' };
+  const formattedOriginalDate = formatInDisplayTZ(originalDate, dateOpts);
+  const formattedNewDate = formatInDisplayTZ(newDate, dateOpts);
+  const formattedRescheduledAt = formatInDisplayTZ(rescheduledAt);
+
   return `
 <!DOCTYPE html>
 <html>
@@ -2050,12 +2058,12 @@ const bookingRescheduleAdminEmailTemplate = (rescheduleData) => {
           <div class="change-comparison">
             <div class="change-item old">
               <div class="change-label">❌ Original Schedule</div>
-              <div class="change-value">${new Date(originalDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div class="change-value">${formattedOriginalDate}</div>
               <div class="change-value">${originalSlot}</div>
             </div>
             <div class="change-item new">
               <div class="change-label">✅ New Schedule</div>
-              <div class="change-value">${new Date(newDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div class="change-value">${formattedNewDate}</div>
               <div class="change-value">${newSlot}</div>
             </div>
           </div>
@@ -2093,7 +2101,7 @@ const bookingRescheduleAdminEmailTemplate = (rescheduleData) => {
 
       <div class="reschedule-count-box">
         <p>📊 Reschedule Count: ${rescheduleCount} of 3 allowed</p>
-        <p style="font-size: 12px; color: #3b82f6; font-weight: normal;">Rescheduled on: ${new Date(rescheduledAt).toLocaleString('en-IN')}</p>
+        <p style="font-size: 12px; color: #3b82f6; font-weight: normal;">Rescheduled on: ${formattedRescheduledAt}</p>
       </div>
     </div>
 
@@ -2141,6 +2149,10 @@ const bookingRescheduleUserEmailTemplate = (rescheduleData) => {
       </td>
     </tr>
   `).join('');
+
+  const dateOpts = { day: 'numeric', month: 'long', year: 'numeric' };
+  const formattedOriginalDate = formatInDisplayTZ(originalDate, dateOpts);
+  const formattedNewDate = formatInDisplayTZ(newDate, dateOpts);
 
   return `
 <!DOCTYPE html>
@@ -2316,12 +2328,12 @@ const bookingRescheduleUserEmailTemplate = (rescheduleData) => {
           <div class="change-comparison">
             <div class="change-item old">
               <div class="change-label">❌ Previous</div>
-              <div class="change-value">${new Date(originalDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div class="change-value">${formattedOriginalDate}</div>
               <div class="change-value">${originalSlot}</div>
             </div>
             <div class="change-item new">
               <div class="change-label">✅ New</div>
-              <div class="change-value">${new Date(newDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div class="change-value">${formattedNewDate}</div>
               <div class="change-value">${newSlot}</div>
             </div>
           </div>
@@ -2416,17 +2428,13 @@ const paymentConfirmationAdminEmailTemplate = (paymentData) => {
     address
   } = paymentData;
 
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-IN', {
+  const formattedDate = formatInDisplayTZ(bookingDate, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
-
-  const formattedPaidAt = new Date(paidAt).toLocaleString('en-IN', {
-    dateStyle: 'full',
-    timeStyle: 'short'
-  });
+  const formattedPaidAt = formatInDisplayTZ(paidAt);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -2633,17 +2641,13 @@ const paymentConfirmationUserEmailTemplate = (paymentData) => {
     address
   } = paymentData;
 
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-IN', {
+  const formattedDate = formatInDisplayTZ(bookingDate, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
-
-  const formattedPaidAt = new Date(paidAt).toLocaleString('en-IN', {
-    dateStyle: 'full',
-    timeStyle: 'short'
-  });
+  const formattedPaidAt = formatInDisplayTZ(paidAt);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -2894,7 +2898,7 @@ const paymentConfirmationUserEmailTemplate = (paymentData) => {
 const adminOnboardingEmailTemplate = (data) => {
   const { onboardingLink, adminName, creatorName, expiresInHours = 48 } = data;
   const expiryDate = new Date(Date.now() + expiresInHours * 60 * 60 * 1000);
-  const formattedExpiryDate = expiryDate.toLocaleDateString('en-IN', {
+  const formattedExpiryDate = formatInDisplayTZ(expiryDate, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -2998,17 +3002,15 @@ const adminOnboardingEmailTemplate = (data) => {
  */
 const reviewRequestEmailTemplate = (data) => {
   const { customerName, orderNumber, services, bookingDate, reviewToken, bookingStatus } = data;
-  
-  const formattedDate = new Date(bookingDate).toLocaleDateString('en-IN', {
+  const formattedDate = formatInDisplayTZ(bookingDate, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
-  
   const servicesList = services.map(s => s.name).join(', ');
   
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = process.env.FRONTEND_URL;
   const reviewUrl = `${frontendUrl}/reviews/submit?token=${reviewToken}&type=review`;
   const complaintUrl = `${frontendUrl}/reviews/submit?token=${reviewToken}&type=complaint`;
   
