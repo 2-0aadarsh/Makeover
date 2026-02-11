@@ -136,40 +136,76 @@ export const getDashboardMetrics = async (req, res) => {
 };
 
 /**
+ * Get start and end dates for dashboard booking period (server local time).
+ * @param {'today'|'tomorrow'|'week'} period
+ * @returns {{ start: Date, end: Date }} end is exclusive for today/tomorrow, end of day for week
+ */
+function getBookingPeriodRange(period) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+
+  if (period === 'today') {
+    const end = new Date(today);
+    end.setDate(end.getDate() + 1);
+    return { start: today, end };
+  }
+
+  if (period === 'tomorrow') {
+    const start = new Date(today);
+    start.setDate(start.getDate() + 1);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    return { start, end };
+  }
+
+  if (period === 'week') {
+    // This week: Monday 00:00:00 to Sunday 23:59:59.999 (local)
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ...
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const start = new Date(today);
+    start.setDate(today.getDate() - daysToMonday);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+  }
+
+  // default fallback to today
+  const end = new Date(today);
+  end.setDate(end.getDate() + 1);
+  return { start: today, end };
+}
+
+/**
  * @route   GET /api/admin/dashboard/today-bookings
- * @desc    Get today's bookings with pagination
+ * @desc    Get bookings for a period with pagination. Query: period=today|tomorrow|week (default: today)
+ * @query   period - today | tomorrow | week (default: today)
+ * @query   page, limit, status - optional pagination and status filter
  * @access  Admin only
  */
 export const getTodayBookings = async (req, res) => {
   try {
-    // Get pagination parameters
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-
-    // Get status filter if provided
     const statusFilter = req.query.status;
 
-    // Get today's date range
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const period = (req.query.period || 'today').toLowerCase();
+    const validPeriods = ['today', 'tomorrow', 'week'];
+    const periodKey = validPeriods.includes(period) ? period : 'today';
 
-    // Build query
+    const { start, end } = getBookingPeriodRange(periodKey);
+
     const query = {
-      'bookingDetails.date': {
-        $gte: today,
-        $lt: tomorrow
-      }
+      'bookingDetails.date': periodKey === 'week'
+        ? { $gte: start, $lte: end }
+        : { $gte: start, $lt: end }
     };
 
-    // Add status filter if provided
     if (statusFilter && ['pending', 'confirmed', 'completed', 'cancelled'].includes(statusFilter)) {
       query.status = statusFilter;
     }
 
-    // Fetch today's bookings with user details
     const bookings = await Booking.find(query)
       .populate('userId', 'name email phoneNumber')
       .sort({ createdAt: -1 })
@@ -177,11 +213,9 @@ export const getTodayBookings = async (req, res) => {
       .limit(limit)
       .lean();
 
-    // Get total count for pagination
     const totalBookings = await Booking.countDocuments(query);
     const totalPages = Math.ceil(totalBookings / limit);
 
-    // Format bookings for response
     const formattedBookings = bookings.map(booking => ({
       bookingId: booking.orderNumber,
       customerName: booking.userId?.name || 'N/A',
@@ -200,10 +234,17 @@ export const getTodayBookings = async (req, res) => {
       createdAt: booking.createdAt
     }));
 
+    const messages = {
+      today: "Today's bookings retrieved successfully",
+      tomorrow: "Tomorrow's bookings retrieved successfully",
+      week: "This week's bookings retrieved successfully"
+    };
+
     return res.status(200).json({
       success: true,
-      message: 'Today\'s bookings retrieved successfully',
+      message: messages[periodKey],
       data: {
+        period: periodKey,
         bookings: formattedBookings,
         pagination: {
           currentPage: page,
@@ -215,12 +256,11 @@ export const getTodayBookings = async (req, res) => {
         }
       }
     });
-
   } catch (error) {
-    console.error('Error fetching today\'s bookings:', error);
+    console.error('Error fetching dashboard bookings:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch today\'s bookings',
+      message: 'Failed to fetch bookings',
       error: error.message
     });
   }
