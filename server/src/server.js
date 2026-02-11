@@ -45,6 +45,7 @@ import reviewRouter from './routes/review.routes.js';
 import notificationRouter from './routes/notification.routes.js';
 import cityRequestRouter from './routes/cityRequest.routes.js';
 import cityRequestAdminRouter from './routes/admin/cityRequest.admin.routes.js';
+import contactMessageAdminRouter from './routes/admin/contactMessage.admin.routes.js';
 import connectCloudinary from './configs/cloudinary.config.js';
 
 const app = express();
@@ -57,6 +58,8 @@ const allowedOrigins = [
   'https://wemakeover.netlify.app',
   'http://localhost:5173',
   'http://localhost:5174',
+   'https://wemakeover.co.in',
+  'https://www.wemakeover.co.in',
 ];
 
 app.use(cors({
@@ -145,6 +148,7 @@ app.use('/api/reviews', reviewRouter);
 app.use('/api/notifications', notificationRouter);
 app.use('/api/city-requests', cityRequestRouter);
 app.use('/api/admin/city-requests', cityRequestAdminRouter);
+app.use('/api/admin/contact-messages', contactMessageAdminRouter);
 
 app.disable('x-powered-by');
 
