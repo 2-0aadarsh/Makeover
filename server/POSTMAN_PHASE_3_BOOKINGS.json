@@ -1,0 +1,258 @@
+{
+  "info": {
+    "name": "WeMakeover - Phase 3: Bookings & Customers",
+    "description": "Complete API collection for Booking and Customer Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "BOOKING_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "CUSTOMER_ID",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Booking Management",
+      "item": [
+        {
+          "name": "1. Get All Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings?page=1&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "status", "value": "completed", "disabled": true},
+                {"key": "paymentStatus", "value": "completed", "disabled": true},
+                {"key": "search", "value": "Sanjana", "disabled": true},
+                {"key": "startDate", "value": "2025-01-01", "disabled": true},
+                {"key": "endDate", "value": "2025-01-31", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get All Bookings - Filtered by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings?status=completed&page=1&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings"],
+              "query": [
+                {"key": "status", "value": "completed"},
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Search Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings?search=Sanjana&page=1&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings"],
+              "query": [
+                {"key": "search", "value": "Sanjana"},
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Bookings by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings?startDate=2025-01-01&endDate=2025-01-31",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings"],
+              "query": [
+                {"key": "startDate", "value": "2025-01-01"},
+                {"key": "endDate", "value": "2025-01-31"}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Single Booking Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings/{{BOOKING_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings", "{{BOOKING_ID}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Update Booking Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\",\n  \"adminNote\": \"Confirmed by admin - customer called\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings/{{BOOKING_ID}}/status",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings", "{{BOOKING_ID}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Update Payment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentStatus\": \"completed\",\n  \"adminNote\": \"Payment verified manually\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings/{{BOOKING_ID}}/payment-status",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings", "{{BOOKING_ID}}", "payment-status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8. Cancel Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested cancellation due to emergency\",\n  \"refundEligible\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings/{{BOOKING_ID}}/cancel",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings", "{{BOOKING_ID}}", "cancel"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. Get Booking Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/bookings/analytics",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "bookings", "analytics"],
+              "query": [
+                {"key": "startDate", "value": "2025-01-01", "disabled": true},
+                {"key": "endDate", "value": "2025-01-31", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer Management",
+      "item": [
+        {
+          "name": "1. Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/customers?page=1&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "customers"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "10"},
+                {"key": "search", "value": "Sanjana", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Search Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/customers?search=Sanjana",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "customers"],
+              "query": [
+                {"key": "search", "value": "Sanjana"}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Single Customer Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/customers/{{CUSTOMER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "customers", "{{CUSTOMER_ID}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Customer Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/admin/customers/stats",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "admin", "customers", "stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

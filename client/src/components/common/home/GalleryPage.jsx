@@ -1,0 +1,184 @@
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import SectionTitle from "../../ui/SectionTitle";
+import Button from "../../ui/Button";
+import { FaArrowRightLong } from "react-icons/fa6";
+import { fetchPublicSiteSettings } from "../../../features/admin/siteSettings/siteSettingsThunks";
+import ContactUsModal from "../../modals/ContactUsModal";
+
+// 1x1 transparent pixel – used only when dynamic image fails to load (no hardcoded gallery assets)
+const PLACEHOLDER_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+const GalleryPage = () => {
+  const dispatch = useDispatch();
+  const { publicSettings } = useSelector((state) => state.adminSiteSettings);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [showContactModal, setShowContactModal] = useState(false);
+  // Start empty so we never show inactive/default tabs before API returns; only show API slides
+  const [tabData, setTabData] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Fetch site settings for gallery slides on mount and when page becomes visible
+  useEffect(() => {
+    dispatch(fetchPublicSiteSettings());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        dispatch(fetchPublicSiteSettings());
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [dispatch]);
+
+  // Update gallery slides when settings are loaded – dynamic only (no hardcoded slides)
+  useEffect(() => {
+    if (publicSettings?.gallery !== undefined) {
+      setHasLoaded(true);
+      const slides = publicSettings.gallery?.slides || [];
+      setTabData(slides.map((slide) => ({
+        title: slide.title ?? '',
+        image: slide.imageUrl ?? '',
+        description: slide.description ?? '',
+      })));
+      setActiveIndex(0);
+    }
+  }, [publicSettings]);
+
+  // Auto-rotate only when we have more than one slide
+  useEffect(() => {
+    if (tabData.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prevIndex) => (prevIndex + 1) % tabData.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [tabData.length]);
+
+  return (
+    <section
+      id="gallery"
+      className="w-full py-8 sm:py-12 lg:py-16 px-4 sm:px-6 md:px-10 lg:px-20 flex flex-col gap-8 sm:gap-12 lg:gap-16"
+    >
+      {/* First Container: Section Title */}
+      <SectionTitle title="Stories that inspire us" />
+
+      {/* Loading State */}
+      {!hasLoaded ? (
+        <div className="w-full flex flex-col items-center justify-center py-16 px-6 bg-[#F7EBEE] rounded-xl border border-gray-200 min-h-[400px]">
+          <div className="animate-pulse w-full max-w-[300px] h-[400px] bg-gray-200 rounded-lg" />
+          <p className="text-gray-500 text-sm mt-4">Loading gallery...</p>
+        </div>
+      ) : hasLoaded && tabData.length === 0 ? (
+        /* Empty State */
+        <div className="w-full flex flex-col items-center justify-center py-16 px-6 bg-[#F7EBEE] rounded-xl border border-gray-200">
+          <p className="text-gray-600 text-center text-lg font-medium">No gallery images at the moment.</p>
+          <p className="text-gray-500 text-sm mt-2 text-center max-w-md">
+            Check back soon for our latest work and stories.
+          </p>
+        </div>
+      ) : (
+        /* Gallery Content */
+        <div className="w-full min-h-[400px] sm:min-h-[500px] lg:h-[847px] flex flex-col lg:flex-row gap-6 lg:gap-6">
+          {/* Left Section - Mobile: Full width, Desktop: 1/3 */}
+          <div className="flex flex-col items-center justify-between w-full lg:w-1/3 gap-8 sm:gap-12 lg:gap-20">
+            {/* Navigation Tabs - Responsive */}
+            <div className="flex flex-row lg:flex-col gap-2 sm:gap-4 items-center justify-between lg:items-start w-full lg:justify-start">
+              {tabData.map((tab, index) => (
+                <div
+                  key={index}
+                  className={`text-sm sm:text-lg md:text-xl lg:text-[28px] leading-tight sm:leading-relaxed lg:leading-[48px] font-normal py-2 cursor-pointer transition-all duration-300 ${
+                    index === activeIndex
+                      ? "text-[#CC2B52] border-b-2 border-[#CC2B52]"
+                      : "text-[#E2B6C1]"
+                  }`}
+                  onClick={() => setActiveIndex(index)}
+                >
+                  {tab.title}
+                </div>
+              ))}
+            </div>
+
+            {/* Content and Button - Hidden on mobile, shown on desktop */}
+            <div className="hidden lg:flex flex-col justify-between gap-16">
+              <div className="font-normal font-sans text-[18px] leading-[36px]">
+                <p>
+                  Transform your look and boost your confidence with our premium
+                  at home. Wemakeover and makeup services. Whether it&#39;s a
+                  glam evening look, bridal makeup, or a flawless everyday glow,
+                  our professional artists bring the salon experience to your
+                  doorstep, using top-quality products and personalized
+                  technique. Ready to feel your best without stepping out? Tap
+                  the button above to enquire now.
+                  <span className="font-semibold ml-1">
+                    Your perfect Wemakeover is just a click away!
+                  </span>
+                </p>
+              </div>
+
+              <Button
+                css="font-semibold text-[14px] w-[85%]"
+                content="Get In Touch For Personal Assistance"
+                icon={<FaArrowRightLong />}
+                scrollTo={!isAuthenticated ? "contact-us" : undefined}
+                onClickFunction={isAuthenticated ? () => setShowContactModal(true) : undefined}
+              />
+            </div>
+          </div>
+
+          {/* Right Section: Animated Image - Mobile: Full width, Desktop: 2/3 */}
+          <div className="w-full lg:w-2/3 bg-[#F7EBEE] p-4 sm:p-6 md:p-8 lg:p-12 flex items-center justify-center">
+            <div className="w-full max-w-[500px] lg:max-w-none h-full relative overflow-hidden shadow-lg">
+              <AnimatePresence mode="wait">
+                {tabData.length > 0 && tabData[activeIndex] && (
+                  <motion.div
+                    key={tabData[activeIndex].title}
+                    className="w-full h-full flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                  >
+                    {/* Consistent Portrait Image Container */}
+                    <div className="w-full aspect-[3/4] max-h-[500px] lg:max-h-[600px] xl:max-h-[700px] relative overflow-hidden">
+                      <img
+                        src={tabData[activeIndex].image || PLACEHOLDER_IMAGE}
+                        alt={tabData[activeIndex].title || "Gallery"}
+                        className="w-full h-full object-cover object-center"
+                        onError={(e) => {
+                          e.target.src = PLACEHOLDER_IMAGE;
+                        }}
+                        style={{ objectPosition: "center top" }}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Mobile CTA Button */}
+          <div className="lg:hidden w-full flex justify-center">
+            <Button
+              css="font-semibold text-xs sm:text-sm w-full sm:w-[85%]"
+              content="Get In Touch For Personal Assistance"
+              icon={<FaArrowRightLong />}
+              scrollTo={!isAuthenticated ? "contact-us" : undefined}
+              onClickFunction={isAuthenticated ? () => setShowContactModal(true) : undefined}
+            />
+          </div>
+        </div>
+      )}
+
+      {showContactModal && (
+        <ContactUsModal onClose={() => setShowContactModal(false)} />
+      )}
+    </section>
+  );
+};
+
+export default GalleryPage;
