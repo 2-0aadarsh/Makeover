@@ -100,7 +100,11 @@ const EditReviewModal = ({ isOpen, onClose, review }) => {
             </button>
           </div>
 
+<<<<<<< HEAD
           <div className="px-6 py-4 overflow-y-auto flex-1" data-modal-scroll>
+=======
+          <div className="px-6 py-4 overflow-y-auto flex-1">
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
             {review?.serviceName && (
               <p className="text-sm text-gray-600 mb-4">{review.serviceName}</p>
             )}

@@ -6,6 +6,7 @@ import {
   fetchDashboardStats,
 } from './adminDashboardThunks';
 
+<<<<<<< HEAD
 const initialBookingsPagination = {
   currentPage: 1,
   totalPages: 1,
@@ -21,6 +22,8 @@ const initialBookingsCache = {
   week: null,
 };
 
+=======
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 const initialState = {
   // Metrics state
   metrics: {
@@ -32,11 +35,24 @@ const initialState = {
   metricsLoading: false,
   metricsError: null,
 
+<<<<<<< HEAD
   // Bookings by period: current selection and cache (persisted; cleared on logout)
   bookingsPeriod: 'today',
   bookingsCache: initialBookingsCache,
   todayBookings: [],
   bookingsPagination: initialBookingsPagination,
+=======
+  // Today's bookings state
+  todayBookings: [],
+  bookingsPagination: {
+    currentPage: 1,
+    totalPages: 1,
+    totalBookings: 0,
+    limit: 10,
+    hasNextPage: false,
+    hasPrevPage: false,
+  },
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   bookingsLoading: false,
   bookingsError: null,
 
@@ -71,6 +87,7 @@ const adminDashboardSlice = createSlice({
     setBookingsPage: (state, action) => {
       state.bookingsPagination.currentPage = action.payload;
     },
+<<<<<<< HEAD
     // Set period (today/tomorrow/week); fill from cache if available
     setBookingsPeriod: (state, action) => {
       const period = action.payload;
@@ -94,6 +111,8 @@ const adminDashboardSlice = createSlice({
       state.bookingsLoading = false;
       state.bookingsError = null;
     },
+=======
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   },
   extraReducers: (builder) => {
     builder
@@ -123,6 +142,7 @@ const adminDashboardSlice = createSlice({
         state.bookingsLoading = false;
         state.bookingsError = null;
         if (action.payload?.data) {
+<<<<<<< HEAD
           const period = action.payload.data.period || state.bookingsPeriod || 'today';
           const bookings = action.payload.data.bookings || [];
           const pagination = action.payload.data.pagination
@@ -138,6 +158,19 @@ const adminDashboardSlice = createSlice({
           state.todayBookings = bookings;
           state.bookingsPagination = pagination;
           state.bookingsCache[period] = { bookings, pagination };
+=======
+          state.todayBookings = action.payload.data.bookings || [];
+          if (action.payload.data.pagination) {
+            state.bookingsPagination = {
+              currentPage: action.payload.data.pagination.currentPage || 1,
+              totalPages: action.payload.data.pagination.totalPages || 1,
+              totalBookings: action.payload.data.pagination.totalBookings || 0,
+              limit: action.payload.data.pagination.limit || 10,
+              hasNextPage: action.payload.data.pagination.hasNextPage || false,
+              hasPrevPage: action.payload.data.pagination.hasPrevPage || false,
+            };
+          }
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         }
       })
       .addCase(fetchTodayBookings.rejected, (state, action) => {
@@ -177,6 +210,7 @@ const adminDashboardSlice = createSlice({
       .addCase(fetchDashboardStats.rejected, (state, action) => {
         state.statsLoading = false;
         state.statsError = action.payload || action.error.message;
+<<<<<<< HEAD
       })
 
       // Clear bookings cache on logout (dev and production)
@@ -195,4 +229,11 @@ const adminDashboardSlice = createSlice({
 });
 
 export const { resetDashboardState, setBookingsPage, setBookingsPeriod, clearDashboardBookingsCache } = adminDashboardSlice.actions;
+=======
+      });
+  },
+});
+
+export const { resetDashboardState, setBookingsPage } = adminDashboardSlice.actions;
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 export default adminDashboardSlice.reducer;

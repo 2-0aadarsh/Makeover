@@ -136,7 +136,11 @@ const RescheduleBookingModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 overflow-hidden overscroll-contain">
+<<<<<<< HEAD
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" data-modal-scroll>
+=======
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         {/* Header */}
         <div className="bg-gradient-to-r from-[#CC2B52] to-[#A91D3A] text-white p-6 rounded-t-2xl">
           <div className="flex items-center justify-between">

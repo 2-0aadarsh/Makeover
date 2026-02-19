@@ -1,5 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
+<<<<<<< HEAD
 import { getCartItemId } from './cartItemId.js';
+=======
+
+// Helper function to get cart item ID (use service_id + optionIndex when present)
+const getCartItemId = (serviceData) => {
+  const baseId = serviceData.service_id || serviceData.serviceId;
+  if (baseId && (serviceData.optionIndex !== undefined && serviceData.optionIndex !== null)) {
+    return `${baseId}_opt_${serviceData.optionIndex}`;
+  }
+  if (baseId) return baseId;
+  return `${serviceData.cardHeader}_${serviceData.price}_${serviceData.category || 'default'}`;
+};
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 
 // Helper function to calculate item subtotal
 const calculateItemSubtotal = (price, quantity) => {
@@ -325,7 +338,11 @@ const cartSlice = createSlice({
     // Get item quantity for a specific service
     getItemQuantity: (state, action) => {
       const serviceData = action.payload;
+<<<<<<< HEAD
       const cartItemId = getCartItemId(serviceData);
+=======
+      const cartItemId = generateCartItemId(serviceData);
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
       const item = state.items.find(item => item.id === cartItemId);
       
       console.log('🛒 Cart State - Item quantity requested:', {

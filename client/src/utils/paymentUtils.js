@@ -245,6 +245,7 @@ export const generateOrderSummary = (services) => {
 };
 
 /**
+<<<<<<< HEAD
  * Parse duration to minutes (handles "1hr 10mins", "60", 60, etc.)
  * @param {string|number} duration - Duration as string ("1hr 10mins", "60") or number
  * @returns {number} Duration in minutes
@@ -287,6 +288,8 @@ export const parseDurationToMinutes = (duration) => {
 };
 
 /**
+=======
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
  * Calculate service duration in minutes
  * @param {Array} services - Services array
  * @returns {number} Total duration in minutes

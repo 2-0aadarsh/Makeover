@@ -1,5 +1,9 @@
 /* eslint-disable react/prop-types */
+<<<<<<< HEAD
 import { useEffect, useRef, useState } from "react";
+=======
+import { useEffect, useRef } from "react";
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 import { motion, AnimatePresence } from "framer-motion";
 import useEnquiry from "../../hooks/useEnquiry";
 import useBodyScrollLock from "../../hooks/useBodyScrollLock";
@@ -32,6 +36,7 @@ const formatPrice = (value) => {
   return `₹ ${value}`;
 };
 
+<<<<<<< HEAD
 const getIsDesktop = () =>
   typeof window !== "undefined" && window.innerWidth >= 1280;
 
@@ -39,6 +44,11 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
   const modalRef = useRef(null);
   const firstInputRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(getIsDesktop());
+=======
+const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
+  const modalRef = useRef(null);
+  const firstInputRef = useRef(null);
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 
   const {
     formData,
@@ -52,6 +62,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
     isLoggedIn,
   } = useEnquiry();
 
+<<<<<<< HEAD
   // Responsive breakpoint: mobile/tablet get slide-up, desktop gets scale/fade
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1280);
@@ -60,6 +71,8 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
+=======
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   // Animation variants
   const overlayVariants = {
     hidden: { opacity: 0 },
@@ -73,6 +86,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
     },
   };
 
+<<<<<<< HEAD
   // Mobile/tablet: slide up from bottom (same as ServiceModal)
   const slideUpVariants = {
     hidden: { y: "100%", opacity: 0 },
@@ -91,17 +105,41 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
   // Desktop: scale + fade
   const desktopModalVariants = {
     hidden: { scale: 0.9, opacity: 0, y: 20 },
+=======
+  const modalVariants = {
+    hidden: {
+      scale: 0.9,
+      opacity: 0,
+      y: 20,
+    },
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
     visible: {
       scale: 1,
       opacity: 1,
       y: 0,
+<<<<<<< HEAD
       transition: { type: "spring", damping: 30, stiffness: 400, duration: 0.4 },
+=======
+      transition: {
+        type: "spring",
+        damping: 30,
+        stiffness: 400,
+        duration: 0.4,
+      },
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
     },
     exit: {
       scale: 0.9,
       opacity: 0,
       y: 20,
+<<<<<<< HEAD
       transition: { duration: 0.2, ease: "easeIn" },
+=======
+      transition: {
+        duration: 0.2,
+        ease: "easeIn",
+      },
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
     },
   };
 
@@ -156,14 +194,21 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
 
   if (!isOpen) return null;
 
+<<<<<<< HEAD
   const modalVariants = isDesktop ? desktopModalVariants : slideUpVariants;
 
+=======
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key="enquiry-modal-overlay"
         onClick={handleBackdropClick}
+<<<<<<< HEAD
         className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-end xl:items-center z-[60] p-0 xl:p-4 overflow-hidden overscroll-contain"
+=======
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[60] p-4 overflow-hidden overscroll-contain"
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         role="dialog"
         aria-modal="true"
         aria-labelledby="enquiry-modal-title"
@@ -174,7 +219,11 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
       >
         <motion.div
           ref={modalRef}
+<<<<<<< HEAD
           className="bg-white rounded-t-2xl xl:rounded-2xl shadow-2xl w-full max-w-[min(95vw,1020px)] xl:max-w-md max-h-[85vh] overflow-hidden"
+=======
+          className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-hidden"
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
           onClick={(e) => e.stopPropagation()}
           variants={modalVariants}
           initial="hidden"
@@ -204,7 +253,11 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
           </div>
 
           {/* Content Area */}
+<<<<<<< HEAD
           <div className="overflow-y-auto max-h-[calc(85vh-80px)]" data-modal-scroll>
+=======
+          <div className="overflow-y-auto max-h-[calc(85vh-80px)]">
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
             {/* Success Message */}
             {successMessage && (
               <motion.div

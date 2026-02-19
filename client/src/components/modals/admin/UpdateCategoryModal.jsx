@@ -141,7 +141,10 @@ const UpdateCategoryModal = ({ category, onConfirm, onCancel, loading = false })
     >
       <div
         className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+<<<<<<< HEAD
         data-modal-scroll
+=======
+>>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
