@@ -83,11 +83,7 @@ const CityServiceabilityModal = ({
             </div>
 
             {/* Scrollable Content Area */}
-<<<<<<< HEAD
             <div className="flex-1 overflow-y-auto p-4 space-y-4" data-modal-scroll>
-=======
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
               {/* Message */}
               <div className="text-center">
                 {isPincodeIssue ? (
