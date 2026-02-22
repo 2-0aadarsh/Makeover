@@ -1,8 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-<<<<<<< HEAD
 import { logoutUser } from '../auth/authThunks';
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 import {
   getUserAddresses,
   createAddress,
@@ -67,7 +64,6 @@ const addressSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-<<<<<<< HEAD
       // Clear address state on logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.addresses = [];
@@ -76,8 +72,6 @@ const addressSlice = createSlice({
         state.error = null;
         state.lastUpdated = null;
       })
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
       // Get User Addresses
       .addCase(getUserAddresses.pending, (state) => {
         state.isLoading = true;
