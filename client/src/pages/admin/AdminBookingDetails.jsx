@@ -101,7 +101,6 @@ const AdminBookingDetails = () => {
     );
   };
 
-<<<<<<< HEAD
   const getPaymentStatusBadge = (paymentStatus) => {
     const configMap = {
       completed: { text: "Paid", className: "bg-green-500 text-white" },
@@ -120,8 +119,6 @@ const AdminBookingDetails = () => {
     );
   };
 
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   // Get service image based on category/name
   const getServiceImage = (serviceName, category) => {
     if (!serviceName && !category) {
@@ -178,11 +175,7 @@ const AdminBookingDetails = () => {
     );
   }
 
-<<<<<<< HEAD
   const { customer, services, bookingDetails: bookingInfo, pricing, status, paymentStatus, orderNumber } = bookingDetails;
-=======
-  const { customer, services, bookingDetails: bookingInfo, pricing, status, orderNumber } = bookingDetails;
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 
   return (
     <div className="min-h-screen bg-gray-50 p-8 lg:p-12 lg:px-[80px]">
@@ -249,7 +242,6 @@ const AdminBookingDetails = () => {
               {formatDateTime(bookingInfo?.date, bookingInfo?.slot)}
             </span>
           </div>
-<<<<<<< HEAD
           <div className="flex items-center gap-4 flex-shrink-0">
             <div className="flex flex-col items-end gap-1">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Booking</span>
@@ -260,9 +252,6 @@ const AdminBookingDetails = () => {
               {getPaymentStatusBadge(paymentStatus)}
             </div>
           </div>
-=======
-          <div>{getStatusBadge(status)}</div>
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         </div>
       </div>
 

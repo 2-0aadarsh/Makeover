@@ -11,10 +11,7 @@ const backendurl = import.meta.env.VITE_BACKEND_URL;
  * @returns {Promise<Object>} Response with cities list
  */
 export const getServiceableCities = async () => {
-<<<<<<< HEAD
   console.log('backendurl', backendurl);
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   try {
     console.log('📡 [Serviceability API] Fetching serviceable cities...');
     

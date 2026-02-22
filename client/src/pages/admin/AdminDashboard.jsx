@@ -1,17 +1,10 @@
-<<<<<<< HEAD
 import { useEffect, useState, useRef } from "react";
-=======
-import { useEffect } from "react";
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 import { useDispatch, useSelector } from "react-redux";
 import { HiMiniUsers } from "react-icons/hi2";
 import { RiBox3Fill } from "react-icons/ri";
 import { BsGraphUp } from "react-icons/bs";
 import { RxCountdownTimer } from "react-icons/rx";
-<<<<<<< HEAD
 import { ChevronDown } from "lucide-react";
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 import MetricCard from "../../components/admin/dashboard/MetricCard";
 import TodaysBookingTable from "../../components/admin/dashboard/TodaysBookingTable";
 import Loader from "../../components/common/Loader/loader.jsx";
@@ -19,11 +12,7 @@ import {
   fetchDashboardMetrics,
   fetchTodayBookings,
 } from "../../features/admin/dashboard/adminDashboardThunks";
-<<<<<<< HEAD
 import { setBookingsPage, setBookingsPeriod } from "../../features/admin/dashboard/adminDashboardSlice";
-=======
-import { setBookingsPage } from "../../features/admin/dashboard/adminDashboardSlice";
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 
 /**
  * AdminDashboard - Main dashboard page for admin
@@ -33,7 +22,6 @@ import { setBookingsPage } from "../../features/admin/dashboard/adminDashboardSl
  * 
  * Fetches real data from backend API
  */
-<<<<<<< HEAD
 const PERIOD_OPTIONS = [
   { value: 'today', label: "Today's Booking" },
   { value: 'tomorrow', label: "Tomorrow's Booking" },
@@ -44,26 +32,18 @@ const AdminDashboard = () => {
   const dispatch = useDispatch();
   const [periodDropdownOpen, setPeriodDropdownOpen] = useState(false);
   const periodDropdownRef = useRef(null);
-=======
-const AdminDashboard = () => {
-  const dispatch = useDispatch();
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   const {
     metrics,
     metricsLoading,
     metricsError,
-<<<<<<< HEAD
     bookingsPeriod,
     bookingsCache,
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
     todayBookings,
     bookingsPagination,
     bookingsLoading,
     bookingsError,
   } = useSelector((state) => state.adminDashboard);
 
-<<<<<<< HEAD
   const periodLabel = PERIOD_OPTIONS.find((o) => o.value === bookingsPeriod)?.label ?? "Today's Booking";
 
   // Close period dropdown on outside click
@@ -79,14 +59,11 @@ const AdminDashboard = () => {
     }
   }, [periodDropdownOpen]);
 
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   // Fetch dashboard metrics on component mount
   useEffect(() => {
     dispatch(fetchDashboardMetrics());
   }, [dispatch]);
 
-<<<<<<< HEAD
   // Fetch bookings when period/page changes; skip if we already have cache for this period+page
   useEffect(() => {
     const cached = bookingsCache[bookingsPeriod];
@@ -103,30 +80,16 @@ const AdminDashboard = () => {
       })
     );
   }, [dispatch, bookingsPeriod, bookingsPagination.currentPage, bookingsCache]);
-=======
-  // Fetch today's bookings on component mount and when page changes
-  useEffect(() => {
-    dispatch(
-      fetchTodayBookings({
-        page: bookingsPagination.currentPage,
-        limit: 8, // Show 8 bookings per page
-      })
-    );
-  }, [dispatch, bookingsPagination.currentPage]);
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
 
   const handlePageChange = (page) => {
     dispatch(setBookingsPage(page));
   };
 
-<<<<<<< HEAD
   const handlePeriodSelect = (value) => {
     dispatch(setBookingsPeriod(value));
     setPeriodDropdownOpen(false);
   };
 
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
   // Format metrics for MetricCard component
   const formatMetrics = () => {
     if (!metrics || Object.keys(metrics).length === 0) {
@@ -270,7 +233,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-<<<<<<< HEAD
       {/* Bookings by period: heading as dropdown trigger */}
       <div className="mb-6 relative" ref={periodDropdownRef}>
         <button
@@ -319,19 +281,6 @@ const AdminDashboard = () => {
       {bookingsLoading ? (
         <div className="bg-white rounded-lg shadow-sm p-8 flex items-center justify-center">
           <Loader size="medium" useCustomGif text={`Loading ${periodLabel.toLowerCase()}...`} />
-=======
-      {/* Today's Booking Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-[#CC2B52] mb-2 border-b-2 border-[#CC2B52] pb-2 inline-block font-sans" style={{ fontSize: "22px" }}>
-          Today's Booking
-        </h2>
-      </div>
-
-      {/* Today's Booking Table */}
-      {bookingsLoading ? (
-        <div className="bg-white rounded-lg shadow-sm p-8 flex items-center justify-center">
-          <Loader size="medium" useCustomGif text="Loading today's bookings..." />
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         </div>
       ) : bookingsError ? (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -344,10 +293,7 @@ const AdminDashboard = () => {
           bookings={todayBookings}
           onPageChange={handlePageChange}
           pagination={bookingsPagination}
-<<<<<<< HEAD
           period={bookingsPeriod}
-=======
->>>>>>> 2e2ce50b2159a868378619e63443519cc5886ae8
         />
       )}
     </div>
