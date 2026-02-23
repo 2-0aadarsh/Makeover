@@ -89,7 +89,7 @@ const ServiceCartButton = ({
     );
   }
 
-  // If item is in cart, show quantity selector with same dimensions
+  // If item is in cart, show quantity selector with same dimensions as "Add +"
   const isFullWidth = className.includes("w-full");
   const containerWidthClass = hasCustomSize
     ? ""
@@ -99,43 +99,36 @@ const ServiceCartButton = ({
   const containerHeightClass = hasCustomSize
     ? ""
     : isFullWidth
-    ? "h-[36px] sm:h-[40px] lg:h-[52px]"
-    : "";
-  const selectorHeightClass = hasCustomSize
-    ? "h-full"
-    : isFullWidth
-    ? "h-[36px] sm:h-[40px] lg:h-[52px]"
+    ? "h-[28px] lg:h-[52px]"
     : "h-8 lg:h-[28px]";
-
-  // Min width so [-] [qty] [+] never get clipped (9+32+9 = 50 → 36+32+36 ≈ 104px; lg 12+32+12 → 48+32+48 = 128px)
-  const quantityMinWidth = hasCustomSize ? "" : "min-w-[7.5rem] sm:min-w-[8rem] lg:min-w-[8.5rem]";
+  const selectorHeightClass = "h-full";
 
   return (
     <div
-      className={`${containerClasses} border border-[#CC2B52] bg-white ${containerWidthClass} ${containerHeightClass} ${quantityMinWidth} ${className}`}
+      className={`${containerClasses} border border-[#CC2B52] bg-white ${containerWidthClass} ${containerHeightClass} ${className}`}
       style={customStyle}
     >
       <div
-        className={`flex items-center justify-between w-full min-w-0 ${selectorHeightClass}`}
+        className={`flex items-center justify-between w-full min-w-0 h-full ${selectorHeightClass}`}
       >
-        {/* Decrement Button */}
+        {/* Decrement - narrow width so total matches Add+ button size */}
         <button
           onClick={handleDecrement}
-          className={`${buttonBaseClasses} w-9 sm:w-10 lg:w-12 h-full min-w-[2.25rem] sm:min-w-10 lg:min-w-12 bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white font-bold text-base sm:text-lg lg:text-xl flex-shrink-0`}
+          className={`${buttonBaseClasses} w-6 lg:w-7 h-full flex-shrink-0 bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white font-bold text-sm lg:text-base`}
           aria-label="Decrease quantity"
         >
           −
         </button>
 
         {/* Quantity Display */}
-        <span className="flex items-center justify-center flex-1 h-full min-w-[2rem] bg-[#CC2B52] text-white font-semibold text-sm sm:text-[13px] lg:text-[14px] border-l border-r border-[#CC2B52]/30 overflow-hidden">
+        <span className="flex items-center justify-center flex-1 h-full min-w-0 bg-[#CC2B52] text-white font-semibold text-xs sm:text-sm lg:text-[14px] border-l border-r border-[#CC2B52]/30 overflow-hidden">
           {quantity}
         </span>
 
-        {/* Increment Button */}
+        {/* Increment - same width as decrement */}
         <button
           onClick={handleIncrement}
-          className={`${buttonBaseClasses} w-9 sm:w-10 lg:w-12 h-full min-w-[2.25rem] sm:min-w-10 lg:min-w-12 bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white font-bold text-base sm:text-lg lg:text-xl flex-shrink-0`}
+          className={`${buttonBaseClasses} w-6 lg:w-7 h-full flex-shrink-0 bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white font-bold text-sm lg:text-base`}
           aria-label="Increase quantity"
         >
           +
