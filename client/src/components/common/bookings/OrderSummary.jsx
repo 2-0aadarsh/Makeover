@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Checkout from "./Checkout";
 import AddressDetail from "./AddressDetail";
 import RemoveServiceModal from "../../modals/RemoveServiceModal";
-import { MAX_QUANTITY_PER_SERVICE } from "../../features/cart/cartSlice";
+import { MAX_QUANTITY_PER_SERVICE } from "../../../features/cart/cartSlice";
 
 /**
  * OrderSummary Component
