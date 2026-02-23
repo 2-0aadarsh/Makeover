@@ -1,5 +1,6 @@
 import { useCart } from "../../hooks/useCart";
 import { getCartItemId } from "../../features/cart/cartItemId";
+import { MAX_QUANTITY_PER_SERVICE } from "../../features/cart/cartSlice";
 
 const ServiceCartButton = ({
   serviceData,
@@ -13,10 +14,7 @@ const ServiceCartButton = ({
     getItemQuantity,
   } = useCart();
 
-  // Get the quantity of this specific service in cart
   const quantity = getItemQuantity(serviceData);
-
-  // Use shared cart item ID so +/- match the id used by cart slice and backend
   const itemId = getCartItemId(serviceData);
 
   const handleAddToCart = () => {
@@ -24,6 +22,7 @@ const ServiceCartButton = ({
   };
 
   const handleIncrement = () => {
+    if (quantity >= MAX_QUANTITY_PER_SERVICE) return;
     incrementQuantity(itemId);
   };
 
@@ -31,11 +30,8 @@ const ServiceCartButton = ({
     decrementQuantity(itemId);
   };
 
-  // Fixed dimensions for consistent layout
-  const buttonBaseClasses =
-    "flex items-center justify-center transition-colors duration-200";
-  const containerClasses = "rounded-full font-medium overflow-hidden";
   const hasCustomSize = !!sizeConfig && (sizeConfig.width || sizeConfig.height);
+  const isFullWidth = className.includes("w-full");
   const formatDimension = (value) =>
     typeof value === "number" ? `${value}px` : value;
   const customStyle = hasCustomSize
@@ -49,91 +45,78 @@ const ServiceCartButton = ({
       }
     : undefined;
 
-  // If item is not in cart, show "Add +" button
-  if (quantity === 0) {
-    const isFullWidth = className.includes("w-full");
-    const containerWidthClass = hasCustomSize
-      ? ""
-      : isFullWidth
-      ? "w-full"
-      : "w-[80px] lg:w-[80px]";
-    const containerHeightClass = hasCustomSize
-      ? ""
-      : isFullWidth
-      ? "h-[28px] lg:h-[52px]"
-      : "";
-    const buttonHeightClass = hasCustomSize
-      ? "h-full"
-      : isFullWidth
-      ? "h-[28px] lg:h-[52px]"
-      : "h-8 lg:h-[28px]";
-
-    return (
-      <div
-        className={`${containerClasses} bg-[#CC2B52] hover:bg-[#CC2B52]/90 ${containerWidthClass} ${containerHeightClass} ${className}`}
-        style={customStyle}
-      >
-        <button
-          onClick={handleAddToCart}
-          className={`${buttonBaseClasses} w-full ${buttonHeightClass} text-white text-sm sm:text-[14px] lg:text-[15px] font-semibold px-2`}
-          style={{
-            alignItems: "center",
-            paddingTop: undefined,
-            height: hasCustomSize ? "100%" : undefined,
-          }}
-          aria-label={`Add ${serviceData.cardHeader} to cart`}
-        >
-          Add +
-        </button>
-      </div>
-    );
-  }
-
-  // If item is in cart, show quantity selector with same dimensions as "Add +"
-  const isFullWidth = className.includes("w-full");
-  const containerWidthClass = hasCustomSize
-    ? ""
-    : isFullWidth
-    ? "w-full"
-    : "w-[80px] lg:w-[80px]";
-  const containerHeightClass = hasCustomSize
+  const baseWidth = hasCustomSize ? "" : isFullWidth ? "w-full" : "w-[90px]";
+  const baseHeight = hasCustomSize
     ? ""
     : isFullWidth
     ? "h-[28px] lg:h-[52px]"
-    : "h-8 lg:h-[28px]";
-  const selectorHeightClass = "h-full";
+    : "h-9 lg:h-10";
 
+  // Add + button (quantity === 0)
+  if (quantity === 0) {
+    return (
+      <button
+        onClick={handleAddToCart}
+        style={customStyle}
+        className={`
+          ${baseWidth} ${baseHeight}
+          bg-[#CC2B52] hover:bg-[#B02547]
+          text-white font-medium text-sm sm:text-[14px] lg:text-[15px]
+          rounded-full transition-colors duration-200
+          flex items-center justify-center
+          ${hasCustomSize ? "w-full h-full" : ""}
+          ${className}
+        `}
+        aria-label={`Add ${serviceData.cardHeader} to cart`}
+      >
+        Add +
+      </button>
+    );
+  }
+
+  // Quantity selector (item in cart)
   return (
     <div
-      className={`${containerClasses} border border-[#CC2B52] bg-white ${containerWidthClass} ${containerHeightClass} ${className}`}
       style={customStyle}
+      className={`
+        ${baseWidth} ${baseHeight}
+        bg-[#CC2B52] rounded-full
+        flex items-center justify-between overflow-hidden
+        ${hasCustomSize ? "w-full h-full" : ""}
+        ${className}
+      `}
     >
-      <div
-        className={`flex items-center justify-between w-full min-w-0 h-full ${selectorHeightClass}`}
+      {/* Decrement – always active */}
+      <button
+        onClick={handleDecrement}
+        className="w-8 h-full flex items-center justify-center text-white hover:bg-[#B02547] transition-colors duration-200 text-lg font-medium flex-shrink-0"
+        aria-label="Decrease quantity"
       >
-        {/* Decrement - narrow width so total matches Add+ button size */}
-        <button
-          onClick={handleDecrement}
-          className={`${buttonBaseClasses} w-6 lg:w-7 h-full flex-shrink-0 bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white font-bold text-sm lg:text-base`}
-          aria-label="Decrease quantity"
+        −
+      </button>
+
+      {/* Quantity */}
+      <span className="flex-1 text-center text-white text-sm font-medium min-w-0">
+        {quantity}
+      </span>
+
+      {/* Increment – when at max: non-interactive div (no focus, cursor-not-allowed on hover) */}
+      {quantity >= MAX_QUANTITY_PER_SERVICE ? (
+        <div
+          className="w-8 h-full flex items-center justify-center flex-shrink-0 opacity-50 cursor-not-allowed bg-[#CC2B52] text-white text-lg font-medium select-none"
+          aria-label="Maximum quantity reached"
         >
-          −
-        </button>
-
-        {/* Quantity Display */}
-        <span className="flex items-center justify-center flex-1 h-full min-w-0 bg-[#CC2B52] text-white font-semibold text-xs sm:text-sm lg:text-[14px] border-l border-r border-[#CC2B52]/30 overflow-hidden">
-          {quantity}
-        </span>
-
-        {/* Increment - same width as decrement */}
+          +
+        </div>
+      ) : (
         <button
           onClick={handleIncrement}
-          className={`${buttonBaseClasses} w-6 lg:w-7 h-full flex-shrink-0 bg-[#CC2B52] hover:bg-[#CC2B52]/90 text-white font-bold text-sm lg:text-base`}
+          className="w-8 h-full flex items-center justify-center flex-shrink-0 text-white hover:bg-[#B02547] transition-colors duration-200 text-lg font-medium bg-[#CC2B52]"
           aria-label="Increase quantity"
         >
           +
         </button>
-      </div>
+      )}
     </div>
   );
 };

@@ -74,7 +74,7 @@ const cartItemSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Quantity is required'],
     min: [1, 'Quantity must be at least 1'],
-    max: [10, 'Quantity cannot exceed 10']
+    max: [5, 'Quantity cannot exceed 5']
   },
   
   subtotal: {

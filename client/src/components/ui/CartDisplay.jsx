@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
+import { MAX_QUANTITY_PER_SERVICE } from "../../features/cart/cartSlice";
 import AuthPromptModal from "../modals/AuthPromptModal";
 
 const CartDisplay = () => {
@@ -124,7 +125,8 @@ const CartDisplay = () => {
                       </span>
                       <button
                         onClick={() => incrementQuantity(item.id)}
-                          className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-sm transition-colors duration-200 hover:bg-gray-200"
+                          disabled={item.quantity >= MAX_QUANTITY_PER_SERVICE}
+                          className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-sm transition-colors duration-200 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
                           aria-label="Increase quantity"
                       >
                         +

@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Checkout from "./Checkout";
 import AddressDetail from "./AddressDetail";
 import RemoveServiceModal from "../../modals/RemoveServiceModal";
+import { MAX_QUANTITY_PER_SERVICE } from "../../features/cart/cartSlice";
 
 /**
  * OrderSummary Component
@@ -95,7 +96,7 @@ const OrderSummary = ({
 
     // Normal quantity change (increase or decrease when quantity > 1)
     const newServices = [...services];
-    const newQuantity = Math.max(1, currentQuantity + change);
+    const newQuantity = Math.max(1, Math.min(MAX_QUANTITY_PER_SERVICE, currentQuantity + change));
     newServices[serviceIndex].quantity = newQuantity;
     setServices(newServices);
 
@@ -268,7 +269,8 @@ const OrderSummary = ({
                               </span>
                               <button
                                 onClick={() => handleQuantityChange(index, 1)}
-                                className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-r-lg transition-colors"
+                                disabled={service.quantity >= MAX_QUANTITY_PER_SERVICE}
+                                className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-r-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                                 aria-label="Increase quantity"
                               >
                                 <Plus className="w-3 h-3 text-gray-600" />
@@ -359,7 +361,8 @@ const OrderSummary = ({
                               </span>
                               <button
                                 onClick={() => handleQuantityChange(index, 1)}
-                                className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-r-lg transition-colors"
+                                disabled={service.quantity >= MAX_QUANTITY_PER_SERVICE}
+                                className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-r-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                                 aria-label="Increase quantity"
                               >
                                 <Plus className="w-3 h-3 text-gray-600" />

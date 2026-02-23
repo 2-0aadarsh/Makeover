@@ -17,8 +17,8 @@ export const validateCartItem = (req, res, next) => {
     errors.push('Price must be a positive number');
   }
   
-  if (req.body.quantity && (isNaN(req.body.quantity) || req.body.quantity < 1 || req.body.quantity > 10)) {
-    errors.push('Quantity must be between 1 and 10');
+  if (req.body.quantity && (isNaN(req.body.quantity) || req.body.quantity < 1 || req.body.quantity > 5)) {
+    errors.push('Quantity must be between 1 and 5');
   }
   
   if (req.body.serviceId && typeof req.body.serviceId !== 'string') {
@@ -94,8 +94,8 @@ export const validateCartUpdate = (req, res, next) => {
         errors.push(`Item ${index + 1}: Price must be a positive number`);
       }
       
-      if (item.quantity && (isNaN(item.quantity) || item.quantity < 1 || item.quantity > 10)) {
-        errors.push(`Item ${index + 1}: Quantity must be between 1 and 10`);
+      if (item.quantity && (isNaN(item.quantity) || item.quantity < 1 || item.quantity > 5)) {
+        errors.push(`Item ${index + 1}: Quantity must be between 1 and 5`);
       }
       
       if (item.subtotal && (isNaN(item.subtotal) || item.subtotal < 0)) {
@@ -286,7 +286,7 @@ export const calculateCartTotals = (req, res, next) => {
 // Middleware to check cart limits
 export const checkCartLimits = (req, res, next) => {
   const maxItems = 20; // Maximum items in cart
-  const maxQuantityPerItem = 10; // Maximum quantity per item
+  const maxQuantityPerItem = 5; // Maximum quantity per item
   
   if (req.body.items && Array.isArray(req.body.items)) {
     if (req.body.items.length > maxItems) {

@@ -1,6 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { getCartItemId } from './cartItemId.js';
 
+/** Maximum quantity allowed per service (must match backend cart model/middleware) */
+export const MAX_QUANTITY_PER_SERVICE = 5;
+
 // Helper function to calculate item subtotal
 const calculateItemSubtotal = (price, quantity) => {
   const itemPrice = parseFloat(price) || 0;
@@ -77,9 +80,11 @@ const cartSlice = createSlice({
       const existingItem = state.items.find(item => item.id === cartItemId);
       
       if (existingItem) {
-        // If item exists, increment quantity
-        existingItem.quantity += 1;
-        // Item quantity increased successfully
+        // If item exists, increment quantity (capped at max)
+        if (existingItem.quantity < MAX_QUANTITY_PER_SERVICE) {
+          existingItem.quantity += 1;
+        }
+        // Item quantity increased successfully (or already at max)
       } else {
         // If item doesn't exist, add new item with detailed information
         const newCartItem = {
@@ -210,12 +215,12 @@ const cartSlice = createSlice({
       }
     },
 
-    // Increase item quantity by 1
+    // Increase item quantity by 1 (capped at MAX_QUANTITY_PER_SERVICE)
     increaseQuantity: (state, action) => {
       const itemId = action.payload;
       
       const item = state.items.find(item => item.id === itemId);
-      if (item) {
+      if (item && item.quantity < MAX_QUANTITY_PER_SERVICE) {
         item.quantity += 1;
         item.subtotal = calculateItemSubtotal(item.price, item.quantity);
         item.lastModified = new Date().toISOString();
