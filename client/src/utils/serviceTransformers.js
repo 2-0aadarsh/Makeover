@@ -21,6 +21,8 @@ export const transformServiceToCard = (service) => {
       ? service.priceDisplay
       : (service.price != null ? service.price : 'Get in touch for pricing'));
   const isAvailable = service.isAvailable !== false;
+  const baseId = service._id?.toString() || service.id?.toString() || '';
+  const serviceId = hasOptions ? `${baseId}_opt_0` : baseId;
   return {
     img: service.image && service.image.length > 0 ? service.image[0] : null,
     cardHeader: service.name || 'Service',
@@ -32,7 +34,8 @@ export const transformServiceToCard = (service) => {
     taxIncluded: service.taxIncluded !== undefined ? service.taxIncluded : true,
     duration: service.duration || 'N/A',
     button: service.ctaContent || 'Add +',
-    service_id: service._id?.toString() || service.id?.toString(),
+    service_id: serviceId,
+    serviceId,
     isAvailable,
     isDynamic: true,
     originalService: service
@@ -119,8 +122,9 @@ export const transformServicesToFlexCards = (services, categoryName = '') => {
         : (service.price != null && service.price !== '' ? service.price : 'Get in touch for pricing'));
     const isAvailable = service.isAvailable !== false;
     const priceForCart = firstOption ? firstOption.price : (typeof service.price === 'number' ? service.price : 0);
-    // Use priceDisplay for UI when it's a string (e.g. "2.5k-11k"); only set numeric Price when it's a plain number
     const hasDisplayString = typeof displayPrice === 'string' && String(displayPrice).trim() !== '';
+    const baseId = service._id?.toString() || service.id?.toString() || '';
+    const serviceId = hasOptions ? `${baseId}_opt_0` : baseId;
     return {
       img: service.image && service.image.length > 0 ? service.image[0] : null,
       cardHeader: service.name || 'Service',
@@ -134,7 +138,8 @@ export const transformServicesToFlexCards = (services, categoryName = '') => {
       Price: hasDisplayString ? null : (typeof displayPrice === 'number' ? displayPrice : (firstOption?.price ?? service.price ?? null)),
       includingTax: service.taxIncluded !== undefined ? service.taxIncluded : true,
       button: service.ctaContent || 'Enquire Now',
-      service_id: service._id?.toString() || service.id?.toString(),
+      service_id: serviceId,
+      serviceId,
       enableAddButton: isAddService && isAvailable,
       isAvailable,
       isDynamic: true,

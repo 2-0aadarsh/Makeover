@@ -28,15 +28,12 @@ const normalizeServiceId = (item) => {
 
 /**
  * Convert a frontend cart item into the shape expected by the backend.
- * Accepts both Redux cart items and raw service data objects.
+ * Uses the same id already on the item (set from backend at transform time).
  */
 const transformCartItem = (item, overrideQuantity) => {
   const price = parseFloat(item?.price ?? 0);
   const quantity = overrideQuantity ?? item?.quantity ?? 1;
-  const baseId = normalizeServiceId(item);
-  const serviceId = (item?.optionIndex !== undefined && item?.optionIndex !== null)
-    ? `${baseId}_opt_${item.optionIndex}`
-    : baseId;
+  const serviceId = normalizeServiceId(item);
 
   return {
     serviceId,

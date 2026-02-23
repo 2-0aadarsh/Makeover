@@ -6,13 +6,14 @@ import ServiceCartButton from "./ServiceCartButton";
 const FlexCard = ({ item, source = "other", onEnquiryClick = null }) => {
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
 
-  // Prepare service data for enquiry modal and cart (include option for services with variants)
+  // Prepare service data for enquiry modal and cart (use backend-derived id only)
+  const cartItemId = item.serviceId ?? item.service_id ?? null;
   const serviceData = {
     serviceName: item.cardHeader || "Service",
     serviceCategory: item.serviceCategory || "Beauty Service",
     priceRange: item.PriceEstimate || item.Price || null,
-    serviceId: item.service_id || null,
-    service_id: item.service_id || null,
+    serviceId: cartItemId,
+    service_id: cartItemId,
     cardHeader: item.cardHeader,
     description: item.description,
     price: item.price ?? item.Price ?? 0,
