@@ -8,10 +8,11 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   MessageCircle,
 } from "lucide-react";
+import DatePickerCalendar from "../common/calendar/Calendar";
 
 /**
  * EnquiryModal Component
@@ -38,7 +39,10 @@ const getIsDesktop = () =>
 const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
   const modalRef = useRef(null);
   const firstInputRef = useRef(null);
+  const dateFieldTriggerRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(getIsDesktop());
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarPosition, setCalendarPosition] = useState({ top: 0, left: 0, placement: "bottom" });
 
   const {
     formData,
@@ -49,8 +53,16 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
     handleInputChange,
     submitEnquiry,
     resetMessages,
+    prefillUserDetails,
     isLoggedIn,
   } = useEnquiry();
+
+  // When modal opens and user is logged in, pre-fill name, email, phone (still editable)
+  useEffect(() => {
+    if (isOpen && isLoggedIn && prefillUserDetails) {
+      prefillUserDetails();
+    }
+  }, [isOpen, isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps -- prefill only when modal opens / login state changes
 
   // Responsive breakpoint: mobile/tablet get slide-up, desktop gets scale/fade
   useEffect(() => {
@@ -59,6 +71,23 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
     window.addEventListener("resize", checkDesktop);
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
+
+  // Position calendar popover next to the Preferred Callback Date field
+  const CALENDAR_POPOVER_HEIGHT = 420;
+  const CALENDAR_POPOVER_WIDTH = 320;
+  useEffect(() => {
+    if (!calendarOpen || !dateFieldTriggerRef.current) return;
+    const rect = dateFieldTriggerRef.current.getBoundingClientRect();
+    const gap = 8;
+    const spaceBelow = window.innerHeight - rect.bottom - gap;
+    const spaceAbove = rect.top - gap;
+    const placeAbove = spaceBelow < CALENDAR_POPOVER_HEIGHT && spaceAbove >= CALENDAR_POPOVER_HEIGHT;
+    const top = placeAbove ? rect.top - CALENDAR_POPOVER_HEIGHT - gap : rect.bottom + gap;
+    let left = rect.left;
+    if (left + CALENDAR_POPOVER_WIDTH > window.innerWidth) left = window.innerWidth - CALENDAR_POPOVER_WIDTH - gap;
+    if (left < gap) left = gap;
+    setCalendarPosition({ top, left, placement: placeAbove ? "top" : "bottom" });
+  }, [calendarOpen]);
 
   // Animation variants
   const overlayVariants = {
@@ -106,11 +135,13 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
   };
 
   useBodyScrollLock(!!isOpen);
+  // Auto-focus first input only on desktop (avoids keyboard pop on mobile/tablet)
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => firstInputRef.current?.focus(), 100);
+    if (isOpen && isDesktop) {
+      const t = setTimeout(() => firstInputRef.current?.focus(), 100);
+      return () => clearTimeout(t);
     }
-  }, [isOpen]);
+  }, [isOpen, isDesktop]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -316,7 +347,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      disabled={isSubmitting || isLoggedIn}
+                      disabled={isSubmitting}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CC2B52]/20 focus:border-[#CC2B52] outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed placeholder-gray-400"
                       placeholder="Enter your full name"
@@ -338,7 +369,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        disabled={isSubmitting || isLoggedIn}
+                        disabled={isSubmitting}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CC2B52]/20 focus:border-[#CC2B52] outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed placeholder-gray-400"
                         placeholder="your@email.com"
@@ -358,7 +389,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        disabled={isSubmitting || isLoggedIn}
+                        disabled={isSubmitting}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CC2B52]/20 focus:border-[#CC2B52] outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed placeholder-gray-400"
                         placeholder="Enter 10-digit mobile number"
@@ -381,7 +412,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                 </h4>
 
                 <div className="grid grid-cols-1 gap-3">
-                  {/* Preferred Date */}
+                  {/* Preferred Date – in-built calendar anchored to this field */}
                   <div className="relative">
                     <label
                       htmlFor="preferredDate"
@@ -389,22 +420,65 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                     >
                       Preferred Callback Date
                     </label>
-                    <div className="relative">
-                      <Calendar
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    <div ref={dateFieldTriggerRef} className="relative">
+                      <CalendarIcon
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
                         size={18}
                       />
-                      <input
-                        type="date"
+                      <button
+                        type="button"
                         id="preferredDate"
-                        name="preferredDate"
-                        value={formData.preferredDate}
-                        onChange={handleInputChange}
+                        onClick={() => !isSubmitting && setCalendarOpen(true)}
                         disabled={isSubmitting}
-                        min={new Date().toISOString().split("T")[0]}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CC2B52]/20 focus:border-[#CC2B52] outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                      />
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#CC2B52]/20 focus:border-[#CC2B52] outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-left bg-white text-gray-900"
+                      >
+                        {formData.preferredDate
+                          ? new Date(formData.preferredDate + "T12:00:00").toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "Select date"}
+                      </button>
                     </div>
+                    {calendarOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-[100]"
+                          aria-hidden
+                          onClick={() => setCalendarOpen(false)}
+                        />
+                        <div
+                          className="fixed z-[101] w-full max-w-[min(100vw-2rem,20rem)] sm:max-w-none"
+                          style={{
+                            top: calendarPosition.top,
+                            left: calendarPosition.left,
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <DatePickerCalendar
+                            isOpen={calendarOpen}
+                            onClose={() => setCalendarOpen(false)}
+                            selectedDate={
+                              formData.preferredDate
+                                ? new Date(formData.preferredDate + "T12:00:00")
+                                : null
+                            }
+                            onDateSelect={(date) => {
+                              const y = date.getFullYear();
+                              const m = String(date.getMonth() + 1).padStart(2, "0");
+                              const d = String(date.getDate()).padStart(2, "0");
+                              const yyyyMmDd = `${y}-${m}-${d}`;
+                              handleInputChange({
+                                target: { name: "preferredDate", value: yyyyMmDd },
+                              });
+                              setCalendarOpen(false);
+                            }}
+                            variant="popover"
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Preferred Time Slot */}

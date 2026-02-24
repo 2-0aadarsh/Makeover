@@ -7,14 +7,14 @@ import { useSelector } from 'react-redux';
  * @returns {Object} Enquiry state and handlers
  */
 const useEnquiry = () => {
-  // Get user from Redux store (for auto-filling user details)
-  const { user } = useSelector((state) => state.user || {});
+  // Get user from Redux auth store (for auto-filling user details). User lives at state.auth.user.
+  const { user } = useSelector((state) => state.auth || {});
 
   // Form state
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
+    phone: user?.phoneNumber != null ? String(user.phoneNumber).trim() : '',
     message: '',
     preferredDate: '',
     preferredTimeSlot: '',
@@ -42,6 +42,21 @@ const useEnquiry = () => {
     if (errorMessage) {
       setErrorMessage('');
     }
+  };
+
+  /**
+   * Pre-fill name, email, phone from logged-in user (e.g. when enquiry modal opens).
+   * Fields remain editable; user can clear or change them.
+   */
+  const prefillUserDetails = () => {
+    if (!user) return;
+    const phone = user.phoneNumber != null ? String(user.phoneNumber).trim() : '';
+    setFormData((prev) => ({
+      ...prev,
+      ...(user.name != null && user.name !== '' && { name: user.name }),
+      ...(user.email != null && user.email !== '' && { email: user.email }),
+      ...(phone !== '' && { phone }),
+    }));
   };
 
   /**
@@ -275,11 +290,11 @@ const useEnquiry = () => {
     resetMessages,
     resetForm,
     checkEnquiryStatus,
-    
+    prefillUserDetails,
+
     // Utility
     isLoggedIn: !!user,
   };
 };
 
 export default useEnquiry;
-

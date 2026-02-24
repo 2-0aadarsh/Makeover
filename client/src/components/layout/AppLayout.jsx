@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import Header from "./Header";
 import { Outlet, ScrollRestoration } from "react-router-dom";
 import ReviewToast from "../notifications/ReviewToast";
+import Loader from "../common/Loader/loader.jsx";
 
 /**
  * AppLayout - Layout for user-facing pages
@@ -33,13 +34,12 @@ const AppLayout = () => {
   // Show loading state while checking, or if confirmed admin
   if (status === "loading" || (status !== "loading" && isAuthenticated && user?.role === "admin")) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CC2B52] mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {status === "loading" ? "Loading..." : "Redirecting to admin dashboard..."}
-          </p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader
+          size="large"
+          useCustomGif
+          text={status === "loading" ? "Loading..." : "Redirecting to admin dashboard..."}
+        />
       </div>
     );
   }

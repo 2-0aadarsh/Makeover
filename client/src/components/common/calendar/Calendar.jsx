@@ -21,8 +21,9 @@ const Calendar = ({
   onDateSelect,
   availableDates = [], // Array of available dates in 'YYYY-MM-DD' format
   unavailableDates = [], // Array of unavailable dates in 'YYYY-MM-DD' format
+  variant = "modal", // "modal" = centered overlay; "popover" = inline card for anchoring by parent
 }) => {
-  useBodyScrollLock(!!isOpen);
+  useBodyScrollLock(variant === "modal" && !!isOpen);
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -54,9 +55,12 @@ const Calendar = ({
   // Day names
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Format date to YYYY-MM-DD string
+  // Format date to YYYY-MM-DD string in local timezone (avoids UTC off-by-one)
   const formatDateString = (date) => {
-    return date.toISOString().split("T")[0];
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
   };
 
   // Check if a date is available (not in unavailableDates and in availableDates if provided)
@@ -171,15 +175,10 @@ const Calendar = ({
 
   const calendarDays = generateCalendarDays();
 
-  return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden overscroll-contain ${
-        !isOpen ? "hidden" : ""
-      }`}
-    >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto">
+  const calendarCard = (
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md">
         {/* Current Date Section */}
-        <div className="relative p-6 bg-gradient-to-r from-[#CC2B52] to-[#E91E63] text-white">
+        <div className="relative p-4 sm:p-6 bg-gradient-to-r from-[#CC2B52] to-[#E91E63] text-white">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
@@ -200,9 +199,9 @@ const Calendar = ({
         </div>
 
         {/* Calendar Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Month Navigation */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <button
               onClick={handlePrevMonth}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -225,22 +224,22 @@ const Calendar = ({
           </div>
 
           {/* Days of Week Header */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-2 max-w-[280px] sm:max-w-none mx-auto">
             {dayNames.map((day) => (
               <div
                 key={day}
-                className="text-center text-sm font-medium text-gray-500 py-2"
+                className="text-center text-xs sm:text-sm font-medium text-gray-500 py-1.5 sm:py-2"
               >
                 {day}
               </div>
             ))}
           </div>
 
-          {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
+          {/* Calendar Grid – fixed max width so it doesn't stretch full modal */}
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 max-w-[280px] sm:max-w-none mx-auto">
             {calendarDays.map((dayObj, index) => {
               if (!dayObj) {
-                return <div key={index} className="h-10" />;
+                return <div key={index} className="h-8 sm:h-10" />;
               }
 
               return (
@@ -249,7 +248,7 @@ const Calendar = ({
                   onClick={() => handleDateClick(dayObj)}
                   disabled={!dayObj.isSelectable}
                   className={`
-                    h-10 w-10 rounded-full text-sm font-medium transition-all duration-200
+                    h-8 w-8 sm:h-10 sm:w-10 rounded-full text-sm font-medium transition-all duration-200
                     ${
                       dayObj.isSelected
                         ? "bg-[#CC2B52] text-white"
@@ -268,6 +267,20 @@ const Calendar = ({
           </div>
         </div>
       </div>
+  );
+
+  if (variant === "popover") {
+    if (!isOpen) return null;
+    return calendarCard;
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center overflow-hidden overscroll-contain px-4 py-4 sm:p-6 ${
+        !isOpen ? "hidden" : ""
+      }`}
+    >
+      {calendarCard}
     </div>
   );
 };
@@ -279,6 +292,7 @@ Calendar.propTypes = {
   onDateSelect: PropTypes.func.isRequired,
   availableDates: PropTypes.arrayOf(PropTypes.string),
   unavailableDates: PropTypes.arrayOf(PropTypes.string),
+  variant: PropTypes.oneOf(["modal", "popover"]),
 };
 
 export default Calendar;
