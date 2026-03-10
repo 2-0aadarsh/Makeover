@@ -73,16 +73,35 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
   }, []);
 
   // Position calendar popover next to the Preferred Callback Date field
-  const CALENDAR_POPOVER_HEIGHT = 420;
-  const CALENDAR_POPOVER_WIDTH = 320;
+  const CALENDAR_POPOVER_HEIGHT = 340; // approximate card height for positioning (clamped below)
+  const CALENDAR_POPOVER_WIDTH = 288; // should stay in sync with Calendar max-w on mobile
   useEffect(() => {
     if (!calendarOpen || !dateFieldTriggerRef.current) return;
     const rect = dateFieldTriggerRef.current.getBoundingClientRect();
     const gap = 8;
     const spaceBelow = window.innerHeight - rect.bottom - gap;
     const spaceAbove = rect.top - gap;
-    const placeAbove = spaceBelow < CALENDAR_POPOVER_HEIGHT && spaceAbove >= CALENDAR_POPOVER_HEIGHT;
-    const top = placeAbove ? rect.top - CALENDAR_POPOVER_HEIGHT - gap : rect.bottom + gap;
+    // Prefer placing below when possible, otherwise above; if neither side has
+    // enough space for the full height, choose the side with more space and clamp.
+    let placeAbove = false;
+    if (spaceBelow >= CALENDAR_POPOVER_HEIGHT) {
+      placeAbove = false;
+    } else if (spaceAbove >= CALENDAR_POPOVER_HEIGHT) {
+      placeAbove = true;
+    } else {
+      placeAbove = spaceAbove > spaceBelow;
+    }
+
+    let top;
+    if (placeAbove) {
+      top = rect.top - CALENDAR_POPOVER_HEIGHT - gap;
+      if (top < gap) top = gap;
+    } else {
+      top = rect.bottom + gap;
+      const maxTop = window.innerHeight - CALENDAR_POPOVER_HEIGHT - gap;
+      if (top > maxTop) top = Math.max(gap, maxTop);
+    }
+
     let left = rect.left;
     if (left + CALENDAR_POPOVER_WIDTH > window.innerWidth) left = window.innerWidth - CALENDAR_POPOVER_WIDTH - gap;
     if (left < gap) left = gap;
@@ -449,7 +468,7 @@ const EnquiryModal = ({ isOpen, onClose, serviceData, source }) => {
                           onClick={() => setCalendarOpen(false)}
                         />
                         <div
-                          className="fixed z-[101] w-full max-w-[min(100vw-2rem,20rem)] sm:max-w-none"
+                          className="fixed z-[101] max-h-[80vh] overflow-y-auto"
                           style={{
                             top: calendarPosition.top,
                             left: calendarPosition.left,

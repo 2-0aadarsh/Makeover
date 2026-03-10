@@ -176,9 +176,9 @@ const Calendar = ({
   const calendarDays = generateCalendarDays();
 
   const calendarCard = (
-    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-xs sm:max-w-sm md:max-w-md">
         {/* Current Date Section */}
-        <div className="relative p-4 sm:p-6 bg-gradient-to-r from-[#CC2B52] to-[#E91E63] text-white">
+        <div className="relative p-3 sm:p-4 md:p-6 bg-gradient-to-r from-[#CC2B52] to-[#E91E63] text-white">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
@@ -187,8 +187,10 @@ const Calendar = ({
             <X className="w-6 h-6" />
           </button>
           <div className="text-center">
-            <div className="text-sm opacity-90 mb-1">{today.getFullYear()}</div>
-            <div className="text-2xl font-bold">
+            <div className="text-xs sm:text-sm opacity-90 mb-0.5 sm:mb-1">
+              {today.getFullYear()}
+            </div>
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">
               {today.toLocaleDateString("en-IN", {
                 weekday: "short",
                 month: "short",
@@ -199,9 +201,9 @@ const Calendar = ({
         </div>
 
         {/* Calendar Content */}
-        <div className="p-4 sm:p-6">
+        <div className="p-3 sm:p-4 md:p-6">
           {/* Month Navigation */}
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-4 md:mb-6">
             <button
               onClick={handlePrevMonth}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -210,7 +212,7 @@ const Calendar = ({
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
 
-            <h3 className="text-lg font-semibold text-gray-800">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800">
               {monthNames[currentMonth]} {currentYear}
             </h3>
 
